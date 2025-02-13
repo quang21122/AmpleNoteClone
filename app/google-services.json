@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "569360685756",
+    "project_id": "amplenote-clone",
+    "storage_bucket": "amplenote-clone.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:569360685756:android:093e168b076a51bd424eb9",
+        "android_client_info": {
+          "package_name": "com.example.amplenoteclone"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAkIY_8aPwRp2w9YMwRGOp5-GLMzGnwItE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
