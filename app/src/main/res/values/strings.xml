@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Ample Note Clone</string>
+    <string name="write_it_down_get_it_done">Write it down. Get it done.</string>
+    <string name="enter_your_email_address">  Enter your email address</string>
 </resources>
