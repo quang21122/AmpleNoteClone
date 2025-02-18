@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Ample Note Clone</string>
+    <string name="write_it_down_get_it_done">Write it down. Get it done.</string>
+    <string name="enter_your_email_address">  Enter your email address</string>
+    <string name="sign_in">Sign in</string>
+    <string name="enter_your_password">Enter your password</string>
+    <string name="web_key">AIzaSyAkIY_8aPwRp2w9YMwRGOp5-GLMzGnwItE</string>
 </resources>
