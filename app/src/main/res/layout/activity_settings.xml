@@ -9,6 +9,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="start"
         android:orientation="vertical">
 
         <!-- Header -->
@@ -85,7 +86,7 @@
             android:text="Choose a Plan"
             android:textSize="14sp"
             android:textColor="#FFFFFF"
-            android:background="@color/lightBlue"
+            android:backgroundTint="@color/lightBlue"
             android:paddingVertical="12dp"
             android:layout_marginHorizontal="20dp"
             android:layout_marginTop="16dp"
@@ -93,6 +94,7 @@
             android:gravity="center"/>
 
         <LinearLayout
+            android:id="@+id/invite_friends_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -122,57 +124,59 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Notifications"
-            android:textSize="16sp"
-            android:textColor="#757575"
+            android:layout_marginTop="16dp"
             android:background="@color/colorSectionBackground"
             android:padding="14dp"
-            android:layout_marginTop="16dp" />
+            android:text="Notifications"
+            android:textColor="#757575"
+            android:textSize="16sp" />
+
 
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@android:color/white"
-            android:padding="12dp">
-
-            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:orientation="vertical"
+                android:background="@android:color/white"
+                android:padding="12dp">
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_notifications"
-                    android:layout_marginEnd="8dp"
-                    app:tint="#616161" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_notifications"
+                        android:layout_marginEnd="8dp"
+                        app:tint="#616161" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Task Reminders"
+                        android:layout_marginLeft="20dp"
+                        android:textSize="16sp"
+                        android:textColor="#212121"/>
+
+                    <Switch
+                        android:id="@+id/switch_notifications"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
 
                 <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Task Reminders"
-                    android:textSize="16sp"
-                    android:textColor="#212121"/>
-
-                <Switch
-                    android:id="@+id/switch_notifications"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:text="Get notifications when tasks are due"
+                    android:textSize="14sp"
+                    android:textColor="#757575"
+                    android:layout_marginLeft="52dp"
+                    android:layout_marginTop="4dp"/>
             </LinearLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Get notifications when tasks are due"
-                android:textSize="14sp"
-                android:textColor="#757575"
-                android:layout_marginLeft="32dp"
-                android:layout_marginTop="4dp"/>
-        </LinearLayout>
 
         <!-- Appearance Section -->
         <TextView
@@ -352,6 +356,247 @@
                     app:tint="#616161"/>
             </LinearLayout>
         </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="APP INFO"
+            android:textSize="16sp"
+            android:textColor="#757575"
+            android:background="@color/colorSectionBackground"
+            android:padding="14dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_info"
+                android:layout_marginEnd="8dp"
+                app:tint="#616161" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Version 3.124 (739)"
+                android:layout_marginLeft="20dp"
+                android:textSize="16sp"
+                android:textColor="#212121"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="DEVELOPER REPORTS"
+            android:textSize="16sp"
+            android:textColor="#757575"
+            android:background="@color/colorSectionBackground"
+            android:padding="14dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:paddingVertical="12dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/btn_border">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_debug"
+                android:layout_marginEnd="8dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Send dubugging report"
+                android:textSize="14sp"
+                android:textColor="#2196F3"
+                android:fontFamily="sans-serif-medium"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp">
+
+            <!-- Icon và Text -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_merger"
+                        android:layout_marginEnd="8dp"
+                        app:tint="#616161" />
+
+                    <TextView
+                        android:id="@+id/tv_merger_first_line"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Share merge reports"
+                        android:layout_marginLeft="20dp"
+                        android:textSize="16sp"
+                        android:textColor="#212121"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_merger_second_line"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Send a report to developers when a merge occurs in a non-Vault note"
+                    android:textSize="14sp"
+                    android:textColor="#757575"
+                    android:maxWidth="300dp"
+                    android:layout_marginLeft="52dp"
+                    android:layout_marginTop="4dp"/>
+            </LinearLayout>
+
+            <!-- Switch -->
+            <Switch
+                android:id="@+id/switch_merge_reports"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp">
+
+            <!-- Icon và Text -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_stats"
+                        android:layout_marginEnd="8dp"
+                        app:tint="#616161" />
+
+                    <TextView
+                        android:id="@+id/tv_stats_first_line"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Share usage statistics"
+                        android:layout_marginLeft="20dp"
+                        android:textSize="16sp"
+                        android:textColor="#212121"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_stats_second_line"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Send anonymous usage statistics to developers"
+                    android:textSize="14sp"
+                    android:textColor="#757575"
+                    android:maxWidth="300dp"
+                    android:layout_marginLeft="52dp"
+                    android:layout_marginTop="4dp"/>
+            </LinearLayout>
+
+            <!-- Switch -->
+            <Switch
+                android:id="@+id/switch_stats"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:layout_gravity="center"/>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:padding="12dp">
+
+            <TextView
+                android:id="@+id/first_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Quick bar TODO added"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="52dp"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#212121"/>
+
+            <TextView
+                android:id="@+id/second_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1 item"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:textSize="16sp"
+                android:textColor="#212121"/>
+
+        </RelativeLayout>
+
+        <!-- Danger Zone Section -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="DANGER ZONE"
+            android:textSize="16sp"
+            android:textColor="#9c0e02"
+            android:background="#f7d1cd"
+            android:padding="14dp"/>
+
+
+        <Button
+            android:id="@+id/btn_delete_account"
+            android:layout_width="wrap_content"
+            android:layout_height="52dp"
+            android:text="Delete account"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#f74d3b"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:layout_marginLeft="14dp"
+            android:layout_marginVertical="16dp"
+            android:layout_gravity="start"
+            android:textAllCaps="false"
+            android:fontFamily="sans-serif-medium"/>
 
 
     </LinearLayout>

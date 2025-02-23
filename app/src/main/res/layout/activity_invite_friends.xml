@@ -1,0 +1,153 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="start"
+    android:orientation="vertical">
+
+    <!-- Header -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="16dp"
+        android:background="#37474F"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <ImageView
+            android:id="@+id/back_icon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_back"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            app:tint="#FFFFFF" />
+
+        <!-- Settings Title -->
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Invite friends"
+            android:textSize="20sp"
+            android:textColor="#FFFFFF"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/back_icon"
+            android:layout_marginStart="16dp"/>
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Invite friends to Amplenote."
+        android:textSize="20sp"
+        android:textColor="#333"
+        android:layout_marginTop="24dp"
+        android:paddingHorizontal="24dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Share to-do lists and edit notes together in real time."
+        android:textSize="14sp"
+        android:textColor="#333"
+        android:paddingVertical="8dp"
+        android:paddingHorizontal="24dp"/>
+
+<!--    Send email address input field-->
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:id="@+id/textInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="24dp"
+        android:hint="Email Address"
+        app:boxStrokeColor="@color/lightBlue"
+        app:hintTextColor="@color/lightBlue">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/textInputEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#333"
+            android:textCursorDrawable="@null"
+            android:textColorHighlight="#333"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
+        android:id="@+id/emailContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp"/>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="24dp">
+
+        <!-- Add Another Email Button -->
+        <TextView
+            android:id="@+id/add_another_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add another email"
+            android:textColor="@color/lightBlue"
+            android:textSize="16sp"
+            android:drawableStart="@drawable/ic_add"
+            android:drawablePadding="2dp"
+            android:padding="4dp"/>
+
+        <!-- Spacer -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="20dp"
+            android:layout_weight="1"/>
+
+        <!-- Send Invitation Button -->
+        <Button
+            android:id="@+id/send_invitation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send Invitation"
+            android:textAllCaps="false"
+            android:backgroundTint="#888"
+            android:textColor="@color/white"
+            android:paddingVertical="10dp"
+            android:paddingHorizontal="20dp"/>
+    </LinearLayout>
+
+    <!-- New TextViews for displaying the invitation message -->
+    <TextView
+        android:id="@+id/invitation_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="16sp"
+        android:textColor="#333"
+        android:paddingHorizontal="24dp"
+        android:visibility="gone"/>
+
+    <!-- Container for invited emails -->
+    <LinearLayout
+        android:id="@+id/invited_emails_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:layout_marginTop="14dp"
+        android:layout_marginBottom="6dp"
+        android:layout_marginHorizontal="24dp"
+        android:background="#e8e8e8"
+        android:visibility="gone">
+    </LinearLayout>
+
+</LinearLayout>

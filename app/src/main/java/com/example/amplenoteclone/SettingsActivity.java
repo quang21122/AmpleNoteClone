@@ -1,6 +1,8 @@
 package com.example.amplenoteclone;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -15,6 +17,19 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+
+        // Tìm LinearLayout theo ID
+        LinearLayout btnInviteFriends = findViewById(R.id.invite_friends_layout);
+
+        // Bắt sự kiện click
+        btnInviteFriends.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Mở InviteFriendsActivity
+                Intent intent = new Intent(SettingsActivity.this, InviteFriendsActivity.class);
+                startActivity(intent);
+            }
+        });
 
         TextView tvSelectedDay = findViewById(R.id.tv_selected_day);
         TextView tvSelectedNoteWidth = findViewById(R.id.tv_selected_note_width);
