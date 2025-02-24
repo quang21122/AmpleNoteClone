@@ -1,13 +1,17 @@
 package com.example.amplenoteclone.settings;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.example.amplenoteclone.settings.ChoosePlanActivity;
 import com.example.amplenoteclone.R;
@@ -25,6 +29,14 @@ public class SettingsActivity extends AppCompatActivity {
         LinearLayout btnInviteFriends = findViewById(R.id.invite_friends_layout);
         Button btnChoosePlan = findViewById(R.id.btn_choose_plan);
 
+        Button btnDeleteAccount = findViewById(R.id.btn_delete_account);
+        TextView tvConfirmationMessage1 = findViewById(R.id.tv_confirmation_message_1);
+        TextView tvConfirmationMessage2 = findViewById(R.id.tv_confirmation_message_2);
+        Button btnSendConfirmationCode = findViewById(R.id.btn_send_confirmation_code);
+        Button btnCancel = findViewById(R.id.btn_cancel);
+        EditText etConfirmationCode = findViewById(R.id.et_confirmation_code);
+        Button btnConfirmAccountDeletion = findViewById(R.id.btn_confirm_account_deletion);
+
         // Bắt sự kiện click
         btnInviteFriends.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -41,6 +53,58 @@ public class SettingsActivity extends AppCompatActivity {
                 // Open ChoosePlanActivity
                 Intent intent = new Intent(SettingsActivity.this, ChoosePlanActivity.class);
                 startActivity(intent);
+            }
+        });
+
+        btnDeleteAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Change background color to gray
+                v.setBackgroundColor(Color.GRAY);
+
+                // Show the confirmation messages and buttons
+                tvConfirmationMessage1.setVisibility(View.VISIBLE);
+                tvConfirmationMessage2.setVisibility(View.VISIBLE);
+                btnSendConfirmationCode.setVisibility(View.VISIBLE);
+                btnCancel.setVisibility(View.VISIBLE);
+            }
+        });
+
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Reset background color of delete button
+                btnDeleteAccount.setBackgroundColor(ContextCompat.getColor(SettingsActivity.this, R.color.gray));
+
+                // Hide the confirmation messages and buttons
+                tvConfirmationMessage1.setVisibility(View.GONE);
+                tvConfirmationMessage2.setVisibility(View.GONE);
+                btnSendConfirmationCode.setVisibility(View.GONE);
+                btnCancel.setVisibility(View.GONE);
+                etConfirmationCode.setVisibility(View.GONE);
+                btnConfirmAccountDeletion.setVisibility(View.GONE);
+            }
+        });
+
+        btnSendConfirmationCode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Hide the send confirmation code button
+                btnSendConfirmationCode.setVisibility(View.GONE);
+
+                // Show the edit text for entering the confirmation code
+                etConfirmationCode.setVisibility(View.VISIBLE);
+
+                // Show the confirm account deletion button
+                btnConfirmAccountDeletion.setVisibility(View.VISIBLE);
+            }
+        });
+
+        btnConfirmAccountDeletion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Show a toast message
+                Toast.makeText(SettingsActivity.this, "Account deleted", Toast.LENGTH_SHORT).show();
             }
         });
 
