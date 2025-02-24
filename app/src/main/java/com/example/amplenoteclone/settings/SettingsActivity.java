@@ -1,12 +1,16 @@
-package com.example.amplenoteclone;
+package com.example.amplenoteclone.settings;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.amplenoteclone.settings.ChoosePlanActivity;
+import com.example.amplenoteclone.R;
 
 public class SettingsActivity extends AppCompatActivity {
     private final String[] daysOfWeek = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
@@ -18,8 +22,8 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        // Tìm LinearLayout theo ID
         LinearLayout btnInviteFriends = findViewById(R.id.invite_friends_layout);
+        Button btnChoosePlan = findViewById(R.id.btn_choose_plan);
 
         // Bắt sự kiện click
         btnInviteFriends.setOnClickListener(new View.OnClickListener() {
@@ -27,6 +31,15 @@ public class SettingsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Mở InviteFriendsActivity
                 Intent intent = new Intent(SettingsActivity.this, InviteFriendsActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        btnChoosePlan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Open ChoosePlanActivity
+                Intent intent = new Intent(SettingsActivity.this, ChoosePlanActivity.class);
                 startActivity(intent);
             }
         });

@@ -1,4 +1,4 @@
-package com.example.amplenoteclone;
+package com.example.amplenoteclone.settings;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.amplenoteclone.R;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 public class SettingPicker {

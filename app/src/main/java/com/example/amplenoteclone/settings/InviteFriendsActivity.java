@@ -1,4 +1,4 @@
-package com.example.amplenoteclone;
+package com.example.amplenoteclone.settings;
 
 import android.os.Bundle;
 import android.util.Patterns;
@@ -11,6 +11,8 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+
+import com.example.amplenoteclone.R;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -36,8 +38,8 @@ public class InviteFriendsActivity extends AppCompatActivity {
         addAnotherEmail.setOnClickListener(v -> addEmailField());
         sendInvitation.setOnClickListener(v -> verifyAndSendEmail());
 
-        ImageView menuIcon = findViewById(R.id.back_icon);
-        menuIcon.setOnClickListener(v -> finish());
+        ImageView backIcon = findViewById(R.id.back_icon);
+        backIcon.setOnClickListener(v -> finish());
     }
 
     private void addEmailField() {
