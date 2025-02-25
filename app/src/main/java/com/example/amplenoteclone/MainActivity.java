@@ -59,9 +59,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void signOut() {
-        // Sign out from Firebase
         mAuth.signOut();
-        // Sign out from Google
         mGoogleSignInClient.signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
