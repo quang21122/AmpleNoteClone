@@ -167,23 +167,32 @@ public class SignUp extends AppCompatActivity {
 
             userID = user.getUid();
             DocumentReference documentReference = db.collection("users").document(userID);
-            // Create user data map
+
             Map<String, Object> userData = new HashMap<>();
             userData.put("email", user.getEmail());
             userData.put("createdAt", System.currentTimeMillis());
+            userData.put("name", "");
+            userData.put("hasCustomAvatar", false);
+            userData.put("avatarBase64", "");
 
-            // Add user data to Firestore
-            documentReference.set(userData).addOnSuccessListener(aVoid -> {
-                Toast.makeText(SignUp.this, "User created successfully", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(SignUp.this, AddProfile.class);
-                startActivity(intent);
-                finish();
-            }).addOnFailureListener(e -> {
-                Toast.makeText(SignUp.this, "Failed to create user", Toast.LENGTH_SHORT).show();
-                progressBar.setVisibility(View.GONE);
-            });
+            documentReference.set(userData)
+                    .addOnSuccessListener(aVoid -> {
+                        progressBar.setVisibility(View.GONE);
+                        Toast.makeText(SignUp.this, "User created successfully", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(SignUp.this, AddProfile.class);
+                        startActivity(intent);
+                        finish();
+                    })
+                    .addOnFailureListener(e -> {
+                        progressBar.setVisibility(View.GONE);
+                        Toast.makeText(SignUp.this, "Database Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        e.printStackTrace();
+                        // Log out user if database creation fails
+                        mAuth.signOut();
+                    });
         } else {
             progressBar.setVisibility(View.GONE);
+            Toast.makeText(SignUp.this, "Authentication failed", Toast.LENGTH_SHORT).show();
         }
     }
 }
