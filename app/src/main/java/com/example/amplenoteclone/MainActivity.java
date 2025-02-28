@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private CircleImageView profileImage;
     private TextView defaultAvatarText;
     private Button signOutButton;
+    private Button settingsButton;
     private FirebaseFirestore db;
     private FirebaseUser user;
     private GoogleSignInClient mGoogleSignInClient;
@@ -60,13 +61,6 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
 
-        signOutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                signOut();
-            }
-        });
-
         initializeViews();
         loadUserProfile();
     }
@@ -78,8 +72,13 @@ public class MainActivity extends AppCompatActivity {
         profileImage = findViewById(R.id.profile_image);
         defaultAvatarText = findViewById(R.id.default_avatar_text);
         signOutButton = findViewById(R.id.sign_out_button);
+        settingsButton = findViewById(R.id.settings_button);
 
         signOutButton.setOnClickListener(v -> signOut());
+        settingsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void loadUserProfile() {
