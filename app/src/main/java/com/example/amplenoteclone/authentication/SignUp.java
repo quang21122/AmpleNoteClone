@@ -152,11 +152,24 @@ public class SignUp extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
+                    progressBar.setVisibility(View.GONE);
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
                         updateUI(user);
                     } else {
-                        Toast.makeText(SignUp.this, "Failed to login! Please check your credentials", Toast.LENGTH_LONG).show();
+                        if (task.getException() != null &&
+                                task.getException().getMessage() != null &&
+                                task.getException().getMessage().contains("email address is already in use")) {
+                            Toast.makeText(SignUp.this,
+                                    "Email already exists. Please use a different email or login.",
+                                    Toast.LENGTH_LONG).show();
+                            emailEditText.setError("Email already exists");
+                            emailEditText.requestFocus();
+                        } else {
+                            Toast.makeText(SignUp.this,
+                                    "Sign up failed: " + task.getException().getMessage(),
+                                    Toast.LENGTH_LONG).show();
+                        }
                     }
                 });
     }
@@ -170,7 +183,7 @@ public class SignUp extends AppCompatActivity {
 
             Map<String, Object> userData = new HashMap<>();
             userData.put("email", user.getEmail());
-            userData.put("createdAt", System.currentTimeMillis());
+            userData.put("createdAt", com.google.firebase.Timestamp.now());
             userData.put("name", "");
             userData.put("hasCustomAvatar", false);
             userData.put("avatarBase64", "");
