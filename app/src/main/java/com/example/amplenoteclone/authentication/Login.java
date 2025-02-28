@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
@@ -39,6 +40,7 @@ public class Login extends AppCompatActivity {
     private ImageView logoImageView;
     private EditText emailEditText;
     private EditText passwordEditText;
+    private TextView signUpTextView;
     private Button loginButton;
     private ProgressBar progressBar;
 
@@ -70,6 +72,7 @@ public class Login extends AppCompatActivity {
         loginGoogleButton = findViewById(R.id.sign_in_with_google);
         emailEditText = findViewById(R.id.email);
         passwordEditText = findViewById(R.id.password);
+        signUpTextView = findViewById(R.id.sign_up);
         loginButton = findViewById(R.id.login_button);
         progressBar = findViewById(R.id.progress_bar);
 
@@ -93,6 +96,14 @@ public class Login extends AppCompatActivity {
         // Set appropriate button background
         loginGoogleButton.setBackgroundResource(isDarkMode ?
                 R.drawable.signin_gg_button : R.drawable.signin_gg_button_light);
+
+        signUpTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Login.this, SignUp.class);
+                startActivity(intent);
+            }
+        });
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
