@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F8F9FA"
@@ -8,6 +9,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="start"
         android:orientation="vertical">
 
         <!-- Header -->
@@ -25,9 +27,9 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_menu"
-                android:tint="#FFFFFF"
                 android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"/>
+                android:layout_centerVertical="true"
+                app:tint="#FFFFFF" />
 
             <!-- Settings Title -->
             <TextView
@@ -52,7 +54,7 @@
             android:textSize="16sp"
             android:textColor="#757575"
             android:background="@color/colorSectionBackground"
-            android:padding="20dp"/>
+            android:padding="14dp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -66,8 +68,8 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:src="@drawable/ic_user"
-                android:tint="#616161"
-                android:layout_marginEnd="8dp"/>
+                android:layout_marginEnd="8dp"
+                app:tint="#616161" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -84,42 +86,116 @@
             android:text="Choose a Plan"
             android:textSize="14sp"
             android:textColor="#FFFFFF"
-            android:background="@color/lightBlue"
+            android:backgroundTint="@color/lightBlue"
             android:paddingVertical="12dp"
             android:layout_marginHorizontal="20dp"
             android:layout_marginTop="16dp"
             android:fontFamily="sans-serif-medium"
             android:gravity="center"/>
 
-        <Button
-            android:id="@+id/btn_invite_friends"
+        <LinearLayout
+            android:id="@+id/invite_friends_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Invite friends and earn credits"
-            android:textSize="14sp"
-            android:textColor="#2196F3"
-            android:background="@drawable/btn_border"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_gravity="center"
             android:paddingVertical="12dp"
             android:layout_marginHorizontal="20dp"
             android:layout_marginTop="16dp"
-            android:fontFamily="sans-serif-medium"
-            android:gravity="center"/>
+            android:background="@drawable/btn_border">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_invite_people"
+                android:layout_marginEnd="8dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Invite friends and earn credits"
+                android:textSize="14sp"
+                android:textColor="#2196F3"
+                android:fontFamily="sans-serif-medium"/>
+        </LinearLayout>
 
         <!-- Notifications Section -->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="NOTIFICATIONS"
-            android:textSize="12sp"
+            android:layout_marginTop="16dp"
+            android:background="@color/colorSectionBackground"
+            android:padding="14dp"
+            android:text="Notifications"
             android:textColor="#757575"
-            android:paddingTop="16dp"/>
+            android:textSize="16sp" />
 
+
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@android:color/white"
+                android:padding="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_notifications"
+                        android:layout_marginEnd="8dp"
+                        app:tint="#616161" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Task Reminders"
+                        android:layout_marginLeft="20dp"
+                        android:textSize="16sp"
+                        android:textColor="#212121"/>
+
+                    <Switch
+                        android:id="@+id/switch_notifications"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Get notifications when tasks are due"
+                    android:textSize="14sp"
+                    android:textColor="#757575"
+                    android:layout_marginLeft="52dp"
+                    android:layout_marginTop="4dp"/>
+            </LinearLayout>
+
+        <!-- Appearance Section -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Appearance"
+            android:textSize="16sp"
+            android:textColor="#757575"
+            android:background="@color/colorSectionBackground"
+            android:padding="14dp"/>
+
+        <!-- First Day of Week Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:padding="16dp"
             android:background="@android:color/white"
-            android:padding="12dp">
+            android:id="@+id/day_of_week_layout">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -130,49 +206,53 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_notifications"
-                    android:tint="#616161"
-                    android:layout_marginEnd="8dp"/>
+                    android:src="@drawable/ic_calendar"
+                    android:layout_marginEnd="8dp"
+                    app:tint="#616161"/>
 
                 <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="First Day of Week"
+                    android:layout_marginLeft="20dp"
+                    android:textSize="16sp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="4dp">
+
+                <TextView
+                    android:id="@+id/tv_selected_day"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Task Reminders"
+                    android:text="Sunday"
+                    android:layout_marginLeft="52dp"
                     android:textSize="16sp"
                     android:textColor="#212121"/>
 
-                <Switch
-                    android:id="@+id/switch_notifications"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_arrow_down"
+                    android:layout_marginStart="8dp"
+                    app:tint="#616161"/>
             </LinearLayout>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Get notifications when tasks are due"
-                android:textSize="14sp"
-                android:textColor="#757575"
-                android:layout_marginLeft="32dp"
-                android:layout_marginTop="4dp"/>
         </LinearLayout>
 
-        <!-- Appearance Section -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="APPEARANCE"
-            android:textSize="12sp"
-            android:textColor="#757575"
-            android:paddingTop="16dp"/>
 
+        <!-- Default Note Width Section -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:padding="16dp"
             android:background="@android:color/white"
-            android:padding="12dp">
+            android:id="@+id/note_width_layout">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -180,93 +260,433 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
 
-<!--                <ImageView-->
-<!--                    android:layout_width="24dp"-->
-<!--                    android:layout_height="24dp"-->
-<!--                    android:src="@drawable/ic_calendar"-->
-<!--                    android:tint="#616161"-->
-<!--                    android:layout_marginEnd="8dp"/>-->
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_menu_default"
+                    android:layout_marginEnd="8dp"
+                    app:tint="#616161"/>
 
                 <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="First Day of Week"
-                    android:textSize="16sp"
-                    android:textColor="#212121"/>
-
-                <Spinner
-                    android:id="@+id/spinner_first_day"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:text="DEFAULT NOTE WIDTH"
+                    android:layout_marginLeft="20dp"
+                    android:textSize="16sp"/>
             </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#E0E0E0"
-                android:layout_marginVertical="8dp"/>
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-<!--                <ImageView-->
-<!--                    android:layout_width="24dp"-->
-<!--                    android:layout_height="24dp"-->
-<!--                    android:src="@drawable/ic_text"-->
-<!--                    android:tint="#616161"-->
-<!--                    android:layout_marginEnd="8dp"/>-->
+                android:gravity="center_vertical"
+                android:layout_marginTop="4dp">
 
                 <TextView
+                    android:id="@+id/tv_selected_note_width"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Default Note Width"
+                    android:text="Standard width"
+                    android:layout_marginLeft="52dp"
                     android:textSize="16sp"
                     android:textColor="#212121"/>
 
-                <Spinner
-                    android:id="@+id/spinner_note_width"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#E0E0E0"
-                android:layout_marginVertical="8dp"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-<!--                <ImageView-->
-<!--                    android:layout_width="24dp"-->
-<!--                    android:layout_height="24dp"-->
-<!--                    android:src="@drawable/ic_effect"-->
-<!--                    android:tint="#616161"-->
-<!--                    android:layout_marginEnd="8dp"/>-->
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Task Completion Effect"
-                    android:textSize="16sp"
-                    android:textColor="#212121"/>
-
-                <Spinner
-                    android:id="@+id/spinner_task_effect"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_arrow_down"
+                    android:layout_marginStart="8dp"
+                    app:tint="#616161"/>
             </LinearLayout>
         </LinearLayout>
+
+        <!-- Task Completion Effect Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="@android:color/white"
+            android:id="@+id/task_completion_effect_layout">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_effect"
+                    android:layout_marginEnd="8dp"
+                    app:tint="#616161"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TASK COMPLETION EFFECT"
+                    android:layout_marginLeft="20dp"
+                    android:textSize="16sp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="4dp">
+
+                <TextView
+                    android:id="@+id/tv_selected_task_completion_effect"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Dazzle"
+                    android:layout_marginLeft="52dp"
+                    android:textSize="16sp"
+                    android:textColor="#212121"/>
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_arrow_down"
+                    android:layout_marginStart="8dp"
+                    app:tint="#616161"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="APP INFO"
+            android:textSize="16sp"
+            android:textColor="#757575"
+            android:background="@color/colorSectionBackground"
+            android:padding="14dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_info"
+                android:layout_marginEnd="8dp"
+                app:tint="#616161" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Version 3.124 (739)"
+                android:layout_marginLeft="20dp"
+                android:textSize="16sp"
+                android:textColor="#212121"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="DEVELOPER REPORTS"
+            android:textSize="16sp"
+            android:textColor="#757575"
+            android:background="@color/colorSectionBackground"
+            android:padding="14dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:paddingVertical="12dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/btn_border">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_debug"
+                android:layout_marginEnd="8dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Send dubugging report"
+                android:textSize="14sp"
+                android:textColor="#2196F3"
+                android:fontFamily="sans-serif-medium"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp">
+
+            <!-- Icon và Text -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_merger"
+                        android:layout_marginEnd="8dp"
+                        app:tint="#616161" />
+
+                    <TextView
+                        android:id="@+id/tv_merger_first_line"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Share merge reports"
+                        android:layout_marginLeft="20dp"
+                        android:textSize="16sp"
+                        android:textColor="#212121"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_merger_second_line"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Send a report to developers when a merge occurs in a non-Vault note"
+                    android:textSize="14sp"
+                    android:textColor="#757575"
+                    android:maxWidth="300dp"
+                    android:layout_marginLeft="52dp"
+                    android:layout_marginTop="4dp"/>
+            </LinearLayout>
+
+            <!-- Switch -->
+            <Switch
+                android:id="@+id/switch_merge_reports"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp">
+
+            <!-- Icon và Text -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_stats"
+                        android:layout_marginEnd="8dp"
+                        app:tint="#616161" />
+
+                    <TextView
+                        android:id="@+id/tv_stats_first_line"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Share usage statistics"
+                        android:layout_marginLeft="20dp"
+                        android:textSize="16sp"
+                        android:textColor="#212121"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_stats_second_line"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Send anonymous usage statistics to developers"
+                    android:textSize="14sp"
+                    android:textColor="#757575"
+                    android:maxWidth="300dp"
+                    android:layout_marginLeft="52dp"
+                    android:layout_marginTop="4dp"/>
+            </LinearLayout>
+
+            <!-- Switch -->
+            <Switch
+                android:id="@+id/switch_stats"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:layout_gravity="center"/>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:padding="12dp">
+
+            <TextView
+                android:id="@+id/first_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Quick bar TODO added"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="52dp"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#212121"/>
+
+            <TextView
+                android:id="@+id/second_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1 item"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:textSize="16sp"
+                android:textColor="#212121"/>
+
+        </RelativeLayout>
+
+        <!-- Danger Zone Section -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="DANGER ZONE"
+            android:textSize="16sp"
+            android:textColor="#9c0e02"
+            android:background="#f7d1cd"
+            android:padding="14dp"/>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginLeft="14dp"
+            android:layout_marginVertical="16dp">
+
+            <Button
+                android:id="@+id/btn_delete_account"
+                android:layout_width="wrap_content"
+                android:layout_height="52dp"
+                android:text="Delete account"
+                android:textSize="16sp"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#f74d3b"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp"
+                android:layout_gravity="start"
+                android:textAllCaps="false"
+                android:fontFamily="sans-serif-medium"/>
+
+            <Button
+                android:id="@+id/btn_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="52dp"
+                android:text="Cancel"
+                android:textSize="16sp"
+                android:visibility="gone"
+                android:textAllCaps="false"
+                android:backgroundTint="#f23841"
+                android:layout_marginStart="8dp"
+                android:layout_gravity="start"
+                android:fontFamily="sans-serif-medium"/>
+        </LinearLayout>
+
+        <!-- TextView 1 -->
+        <TextView
+            android:id="@+id/tv_confirmation_message_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Permanently delete your Amplenote account and all data associated with it. This cannot be undone."
+            android:textSize="16sp"
+            android:visibility="gone"
+            android:layout_marginTop="6dp"
+            android:layout_marginLeft="14dp"/>
+
+        <!-- TextView 2 -->
+        <TextView
+            android:id="@+id/tv_confirmation_message_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="To start the process, press the button below to send a confirmation code to the email address associated with your account."
+            android:textSize="16sp"
+            android:visibility="gone"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="14dp"/>
+
+        <!-- Button -->
+        <Button
+            android:id="@+id/btn_send_confirmation_code"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Send confirmation code"
+            android:textSize="16sp"
+            android:visibility="gone"
+            android:textAllCaps="false"
+            android:backgroundTint="@color/lightBlue"
+            android:layout_marginTop="16dp"
+            android:layout_marginHorizontal="14dp"/>
+
+        <!-- EditText for confirmation code -->
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:id="@+id/textInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="20dp"
+            android:layout_marginHorizontal="24dp"
+            android:hint="Confirmation code"
+            app:boxStrokeColor="@color/lightBlue"
+            app:hintTextColor="@color/lightBlue">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_confirmation_code"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:textColor="#333"
+                android:textCursorDrawable="@null"
+                android:textColorHighlight="#333"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/btn_confirm_account_deletion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Confirm account deletion"
+            android:textSize="16sp"
+            android:visibility="gone"
+            android:textAllCaps="false"
+            android:backgroundTint="#f23841"
+            android:layout_marginTop="16dp"
+            android:layout_marginHorizontal="14dp"/>
+
 
     </LinearLayout>
 </ScrollView>

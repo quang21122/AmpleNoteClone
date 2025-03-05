@@ -8,5 +8,10 @@
     <color name="textGray">#808080</color>
     <color name="iconGray">#8593a2</color>
     <color name="fabBlue">#2196F3</color>
-
+    <color name="gray">#FF808080</color>
+    <color name="light_gray">#FFD3D3D3</color>
+    <color name="light_blue">#0EAEF6</color>
+    <color name="primary">#345164</color>
+    <color name="primary_variant">#1F2D39</color>
+    <color name="button_background">#ECF2F6</color>
 </resources>

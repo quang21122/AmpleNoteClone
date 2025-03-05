@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    tools:context=".authentication.Login">
+
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="300dp"
+        android:layout_height="100dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="70dp"
+        android:contentDescription="@string/app_name" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sign up for Amplenote."
+            android:textSize="16sp"
+            android:fontFamily="serif"/>
+
+        <EditText
+            android:id="@+id/email"
+            android:layout_marginTop="10dp"
+            android:hint="@string/enter_your_email_address"
+            android:background="@drawable/rounded_edit_text"
+            android:textColorHint="@color/gray"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="14dp"
+            android:drawableStart="@drawable/ic_email"
+            android:drawablePadding="16dp" />
+
+        <EditText
+            android:id="@+id/password"
+            android:layout_marginTop="10dp"
+            android:hint="@string/enter_your_password"
+            android:background="@drawable/rounded_edit_text"
+            android:textColorHint="@color/gray"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="14dp"
+            android:drawableStart="@drawable/ic_password"
+            android:inputType="textPassword"
+            android:drawablePadding="10dp" />
+
+        <Button
+            android:id="@+id/signup_button"
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/signin_button"
+            android:textColor="@color/white"
+            android:text="Create account"
+            android:textAllCaps="false"
+            android:textColorLink="#03A9F4" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <Button
+            android:id="@+id/sign_up_with_google"
+            android:drawableStart="@drawable/ic_google"
+            android:drawablePadding="10dp"
+            android:gravity="fill_vertical"
+            android:text="Sign up with Google"
+            android:padding="14dp"
+            android:textAllCaps="false"
+            android:textColor="@color/black"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:gravity="center"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal"
+            android:layout_below="@+id/sign_up_with_google"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Already have an account?"
+                android:textSize="16sp" />
+            <TextView
+                android:id="@+id/login"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Log in"
+                android:textSize="16sp"
+                android:textColor="#03A9F4"
+                android:paddingLeft="5dp"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"/>
+
+</RelativeLayout>
