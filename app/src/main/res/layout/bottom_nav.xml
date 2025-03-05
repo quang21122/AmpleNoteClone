@@ -44,7 +44,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:src="@drawable/ic_calendar"
+        android:src="@drawable/ic_calendar_nav"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:tint="@color/iconGray"
         android:contentDescription="Calendar" />
@@ -54,7 +54,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:src="@drawable/ic_add"
+        android:src="@drawable/ic_add_nav"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:tint="@color/iconGray"
         android:contentDescription="Add" />

@@ -36,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
     private Button signOutButton;
     private Button settingsButton;
     private Button calendarButton;
+    private Button notesButton;
+    private Button tasksButton;
     private FirebaseFirestore db;
     private FirebaseUser user;
     private GoogleSignInClient mGoogleSignInClient;
@@ -76,6 +78,8 @@ public class MainActivity extends AppCompatActivity {
         signOutButton = findViewById(R.id.sign_out_button);
         settingsButton = findViewById(R.id.settings_button);
         calendarButton = findViewById(R.id.calendar);
+        notesButton = findViewById(R.id.notes);
+        tasksButton = findViewById(R.id.tasks);
 
         signOutButton.setOnClickListener(v -> signOut());
         settingsButton.setOnClickListener(v -> {
@@ -85,6 +89,16 @@ public class MainActivity extends AppCompatActivity {
 
         calendarButton.setOnClickListener(v -> {
             Intent intent = new Intent(getApplicationContext(), CalendarActivity.class);
+            startActivity(intent);
+        });
+
+        notesButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getApplicationContext(), NotesActivity.class);
+            startActivity(intent);
+        });
+
+        tasksButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getApplicationContext(), TasksActivity.class);
             startActivity(intent);
         });
     }

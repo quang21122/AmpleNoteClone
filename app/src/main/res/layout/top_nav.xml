@@ -55,7 +55,7 @@
         android:id="@+id/btnSearch"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:src="@drawable/ic_search"
+        android:src="@drawable/ic_search_nav"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:tint="@android:color/white"
         android:contentDescription="Search"
