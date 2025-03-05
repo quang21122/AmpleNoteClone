@@ -65,6 +65,24 @@
             android:layout_marginTop="16dp"
             android:text="Settings" />
 
+        <Button
+            android:id="@+id/calendar"
+            android:layout_width="wrap_content"
+            android:text="Calendar"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/notes"
+            android:text="Notes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/tasks"
+            android:text="Tasks"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
     </LinearLayout>
 
 </RelativeLayout>

@@ -14,4 +14,9 @@
     <string name="sign_in">Sign in</string>
     <string name="enter_your_password">Enter your password</string>
     <string name="web_key">AIzaSyAkIY_8aPwRp2w9YMwRGOp5-GLMzGnwItE</string>
+    <string name="work">WORK</string>
+    <string name="personal">PERSONAL</string>
+    <string name="calendar">Calendar</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

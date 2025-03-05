@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.amplenoteclone.calendar.CalendarActivity;
 import com.example.amplenoteclone.settings.SettingsActivity;
 import com.example.amplenoteclone.authentication.Login;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -34,6 +35,9 @@ public class MainActivity extends AppCompatActivity {
     private TextView defaultAvatarText;
     private Button signOutButton;
     private Button settingsButton;
+    private Button calendarButton;
+    private Button notesButton;
+    private Button tasksButton;
     private FirebaseFirestore db;
     private FirebaseUser user;
     private GoogleSignInClient mGoogleSignInClient;
@@ -73,10 +77,28 @@ public class MainActivity extends AppCompatActivity {
         defaultAvatarText = findViewById(R.id.default_avatar_text);
         signOutButton = findViewById(R.id.sign_out_button);
         settingsButton = findViewById(R.id.settings_button);
+        calendarButton = findViewById(R.id.calendar);
+        notesButton = findViewById(R.id.notes);
+        tasksButton = findViewById(R.id.tasks);
 
         signOutButton.setOnClickListener(v -> signOut());
         settingsButton.setOnClickListener(v -> {
             Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+            startActivity(intent);
+        });
+
+        calendarButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getApplicationContext(), CalendarActivity.class);
+            startActivity(intent);
+        });
+
+        notesButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getApplicationContext(), NotesActivity.class);
+            startActivity(intent);
+        });
+
+        tasksButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getApplicationContext(), TasksActivity.class);
             startActivity(intent);
         });
     }

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/nav_bar_height"
+    android:padding="@dimen/nav_bar_padding"
+    android:background="@color/darkBackground">
+
+    <!-- Menu Button -->
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/btnMenu"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_menu"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:tint="@android:color/white"
+        android:contentDescription="Open menu"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1" />
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:text="Notes"
+        android:textColor="@android:color/white"
+        android:textSize="20sp"
+        android:gravity="center_vertical"
+        android:paddingStart="12dp"
+        app:layout_constraintStart_toEndOf="@id/btnMenu"
+        app:layout_constraintEnd_toStartOf="@id/btnRecentlyViewed"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <!-- Recently Viewed Button -->
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/btnRecentlyViewed"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_recently_viewed"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:tint="@android:color/white"
+        android:contentDescription="Recently viewed"
+        app:layout_constraintStart_toEndOf="@id/titleText"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1" />
+
+    <!-- Search Button -->
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/btnSearch"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_search_nav"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:tint="@android:color/white"
+        android:contentDescription="Search"
+        app:layout_constraintStart_toEndOf="@id/btnRecentlyViewed"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1" />
+
+    <!-- Add Note Button -->
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/btnAddNote"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_note_add"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:tint="@android:color/white"
+        android:contentDescription="Add note"
+        app:layout_constraintStart_toEndOf="@id/btnSearch"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1" />
+</androidx.constraintlayout.widget.ConstraintLayout>
