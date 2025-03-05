@@ -48,7 +48,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".SettingsActivity" />
+        <activity android:name=".CreateNoteActivity" />
+        <activity android:name=".NotesActivity" />
         <activity android:name=".settings.ChoosePlanActivity" />
+        <activity android:name=".TasksActivity"/>
     </application>
 
 </manifest>
