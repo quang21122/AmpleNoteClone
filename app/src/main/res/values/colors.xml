@@ -9,4 +9,5 @@
     <color name="light_blue">#0EAEF6</color>
     <color name="primary">#345164</color>
     <color name="primary_variant">#1F2D39</color>
+    <color name="button_background">#ECF2F6</color>
 </resources>

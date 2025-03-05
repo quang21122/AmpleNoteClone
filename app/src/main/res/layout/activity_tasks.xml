@@ -1,0 +1,634 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:padding="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+        android:orientation="vertical">
+
+        <!-- Header -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#37474F"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+            <!-- Menu Icon (Hamburger) -->
+            <ImageView
+                android:id="@+id/menu_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_menu"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                app:tint="#FFFFFF" />
+
+            <!-- Settings Title -->
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tasks"
+                android:textSize="20sp"
+                android:textColor="#FFFFFF"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/menu_icon"
+                android:layout_marginStart="16dp" />
+
+            <!-- Menu Toolbar -->
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:menu="@menu/menu_tasks_toolbar" />
+        </RelativeLayout>
+
+        <!-- Sort Section -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="All tasks"
+            android:textSize="16sp"
+            android:textColor="#757575"
+            android:background="@android:color/white"
+            android:padding="14dp" />
+
+        <!-- Divider Line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#757575"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Task -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@android:color/white"
+            android:padding="4dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#ECF2F6">
+
+                <!-- Priority Bar -->
+                <View
+                    android:id="@+id/task_priority_bar"
+                    android:layout_width="5dp"
+                    android:layout_height="98dp"
+                    android:layout_alignParentStart="true"
+                    android:background="@android:color/holo_red_light" />
+
+                <!-- Checkbox -->
+                <CheckBox
+                    android:id="@+id/check_task"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp" />
+
+                <!-- Task Title -->
+                <EditText
+                    android:id="@+id/task_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/check_task"
+                    android:layout_marginStart="8dp"
+                    android:text="Task Title"
+                    android:textSize="16sp"
+                    android:textColor="@android:color/black"
+                    android:paddingBottom="4dp"
+                    android:paddingTop="12dp"
+                    android:background="@null" />
+
+                <!-- Task Date -->
+                <TextView
+                    android:id="@+id/task_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/task_title"
+                    android:layout_toEndOf="@id/check_task"
+                    android:layout_marginStart="8dp"
+                    android:text="February 24th, 2025"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/holo_blue_dark"
+                    android:paddingVertical="4dp" />
+
+                <!-- Task Created Time -->
+                <TextView
+                    android:id="@+id/task_created_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/task_date"
+                    android:layout_toEndOf="@id/check_task"
+                    android:layout_marginStart="8dp"
+                    android:text="Created 23 minutes ago"
+                    android:textSize="12sp"
+                    android:textColor="#757575"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="12dp" />
+
+                <!-- Expand Button -->
+                <ImageView
+                    android:id="@+id/expand_button"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/ic_arrow_expanded"
+                    android:contentDescription="Expand/Collapse" />
+
+                <!-- Expandable Layout -->
+                <LinearLayout
+                    android:id="@+id/expandable_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/task_created_time"
+                    android:paddingStart="20dp"
+                    android:orientation="vertical"
+                    android:background="#F8FAFC">
+
+                    <!-- REPEAT Card -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingVertical="16dp">
+
+                        <!-- Repeat Icon -->
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_repeat"
+                            android:layout_marginRight="24dp"
+                            android:layout_marginTop="8dp" />
+
+                        <!-- Main REPEAT Card with Border and Content -->
+                        <LinearLayout
+                            android:layout_width="290dp"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/border_card"
+                            android:elevation="2dp"
+                            android:padding="12dp"
+                            android:orientation="vertical">
+
+                            <!-- REPEAT Title -->
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="REPEAT"
+                                android:textSize="16sp"
+                                android:textColor="#757575"
+                                android:layout_marginBottom="4dp" />
+
+                            <!-- REPEAT Content with Dropdown Icon -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="Doesn't repeat"
+                                    android:textSize="16sp"
+                                    android:textColor="#000000" />
+
+                                <!-- Dropdown Icon on the Far Right -->
+                                <ImageView
+                                    android:layout_width="12dp"
+                                    android:layout_height="12dp"
+                                    android:src="@drawable/ic_arrow_expanded"
+                                    android:layout_gravity="center_vertical" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- START AT Card -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingVertical="16dp">
+
+                        <!-- Calendar Icon Outside the Frame, on the Left -->
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_calendar_start_at"
+                            android:layout_marginRight="24dp"
+                            android:layout_marginTop="8dp"/>
+
+                        <!-- Main START AT Card with Border and Content -->
+                        <LinearLayout
+                            android:layout_width="290dp"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/border_card"
+                            android:elevation="2dp"
+                            android:padding="12dp"
+                            android:orientation="vertical">
+
+                            <!-- START AT Title in Gray -->
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="START AT"
+                                android:textSize="16sp"
+                                android:textColor="#757575"
+                                android:layout_marginBottom="4dp"/>
+
+                            <!-- Content Section with Date, Divider, Morning, Time, and Clock Icon -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical">
+
+                                <!-- Upper Section for Date in Orange -->
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical">
+
+                                    <!-- Date Text in Orange -->
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Monday, Feb 24"
+                                        android:textSize="16sp"
+                                        android:textColor="#FF4500"
+                                        android:layout_marginBottom="8dp"/>
+
+                                    <!-- Horizontal Divider in Gray, Spanning Full Card Width -->
+                                    <View
+                                        android:layout_width="match_parent"
+                                        android:layout_height="1dp"
+                                        android:background="#757575"
+                                        android:layout_marginBottom="8dp"
+                                        android:layout_marginTop="8dp"/>
+
+                                </LinearLayout>
+
+                                <!-- Lower Section for Morning, Time, and Clock Icon in Orange, Aligned Horizontally -->
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal">
+
+                                    <!-- Morning Text in Orange on the Left -->
+                                    <TextView
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:text="Morning"
+                                        android:textSize="16sp"
+                                        android:textColor="#FF4500"
+                                        android:gravity="center_vertical"/>
+
+                                    <!-- Time and Clock Icon on the Right -->
+                                    <LinearLayout
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:orientation="horizontal"
+                                        android:gravity="center_vertical">
+
+                                        <!-- Time Text in Orange -->
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="9:00 am"
+                                            android:textSize="16sp"
+                                            android:textColor="#FF4500"
+                                            android:layout_marginRight="8dp"/>
+
+                                        <!-- Clock Icon with Orange Tint -->
+                                        <ImageView
+                                            android:layout_width="20dp"
+                                            android:layout_height="20dp"
+                                            android:src="@drawable/ic_clock_start_at"
+                                            android:layout_gravity="center_vertical"
+                                            app:tint="#FF4500" />
+
+                                    </LinearLayout>
+
+                                </LinearLayout>
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Start Noti Card -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingVertical="16dp">
+
+                        <!-- Repeat Icon -->
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_bell_start_noti"
+                            android:layout_marginRight="24dp"
+                            android:layout_marginTop="8dp" />
+
+                        <!-- Main Start noti Card with Border and Content -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:layout_width="0dp"
+                                android:layout_height="48dp"
+                                android:text="5 min"
+                                android:textSize="14sp"
+                                android:textColor="#9AA6B2"
+                                app:backgroundTint="?attr/colorPrimaryContainer"
+                                app:cornerRadius="20dp"
+                                android:layout_weight="1"
+                                android:padding="4dp"
+                                android:layout_marginEnd="8dp"/>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:layout_width="0dp"
+                                android:layout_height="48dp"
+                                android:text="15 min"
+                                android:textSize="14sp"
+                                android:textColor="#9AA6B2"
+                                app:backgroundTint="?attr/colorPrimaryContainer"
+                                app:cornerRadius="20dp"
+                                android:layout_weight="1"
+                                android:padding="4dp"
+                                android:layout_marginEnd="8dp"/>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:layout_width="0dp"
+                                android:layout_height="48dp"
+                                android:text="60 min"
+                                android:textSize="14sp"
+                                android:textColor="#9AA6B2"
+                                app:backgroundTint="?attr/colorPrimaryContainer"
+                                app:cornerRadius="20dp"
+                                android:layout_weight="1"
+                                android:padding="4dp"
+                                android:layout_marginEnd="8dp"/>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:layout_width="0dp"
+                                android:layout_height="48dp"
+                                android:text="1 day"
+                                android:textSize="14sp"
+                                android:textColor="#9AA6B2"
+                                app:backgroundTint="?attr/colorPrimaryContainer"
+                                app:cornerRadius="20dp"
+                                android:layout_weight="1"
+                                android:padding="4dp"
+                                android:layout_marginEnd="8dp"/>
+
+
+
+
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Hide until Card -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingVertical="16dp">
+
+                        <!-- Eye-slash Icon -->
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_visibility_off"
+                            android:layout_marginRight="24dp"
+                            android:layout_marginTop="8dp" />
+
+                        <!-- Main HIDE UNTIL Card with Border and Content -->
+                        <LinearLayout
+                            android:layout_width="290dp"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/border_card"
+                            android:elevation="2dp"
+                            android:padding="12dp"
+                            android:orientation="vertical">
+
+                            <!-- Title "HIDE UNTIL" in gray -->
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="HIDE UNTIL"
+                                android:textSize="16sp"
+                                android:textColor="#757575"
+                                android:layout_marginBottom="4dp" />
+
+                            <!-- Content with date on left, divider, and time on right, spanning full height -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+
+                                <!-- Left section (date) -->
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="match_parent"
+                                    android:layout_weight="1"
+                                    android:orientation="vertical"
+                                    android:gravity="center_vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Saturday, Mar 1"
+                                        android:textSize="16sp"
+                                        android:textColor="#000000"
+                                        android:gravity="center_vertical"/>
+                                </LinearLayout>
+
+                                <!-- Vertical divider (middle, spanning full height) -->
+                                <View
+                                    android:layout_width="1dp"
+                                    android:layout_height="match_parent"
+                                    android:background="#000000"
+                                    android:layout_marginHorizontal="8dp"/>
+
+                                <!-- Right section (time) -->
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:orientation="vertical"
+                                    android:gravity="center_vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="9:00 am"
+                                        android:textSize="16sp"
+                                        android:textColor="#000000"
+                                        android:gravity="center_vertical"/>
+                                </LinearLayout>
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <!-- Priority Card -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingVertical="16dp">
+
+                        <!-- Repeat Icon -->
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_star_priority"
+                            android:layout_marginRight="24dp"
+                            android:layout_marginTop="8dp" />
+
+                        <!-- Main Start noti Card with Border and Content -->
+                        <LinearLayout
+                            android:layout_width="240dp"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:layout_width="60dp"
+                                android:layout_height="48dp"
+                                android:text="Important"
+                                android:textSize="14sp"
+                                android:textColor="#9AA6B2"
+                                app:backgroundTint="?attr/colorPrimaryContainer"
+                                app:cornerRadius="20dp"
+                                android:layout_weight="1"
+                                android:padding="4dp"
+                                android:layout_marginEnd="8dp"/>
+
+                            <com.google.android.material.button.MaterialButton
+                                android:layout_width="45dp"
+                                android:layout_height="48dp"
+                                android:text="Urgent"
+                                android:textSize="14sp"
+                                android:textColor="#9AA6B2"
+                                app:backgroundTint="?attr/colorPrimaryContainer"
+                                app:cornerRadius="20dp"
+                                android:layout_weight="1"
+                                android:padding="4dp"
+                                android:layout_marginEnd="8dp"/>
+
+
+
+
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Duration Card -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingVertical="16dp">
+
+                        <!-- Repeat Icon -->
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_clock_duration"
+                            android:layout_marginRight="24dp"
+                            android:layout_marginTop="8dp" />
+
+                        <!-- Main Start noti Card with Border and Content -->
+                        <LinearLayout
+                            android:layout_width="240dp"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <!-- First row: 15 min, 30 min, 60 min -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:layout_width="0dp"
+                                    android:layout_height="48dp"
+                                    android:text="15 min"
+                                    android:textSize="14sp"
+                                    android:textColor="#9AA6B2"
+                                    app:backgroundTint="?attr/colorPrimaryContainer"
+                                    app:cornerRadius="20dp"
+                                    android:layout_weight="1"
+                                    android:padding="4dp"
+                                    android:layout_marginEnd="8dp"/>
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:layout_width="0dp"
+                                    android:layout_height="48dp"
+                                    android:text="30 min"
+                                    android:textSize="14sp"
+                                    android:textColor="#9AA6B2"
+                                    app:backgroundTint="?attr/colorPrimaryContainer"
+                                    app:cornerRadius="20dp"
+                                    android:layout_weight="1"
+                                    android:padding="4dp"
+                                    android:layout_marginEnd="8dp"/>
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:layout_width="0dp"
+                                    android:layout_height="48dp"
+                                    android:text="60 min"
+                                    android:textSize="14sp"
+                                    android:textColor="#9AA6B2"
+                                    app:backgroundTint="?attr/colorPrimaryContainer"
+                                    app:cornerRadius="20dp"
+                                    android:layout_weight="1"
+                                    android:padding="4dp"
+                                    android:layout_marginEnd="8dp"/>
+                            </LinearLayout>
+
+                            <!-- Second row: Custom... -->
+                            <LinearLayout
+                                android:layout_width="100dp"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:paddingVertical="8dp">
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:layout_width="0dp"
+                                    android:layout_height="48dp"
+                                    android:text="Custom..."
+                                    android:textSize="14sp"
+                                    android:textColor="#9AA6B2"
+                                    app:backgroundTint="?attr/colorPrimaryContainer"
+                                    app:cornerRadius="20dp"
+                                    android:layout_weight="1"
+                                    android:padding="4dp"
+                                    android:layout_marginEnd="8dp"/>
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+            </RelativeLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

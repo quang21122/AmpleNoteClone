@@ -43,6 +43,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".settings.ChoosePlanActivity" />
+        <activity android:name=".TasksActivity"/>
     </application>
 
 </manifest>
