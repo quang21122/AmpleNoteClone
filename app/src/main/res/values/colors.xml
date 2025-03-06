@@ -21,4 +21,5 @@
     <color name="calendar_today">#4CAF50</color>
     <color name="calendar_selected_text">#FFFFFF</color>
     <color name="button_background">#ECF2F6</color>
+    <color name="green">#4CAF50</color>
 </resources>
