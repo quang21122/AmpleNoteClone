@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/nav_edit"
-        android:icon="@drawable/ic_edit"
-        android:title="Edit"
+        android:id="@+id/nav_jots"
+        android:icon="@drawable/ic_pencil"
+        android:title="Jots"
         app:showAsAction="ifRoom"/>
 
     <item
@@ -25,4 +25,6 @@
         android:icon="@drawable/ic_calendar"
         android:title="Calendar"
         app:showAsAction="ifRoom"/>
+
+
 </menu>

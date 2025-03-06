@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_pencil"
+        android:title="Jots"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_notes"
+        android:icon="@drawable/ic_note"
+        android:title="Notes"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_task"
+        android:icon="@drawable/ic_task"
+        android:title="Tasks"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_calendar"
+        android:icon="@drawable/ic_calendar_nav"
+        android:title="Calendar"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_new_note"
+        android:icon="@drawable/ic_add_nav"
+        android:title="Add Note"
+        app:showAsAction="ifRoom"/>
+
+</menu>
