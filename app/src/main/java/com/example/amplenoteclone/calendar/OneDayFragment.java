@@ -20,7 +20,7 @@ import java.util.Locale;
 import java.util.Calendar;
 import android.widget.FrameLayout;
 
-public class OneDayFragment extends Fragment {
+public class OneDayFragment extends Fragment implements DateSelectable {
     private LinearLayout timelineContainer;
     private ScrollView scrollView;
     private View currentTimeIndicator;
@@ -30,6 +30,7 @@ public class OneDayFragment extends Fragment {
     private boolean pendingTimelineUpdate = false;
     private static final String KEY_SELECTED_DATE = "selected_date";
     private boolean pendingIndicatorUpdate = false;
+    private static final int INDICATOR_UPDATE_DELAY = 100;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -43,7 +44,6 @@ public class OneDayFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Đợi layout được đo đạc xong
         view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -51,23 +51,59 @@ public class OneDayFragment extends Fragment {
                 setupTimeline();
 
                 if (isToday(selectedDate)) {
-                    startTimeUpdates();
-                    updateCurrentTimeIndicator();
-                    scrollToCurrentTime();
+                    new Handler().postDelayed(() -> {
+                        if (isAdded()) {
+                            startTimeUpdates();
+                            updateCurrentTimeIndicator();
+                            scrollToCurrentTime();
+                        }
+                    }, INDICATOR_UPDATE_DELAY);
                 }
             }
         });
     }
 
     private void scrollToCurrentTime() {
-        if (currentTimeIndicator != null && scrollView != null) {
-            scrollView.post(() -> {
-                int[] location = new int[2];
-                currentTimeIndicator.getLocationInWindow(location);
-                int y = location[1];
-                scrollView.smoothScrollTo(0, Math.max(0, y - scrollView.getHeight() / 2));
-            });
+        if (currentTimeIndicator == null || scrollView == null || !isAdded()) {
+            return;
         }
+
+        scrollView.post(() -> {
+            // Make sure fragment is still attached and views are valid
+            if (!isAdded() || currentTimeIndicator == null || scrollView == null) {
+                return;
+            }
+
+            try {
+                // Get parent height first
+                int parentHeight = scrollView.getHeight();
+                if (parentHeight == 0) {
+                    // View not measured yet, try again later
+                    new Handler().postDelayed(this::scrollToCurrentTime, 100);
+                    return;
+                }
+
+                // Calculate scroll position based on hour slot instead
+                Calendar now = Calendar.getInstance();
+                int currentHour = now.get(Calendar.HOUR_OF_DAY);
+                int currentMinute = now.get(Calendar.MINUTE);
+
+                // Calculate total minutes from midnight
+                int totalMinutes = (currentHour * 60) + currentMinute;
+
+                // Calculate scroll position (140dp is the height of each hour slot)
+                int hourHeight = dpToPx(140);
+                int scrollPosition = (totalMinutes * hourHeight) / 60;
+
+                // Center the current time in the screen
+                scrollPosition = Math.max(0, scrollPosition - (parentHeight / 2));
+
+                // Smooth scroll to position
+                scrollView.smoothScrollTo(0, scrollPosition);
+            } catch (Exception e) {
+                // Handle any potential exceptions silently
+            }
+        });
     }
 
     @Override
@@ -115,14 +151,34 @@ public class OneDayFragment extends Fragment {
 
         if (timelineContainer != null && isAdded()) {
             setupTimeline();
+
             if (isToday(date)) {
+                // Clear existing indicator first
+                if (currentTimeIndicator != null) {
+                    ViewGroup parent = (ViewGroup) currentTimeIndicator.getParent();
+                    if (parent != null) {
+                        parent.removeView(currentTimeIndicator);
+                    }
+                    currentTimeIndicator = null;
+                }
+
+                // Add delay to ensure view is properly laid out
                 new Handler().postDelayed(() -> {
-                    startTimeUpdates();
-                    updateCurrentTimeIndicator();
-                    scrollToCurrentTime();
-                }, 100); // Thêm delay nhỏ để đảm bảo view đã được vẽ
+                    if (isAdded()) {
+                        startTimeUpdates();
+                        updateCurrentTimeIndicator();
+                        scrollToCurrentTime();
+                    }
+                }, INDICATOR_UPDATE_DELAY);
             } else {
                 stopTimeUpdates();
+                if (currentTimeIndicator != null) {
+                    ViewGroup parent = (ViewGroup) currentTimeIndicator.getParent();
+                    if (parent != null) {
+                        parent.removeView(currentTimeIndicator);
+                    }
+                    currentTimeIndicator = null;
+                }
             }
         } else {
             pendingTimelineUpdate = true;
@@ -189,7 +245,7 @@ public class OneDayFragment extends Fragment {
         }
     }
 
-    private void updateCurrentTimeIndicator() {
+    public void updateCurrentTimeIndicator() {
         if (!isAdded() || timelineContainer == null) {
             pendingIndicatorUpdate = true;
             return;
@@ -204,6 +260,7 @@ public class OneDayFragment extends Fragment {
             if (parent != null) {
                 parent.removeView(currentTimeIndicator);
             }
+            currentTimeIndicator = null;
         }
 
         View hourSlot = timelineContainer.findViewWithTag("hour_" + currentHour);
@@ -225,7 +282,6 @@ public class OneDayFragment extends Fragment {
             FrameLayout.LayoutParams indicatorParams = new FrameLayout.LayoutParams(
                     FrameLayout.LayoutParams.MATCH_PARENT,
                     dpToPx(2));
-            indicatorParams.leftMargin = dpToPx(60); // Căn lề trái để tránh label
             indicatorParams.topMargin = topMargin + dpToPx(12);
             currentTimeIndicator.setLayoutParams(indicatorParams);
 
@@ -246,7 +302,6 @@ public class OneDayFragment extends Fragment {
                 FrameLayout.LayoutParams indicatorParams = new FrameLayout.LayoutParams(
                         FrameLayout.LayoutParams.MATCH_PARENT,
                         dpToPx(2));
-                indicatorParams.leftMargin = dpToPx(60);
                 indicatorParams.topMargin = dpToPx(12); // Đặt ở đầu slot tiếp theo
                 currentTimeIndicator.setLayoutParams(indicatorParams);
 
