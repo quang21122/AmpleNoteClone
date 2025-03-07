@@ -120,7 +120,7 @@
         android:background="@color/darkBackground"
         app:itemIconTint="@color/textGray"
         app:itemTextColor="@color/textGray"
-        app:menu="@menu/bottom_nav_menu"/>
+        app:menu="@menu/bottom_nav"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAdd"

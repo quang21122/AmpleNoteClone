@@ -4,32 +4,14 @@
 
     <item
         android:id="@+id/action_search"
-        android:icon="@drawable/ic_pencil"
-        android:title="Jots"
+        android:icon="@drawable/ic_search_nav"
+        android:title="Search"
         app:showAsAction="ifRoom"/>
 
     <item
-        android:id="@+id/action_notes"
-        android:icon="@drawable/ic_note"
-        android:title="Notes"
-        app:showAsAction="ifRoom"/>
-
-    <item
-        android:id="@+id/action_task"
-        android:icon="@drawable/ic_task"
-        android:title="Tasks"
-        app:showAsAction="ifRoom"/>
-
-    <item
-        android:id="@+id/action_calendar"
-        android:icon="@drawable/ic_calendar_nav"
-        android:title="Calendar"
-        app:showAsAction="ifRoom"/>
-
-    <item
-        android:id="@+id/action_new_note"
-        android:icon="@drawable/ic_add_nav"
-        android:title="Add Note"
+        android:id="@+id/action_add_note"
+        android:icon="@drawable/ic_note_add"
+        android:title="Add Notes"
         app:showAsAction="ifRoom"/>
 
 </menu>

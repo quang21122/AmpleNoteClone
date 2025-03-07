@@ -2,17 +2,25 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="@color/white">
 
-    <!-- Top Bar (Already in your existing layout) -->
-    <include layout="@layout/top_nav" />
+    <!-- Top Bar -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/darkBackground"
+        android:navigationIcon="@drawable/ic_menu"
+        app:navigationIconTint="@color/white"
+        app:titleTextColor="@color/white"
+        app:title="Notes"/>
 
     <!-- Notes Count -->
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/txtNotesCount"
@@ -35,7 +43,7 @@
             android:textSize="14sp" />
     </RelativeLayout>
 
-    <!-- Notes List -->
+    <!-- Notes List (RecyclerView) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerNotes"
         android:layout_width="match_parent"
@@ -44,6 +52,13 @@
         android:padding="8dp"
         android:clipToPadding="false" />
 
-    <!-- Bottom Action Bar -->
-    <include layout="@layout/bottom_nav" />
+    <!-- Bottom Navigation (Always at the bottom) -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        app:menu="@menu/bottom_nav"
+        app:itemIconTint="@color/iconGray" />
+
 </LinearLayout>
