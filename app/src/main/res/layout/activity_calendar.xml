@@ -6,161 +6,167 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".calendar.CalendarActivity">
-
-    <!-- Main Content -->
+    
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingBottom="56dp">  <!-- Add padding to avoid overlap with bottom nav -->
+        android:orientation="vertical">
 
-        <!-- Toolbar -->
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/darkBackground"
-            android:navigationIcon="@drawable/ic_menu"
-            app:navigationIconTint="@color/white"
-            app:titleTextColor="@color/white"
-            app:title="@string/calendar"/>
-
-        <!-- Tabs -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:orientation="horizontal"
-            android:background="@color/primary"
-            android:elevation="2dp">
-
-            <!-- Work Tab -->
-            <LinearLayout
-                android:id="@+id/work_tab"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/work_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/work"
-                    android:textSize="16sp"
-                    android:textColor="@color/white"
-                    android:paddingVertical="12dp"/>
-
-                <View
-                    android:id="@+id/work_indicator"
-                    android:layout_width="match_parent"
-                    android:layout_height="2dp"
-                    android:background="@color/light_blue"/>
-            </LinearLayout>
-
-            <!-- Personal Tab -->
-            <LinearLayout
-                android:id="@+id/personal_tab"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/personal_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/personal"
-                    android:textSize="16sp"
-                    android:textColor="@color/white"
-                    android:paddingVertical="12dp"/>
-
-                <View
-                    android:id="@+id/personal_indicator"
-                    android:layout_width="match_parent"
-                    android:layout_height="2dp"
-                    android:background="@color/light_blue"/>
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Date Selector -->
+        <!-- Header section (Toolbar + Tabs + Date Selector) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:background="@color/white"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/current_date"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textAlignment="viewStart"
-                android:lineSpacingMultiplier="1.2"/>
+            <!-- Toolbar -->
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@color/darkBackground"
+                android:navigationIcon="@drawable/ic_menu"
+                app:navigationIconTint="@color/white"
+                app:titleTextColor="@color/white"
+                app:title="@string/calendar"/>
 
+            <!-- Tabs -->
             <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:baselineAligned="false"
                 android:orientation="horizontal"
-                android:paddingHorizontal="4dp"
-                android:background="@color/light_gray"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-                <ImageButton
-                    android:id="@+id/calendar_picker_button"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:src="@drawable/ic_calendar"
-                    android:background="@drawable/button_round_background"
-                    android:padding="4dp"
-                    app:tint="@color/primary"/>
+                android:background="@color/primary"
+                android:elevation="2dp">
 
-                <ImageView
-                    android:layout_gravity="center_vertical"
-                    android:src="@drawable/ic_arrow_down"
-                    android:layout_width="12dp"
-                    android:layout_height="12dp"/>
+                <!-- Work Tab -->
+                <LinearLayout
+                    android:id="@+id/work_tab"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/work_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/work"
+                        android:textSize="16sp"
+                        android:textColor="@color/white"
+                        android:paddingVertical="12dp"/>
+
+                    <View
+                        android:id="@+id/work_indicator"
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:background="@color/light_blue"/>
+                </LinearLayout>
+
+                <!-- Personal Tab -->
+                <LinearLayout
+                    android:id="@+id/personal_tab"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/personal_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/personal"
+                        android:textSize="16sp"
+                        android:textColor="@color/white"
+                        android:paddingVertical="12dp"/>
+
+                    <View
+                        android:id="@+id/personal_indicator"
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:background="@color/light_blue"/>
+                </LinearLayout>
             </LinearLayout>
 
-            <ImageButton
-                android:id="@+id/add_task"
-                android:background="@color/light_blue"
-                android:src="@drawable/ic_calendar_plus"
-                android:layout_marginStart="32dp"
-                android:layout_width="32dp"
-                android:layout_height="32dp"/>
+            <!-- Date Selector -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:background="@color/white"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/current_date"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAlignment="viewStart"
+                    android:lineSpacingMultiplier="1.2"/>
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="4dp"
+                    android:background="@color/light_gray"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <ImageButton
+                        android:id="@+id/calendar_picker_button"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/ic_calendar"
+                        android:background="@drawable/button_round_background"
+                        android:padding="4dp"
+                        app:tint="@color/primary"/>
+
+                    <ImageView
+                        android:layout_gravity="center_vertical"
+                        android:src="@drawable/ic_arrow_down"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"/>
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/add_task"
+                    android:background="@color/light_blue"
+                    android:src="@drawable/ic_calendar_plus"
+                    android:layout_marginStart="32dp"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"/>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/light_gray"/>
         </LinearLayout>
 
-        <View
+        <!-- Content Container -->
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/light_gray"/>
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <!-- Work Content -->
+            <FrameLayout
+                android:id="@+id/work_content_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="visible"/>
+
+            <!-- Personal Content -->
+            <FrameLayout
+                android:id="@+id/personal_content_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"/>
+        </FrameLayout>
     </LinearLayout>
 
-    <!-- Content -->
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <!-- Work Content -->
-        <FrameLayout
-            android:id="@+id/work_content_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="visible"/>
-
-        <!-- Personal Content -->
-        <FrameLayout
-            android:id="@+id/personal_content_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"/>
-    </FrameLayout>
-
-    <!-- Bottom Navigation (Fixed at Bottom) -->
+    <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
