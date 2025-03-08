@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -8,46 +9,25 @@
     android:orientation="vertical"
     tools:context=".calendar.CalendarActivity">
 
+    <!-- Main Content -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <RelativeLayout
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingBottom="56dp">  <!-- Add padding to avoid overlap with bottom nav -->
+
+        <!-- Toolbar -->
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingVertical="16dp"
-            android:background="@color/primary"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp">
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/darkBackground"
+            android:navigationIcon="@drawable/ic_menu"
+            app:navigationIconTint="@color/white"
+            app:titleTextColor="@color/white"
+            app:title="@string/calendar"/>
 
-            <ImageView
-                android:id="@+id/menu_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_menu"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                app:tint="@color/white" />
-
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/calendar"
-                android:textSize="20sp"
-                android:textColor="@color/white"
-                android:layout_centerVertical="true"
-                android:layout_toEndOf="@id/menu_icon"
-                android:layout_marginStart="16dp"/>
-
-            <ImageView
-                android:id="@+id/search_icon"
-                android:src="@drawable/ic_search"
-                android:layout_alignParentEnd="true"
-                android:layout_width="24dp"
-                android:layout_height="24dp"/>
-        </RelativeLayout>
-
+        <!-- Tabs -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="48dp"
@@ -106,6 +86,7 @@
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Date Selector -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -121,7 +102,7 @@
                 android:layout_weight="1"
                 android:textAlignment="viewStart"
                 android:lineSpacingMultiplier="1.2"/>
-            
+
             <LinearLayout
                 android:orientation="horizontal"
                 android:paddingHorizontal="4dp"
@@ -159,6 +140,7 @@
             android:background="@color/light_gray"/>
     </LinearLayout>
 
+    <!-- Content -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -177,4 +159,14 @@
             android:layout_height="match_parent"
             android:visibility="gone"/>
     </FrameLayout>
-</LinearLayout>
+
+    <!-- Bottom Navigation (Fixed at Bottom) -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/white"
+        app:menu="@menu/bottom_nav"
+        app:itemIconTint="@color/iconGray"/>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
