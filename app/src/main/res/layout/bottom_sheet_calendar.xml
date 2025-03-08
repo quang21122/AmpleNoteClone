@@ -51,10 +51,12 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="One Day"
-            android:textSize="14sp"
+            android:textSize="12sp"
             android:gravity="center"
             android:layout_marginEnd="8dp"
             android:background="@drawable/tab_background_selector"
+            android:drawableStart="@drawable/ic_calendar_one_day"
+            android:paddingHorizontal="4dp"
             android:textColor="@color/black" />
 
         <TextView
@@ -63,10 +65,12 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="Three Days"
-            android:textSize="14sp"
+            android:textSize="10sp"
             android:gravity="center"
             android:layout_marginEnd="8dp"
             android:background="@drawable/tab_background_selector"
+            android:drawableStart="@drawable/ic_calendar_three_days"
+            android:paddingHorizontal="4dp"
             android:textColor="@color/black"/>
 
         <TextView
@@ -75,10 +79,12 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="Week"
-            android:textSize="14sp"
+            android:textSize="12sp"
             android:gravity="center"
             android:layout_marginEnd="8dp"
             android:background="@drawable/tab_background_selector"
+            android:drawableStart="@drawable/ic_calendar_week"
+            android:paddingHorizontal="4dp"
             android:textColor="@color/black"/>
 
         <TextView
@@ -87,11 +93,19 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="Month"
-            android:textSize="14sp"
+            android:textSize="12sp"
             android:gravity="center"
             android:background="@drawable/tab_background_selector"
+            android:drawableStart="@drawable/ic_calendar_month"
+            android:paddingHorizontal="4dp"
             android:textColor="@color/black"/>
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/light_gray"
+        android:layout_marginBottom="16dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"

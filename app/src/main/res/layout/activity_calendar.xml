@@ -6,6 +6,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".calendar.CalendarActivity">
 
     <!-- Main Content -->
@@ -133,14 +134,31 @@
                 android:layout_height="32dp"/>
         </LinearLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/light_gray"/>
     </LinearLayout>
 
     <!-- Content -->
     <FrameLayout
-        android:id="@+id/content_container"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_height="match_parent">
+
+        <!-- Work Content -->
+        <FrameLayout
+            android:id="@+id/work_content_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="visible"/>
+
+        <!-- Personal Content -->
+        <FrameLayout
+            android:id="@+id/personal_content_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"/>
+    </FrameLayout>
 
     <!-- Bottom Navigation (Fixed at Bottom) -->
     <com.google.android.material.bottomnavigation.BottomNavigationView

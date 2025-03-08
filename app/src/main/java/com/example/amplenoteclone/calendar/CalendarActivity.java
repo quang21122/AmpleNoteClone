@@ -3,6 +3,7 @@ package com.example.amplenoteclone.calendar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
+import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridView;
@@ -12,6 +13,10 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
 
 import com.example.amplenoteclone.NotesActivity;
 import com.example.amplenoteclone.R;
@@ -39,6 +44,7 @@ public class CalendarActivity extends AppCompatActivity {
     private ImageButton calendarPickerButton;
     private CustomCalendarAdapter adapter;
     private java.util.Calendar currentCalendar;
+    private Date currentSelectedDate = new Date();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,7 +106,6 @@ public class CalendarActivity extends AppCompatActivity {
                 updateTabState(false);
             }
         });
-
     }
 
     private void setupCalendarBottomSheet() {
@@ -108,7 +113,7 @@ public class CalendarActivity extends AppCompatActivity {
         View bottomSheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_calendar, null);
         bottomSheetDialog.setContentView(bottomSheetView);
 
-        setupTabs(bottomSheetView);
+        setupTabsBottom(bottomSheetView, bottomSheetDialog);
 
         // Set height to 90% of screen height
         View parentView = (View) bottomSheetView.getParent();
@@ -139,7 +144,7 @@ public class CalendarActivity extends AppCompatActivity {
             Date selectedDate = (Date) adapter.getItem(position);
             if (selectedDate != null) {
                 adapter.setSelectedDate(selectedDate);
-                updateCurrentDate(selectedDate.getTime());
+                updateSelectedDate(selectedDate); // Use new method here
                 updateGoToTodayButtonVisibility(goToTodayButton);
                 bottomSheetDialog.dismiss();
             }
@@ -161,7 +166,7 @@ public class CalendarActivity extends AppCompatActivity {
             Calendar today = Calendar.getInstance();
             currentCalendar = today;
             adapter.setSelectedDate(today.getTime());
-            updateCurrentDate(today.getTimeInMillis());
+            updateSelectedDate(today.getTime()); // Use new method here
             updateCalendarGrid(calendarGrid, monthYearText);
             updateGoToTodayButtonVisibility(goToTodayButton);
             bottomSheetDialog.dismiss();
@@ -170,7 +175,7 @@ public class CalendarActivity extends AppCompatActivity {
         calendarPickerButton.setOnClickListener(v -> bottomSheetDialog.show());
     }
 
-    private void setupTabs(View bottomSheetView) {
+    private void setupTabsBottom(View bottomSheetView, BottomSheetDialog dialog) {
         TextView oneDay = bottomSheetView.findViewById(R.id.tab_one_day);
         TextView threeDays = bottomSheetView.findViewById(R.id.tab_three_days);
         TextView week = bottomSheetView.findViewById(R.id.tab_week);
@@ -178,14 +183,76 @@ public class CalendarActivity extends AppCompatActivity {
 
         TextView[] tabs = {oneDay, threeDays, week, month};
 
-        // Set initial state
-        oneDay.setSelected(true);
+        // Initialize with separate OneDayFragment instances
+        Fragment initialWorkFragment = new OneDayFragment();
+        Fragment initialPersonalFragment = new OneDayFragment();
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.work_content_container, initialWorkFragment)
+                .commit();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.personal_content_container, initialPersonalFragment)
+                .commit();
+
+        // Set initial colors and background
+        oneDay.setTextColor(getResources().getColor(android.R.color.black));
+        oneDay.setBackgroundResource(R.color.light_gray);
+        for (int i = 1; i < tabs.length; i++) {
+            tabs[i].setTextColor(getResources().getColor(android.R.color.darker_gray));
+            tabs[i].setBackgroundColor(getResources().getColor(android.R.color.transparent));
+        }
 
         View.OnClickListener tabClickListener = v -> {
+            // Reset all tabs
             for (TextView tab : tabs) {
-                boolean isSelected = tab == v;
-                tab.setSelected(isSelected);
+                tab.setTextColor(getResources().getColor(android.R.color.darker_gray));
+                tab.setBackgroundColor(getResources().getColor(android.R.color.transparent));
             }
+
+            // Update selected tab
+            TextView selectedTab = (TextView) v;
+            selectedTab.setTextColor(getResources().getColor(android.R.color.black));
+            selectedTab.setBackgroundResource(R.color.light_gray);
+
+            // Create new fragments based on selected tab
+            Fragment newWorkFragment;
+            Fragment newPersonalFragment;
+
+            int id = v.getId();
+            if (id == R.id.tab_one_day) {
+                newWorkFragment = new OneDayFragment();
+                newPersonalFragment = new OneDayFragment();
+            } else if (id == R.id.tab_three_days) {
+                newWorkFragment = new ThreeDaysFragment();
+                newPersonalFragment = new ThreeDaysFragment();
+            } else if (id == R.id.tab_week) {
+                newWorkFragment = new WeekFragment();
+                newPersonalFragment = new WeekFragment();
+            } else {
+                newWorkFragment = new MonthFragment();
+                newPersonalFragment = new MonthFragment();
+            }
+
+            // Replace fragments in both containers
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.work_content_container, newWorkFragment)
+                    .commit();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.personal_content_container, newPersonalFragment)
+                    .commit();
+
+            // Execute transactions immediately
+            getSupportFragmentManager().executePendingTransactions();
+
+            // Update selected date for both fragments
+            if (newWorkFragment instanceof DateSelectable) {
+                ((DateSelectable) newWorkFragment).setSelectedDate(currentSelectedDate);
+            }
+            if (newPersonalFragment instanceof DateSelectable) {
+                ((DateSelectable) newPersonalFragment).setSelectedDate(currentSelectedDate);
+            }
+
+            dialog.dismiss();
         };
 
         for (TextView tab : tabs) {
@@ -303,23 +370,72 @@ public class CalendarActivity extends AppCompatActivity {
     private void updateTabState(boolean selectWork) {
         isWorkSelected = selectWork;
 
-        // Update text colors
+        // Update tab UI
         workText.setTextColor(getResources().getColor(
                 selectWork ? R.color.tab_selected : R.color.tab_unselected));
         personalText.setTextColor(getResources().getColor(
                 selectWork ? R.color.tab_unselected : R.color.tab_selected));
-
-        // Update indicators
         workIndicator.setVisibility(selectWork ? View.VISIBLE : View.INVISIBLE);
         personalIndicator.setVisibility(selectWork ? View.INVISIBLE : View.VISIBLE);
 
-        // You can update content here based on selection
-        updateContent(selectWork);
+        // Show/hide containers first
+        findViewById(R.id.work_content_container).setVisibility(
+                selectWork ? View.VISIBLE : View.GONE);
+        findViewById(R.id.personal_content_container).setVisibility(
+                selectWork ? View.GONE : View.VISIBLE);
+
+        // Get or create fragments
+        Fragment workFragment = getSupportFragmentManager().findFragmentById(R.id.work_content_container);
+        Fragment personalFragment = getSupportFragmentManager().findFragmentById(R.id.personal_content_container);
+
+        // Create fragments if needed
+        if (workFragment == null) {
+            workFragment = new OneDayFragment();
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.work_content_container, workFragment)
+                    .commit();
+            getSupportFragmentManager().executePendingTransactions();
+        }
+
+        if (personalFragment == null) {
+            personalFragment = new OneDayFragment();
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.personal_content_container, personalFragment)
+                    .commit();
+            getSupportFragmentManager().executePendingTransactions();
+        }
+
+        // Force refresh both fragments
+        if (workFragment instanceof OneDayFragment) {
+            ((DateSelectable) workFragment).setSelectedDate(currentSelectedDate);
+        }
+        if (personalFragment instanceof OneDayFragment) {
+            ((DateSelectable) personalFragment).setSelectedDate(currentSelectedDate);
+        }
+
+        // Update current fragment view
+        Fragment currentFragment = selectWork ? workFragment : personalFragment;
+        if (currentFragment instanceof OneDayFragment) {
+            // Delay để đảm bảo view đã được inflate
+            new Handler().post(() -> {
+                ((DateSelectable) currentFragment).setSelectedDate(currentSelectedDate);
+            });
+        }
     }
 
-    private void updateContent(boolean isWork) {
-        // Implement your content switching logic here
-        // For example, you could show different calendar views
-        // or load different data based on the selection
+    private void updateSelectedDate(Date date) {
+        currentSelectedDate = date;
+        updateCurrentDate(date.getTime());
+
+        // Update both fragments
+        updateFragmentDate(R.id.work_content_container, date);
+        updateFragmentDate(R.id.personal_content_container, date);
+    }
+
+    private void updateFragmentDate(int containerId, Date date) {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(containerId);
+        if (fragment instanceof DateSelectable) {
+            ((DateSelectable) fragment).setSelectedDate(date);
+        }
     }
 }
