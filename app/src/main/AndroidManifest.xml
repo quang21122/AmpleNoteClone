@@ -21,6 +21,7 @@
             android:exported="false" />
         <activity
             android:name=".authentication.SignUp"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
             android:exported="false" />
         <activity
             android:name=".authentication.Login"
