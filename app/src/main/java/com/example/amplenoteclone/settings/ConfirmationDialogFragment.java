@@ -54,10 +54,6 @@ public class ConfirmationDialogFragment extends DialogFragment {
         TextView alternativePaymentTextView = view.findViewById(R.id.alternative_payment);
         alternativePaymentTextView.setText(getString(R.string.alternative_payment));
 
-        // Cập nhật tùy chọn thêm thẻ
-        TextView addCardTextView = view.findViewById(R.id.add_card);
-        addCardTextView.setText(getString(R.string.add_card));
-
         return view;
     }
 
