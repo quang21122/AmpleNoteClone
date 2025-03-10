@@ -252,6 +252,9 @@ public class CalendarActivity extends AppCompatActivity {
                 ((DateSelectable) newPersonalFragment).setSelectedDate(currentSelectedDate);
             }
 
+            // Update date format in header after fragment change
+            new Handler().post(() -> updateCurrentDate(currentSelectedDate.getTime()));
+
             dialog.dismiss();
         };
 
@@ -331,38 +334,83 @@ public class CalendarActivity extends AppCompatActivity {
         monthYearText.setText(formatter.format(currentCalendar.getTime()));
     }
 
+    private Fragment getCurrentFragment() {
+        if (isWorkSelected) {
+            return getSupportFragmentManager().findFragmentById(R.id.work_content_container);
+        } else {
+            return getSupportFragmentManager().findFragmentById(R.id.personal_content_container);
+        }
+    }
+
     private void updateCurrentDate(long timeInMillis) {
         try {
-            SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.getDefault());
-            SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d", Locale.getDefault());
-            SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy", Locale.getDefault());
-
+            Fragment currentFragment = getCurrentFragment();
             Date date = new Date(timeInMillis);
-            String dayOfWeek = dayFormat.format(date);
-            String dateWithoutYear = dateFormat.format(date);
-            String year = yearFormat.format(date);
-
             android.text.SpannableStringBuilder builder = new android.text.SpannableStringBuilder();
 
-            builder.append(dayOfWeek + "\n");
-            builder.setSpan(new android.text.style.AbsoluteSizeSpan(14, true),
-                    0, dayOfWeek.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            if (currentFragment instanceof MonthFragment) {
+                // Format for Month view - month bold, year normal
+                SimpleDateFormat monthFormat = new SimpleDateFormat("MMMM", Locale.getDefault());
+                SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy", Locale.getDefault());
+                String month = monthFormat.format(date);
+                String year = yearFormat.format(date);
 
-            int dateStart = builder.length();
-            builder.append(dateWithoutYear);
-            builder.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
-                    dateStart, builder.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            builder.setSpan(new android.text.style.AbsoluteSizeSpan(20, true),
-                    dateStart, builder.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                // Add month (bold)
+                builder.append(month);
+                builder.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
+                        0, month.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-            builder.append(", " + year);
-            builder.setSpan(new android.text.style.AbsoluteSizeSpan(20, true),
-                    builder.length() - year.length(), builder.length(),
-                    android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                // Add space and year (normal)
+                builder.append(" " + year);
+
+                // Set size for entire text
+                builder.setSpan(new android.text.style.AbsoluteSizeSpan(20, true),
+                        0, builder.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            } else if (currentFragment instanceof WeekFragment) {
+                // Format for Week view
+                SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.getDefault());
+
+                builder.append("Week of\n");
+                builder.setSpan(new android.text.style.AbsoluteSizeSpan(14, true),
+                        0, builder.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                int dateStart = builder.length();
+                String dateStr = dateFormat.format(date);
+                builder.append(dateStr);
+                builder.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
+                        dateStart, builder.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                builder.setSpan(new android.text.style.AbsoluteSizeSpan(20, true),
+                        dateStart, builder.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            } else {
+                // Original format for other views
+                SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.getDefault());
+                SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d", Locale.getDefault());
+                SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy", Locale.getDefault());
+
+                String dayOfWeek = dayFormat.format(date);
+                String dateWithoutYear = dateFormat.format(date);
+                String year = yearFormat.format(date);
+
+                builder.append(dayOfWeek + "\n");
+                builder.setSpan(new android.text.style.AbsoluteSizeSpan(14, true),
+                        0, dayOfWeek.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                int dateStart = builder.length();
+                builder.append(dateWithoutYear);
+                builder.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
+                        dateStart, builder.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                builder.setSpan(new android.text.style.AbsoluteSizeSpan(20, true),
+                        dateStart, builder.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                builder.append(", " + year);
+                builder.setSpan(new android.text.style.AbsoluteSizeSpan(20, true),
+                        builder.length() - year.length(), builder.length(),
+                        android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
 
             currentDateText.setText(builder);
         } catch (Exception e) {
-            currentDateText.setText(new SimpleDateFormat("EEEE\nMMM d, yyyy", Locale.getDefault())
+            currentDateText.setText(new SimpleDateFormat("MMMM yyyy", Locale.getDefault())
                     .format(new Date()));
         }
     }
