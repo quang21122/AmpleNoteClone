@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.amplenoteclone.calendar.CalendarActivity;
 import com.example.amplenoteclone.settings.SettingsActivity;
 import com.example.amplenoteclone.authentication.Login;
+import com.example.amplenoteclone.tasks.TasksActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;

@@ -13,13 +13,11 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.amplenoteclone.NotesActivity;
 import com.example.amplenoteclone.R;
+import com.example.amplenoteclone.tasks.TasksActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -63,9 +61,13 @@ public class CalendarActivity extends AppCompatActivity {
                 Intent intent = new Intent(CalendarActivity.this, NotesActivity.class);
                 startActivity(intent);
                 return true;
+            } else if (item.getItemId() == R.id.action_task) {
+                Intent intent = new Intent(CalendarActivity.this, TasksActivity.class);
+                startActivity(intent);
+                return true;
             }
             // Do nothing, already on Calendar page
-            return item.getItemId() == R.id.action_calendar;
+            else return item.getItemId() == R.id.action_calendar;
         });
 
         initializeViews();

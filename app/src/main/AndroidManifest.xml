@@ -53,7 +53,7 @@
         <activity android:name=".CreateNoteActivity" />
         <activity android:name=".NotesActivity" />
         <activity android:name=".settings.ChoosePlanActivity" />
-        <activity android:name=".TasksActivity"/>
+        <activity android:name=".tasks.TasksActivity"/>
     </application>
 
 </manifest>
