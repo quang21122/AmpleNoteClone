@@ -1,10 +1,13 @@
 package com.example.amplenoteclone.settings;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -35,5 +38,27 @@ public class ChoosePlanActivity extends AppCompatActivity {  // Extend AppCompat
 
         ImageView backIcon = findViewById(R.id.back_icon);
         backIcon.setOnClickListener(v -> finish());
+
+        // Set up continue button listener
+        Button continueButton = findViewById(R.id.continue_button);
+        continueButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String selectedPlan;
+                RadioButton monthlyBilling = findViewById(R.id.monthly_billing);
+                RadioButton annualBilling = findViewById(R.id.annual_billing);
+
+                if (monthlyBilling.isChecked()) {
+                    selectedPlan = "monthly";
+                } else if (annualBilling.isChecked()) {
+                    selectedPlan = "annual";
+                } else {
+                    return;
+                }
+
+                ConfirmationDialogFragment dialog = ConfirmationDialogFragment.newInstance(selectedPlan);
+                dialog.show(getSupportFragmentManager(), "confirmation_dialog");
+            }
+        });
     }
 }
