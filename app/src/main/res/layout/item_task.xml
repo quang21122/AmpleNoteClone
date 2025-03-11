@@ -86,8 +86,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/task_created_time"
             android:orientation="vertical"
-            android:background="@color/light_blue_gray">
-            <!--            android:visibility="gone"-->
+            android:background="@color/light_blue_gray"
+            android:visibility="gone">
 
             <!-- REPEAT Card -->
             <LinearLayout
@@ -196,87 +196,87 @@
 
 
 
-                            <!-- START AT Title in Gray -->
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="START AT"
-                                android:textSize="16sp"
-                                android:textColor="@color/textGray"
-                                android:layout_marginBottom="4dp" />
+                        <!-- START AT Title in Gray -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="START AT"
+                            android:textSize="16sp"
+                            android:textColor="@color/textGray"
+                            android:layout_marginBottom="4dp" />
 
-                            <!-- Content Section with Date, Divider, Morning, Time, and Clock Icon -->
+                        <!-- Content Section with Date, Divider, Morning, Time, and Clock Icon -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <!-- Upper Section for Date in Orange -->
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:orientation="vertical">
 
-                                <!-- Upper Section for Date in Orange -->
-                                <LinearLayout
-                                    android:layout_width="match_parent"
+                                <!-- Date Text in Orange -->
+                                <TextView
+                                    android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:orientation="vertical">
+                                    android:text="Monday, Feb 24"
+                                    android:textSize="16sp"
+                                    android:textColor="@color/textRed"
+                                    android:layout_marginBottom="8dp" />
 
-                                    <!-- Date Text in Orange -->
+                                <!-- Horizontal Divider in Gray, Spanning Full Card Width -->
+                                <View
+                                    android:layout_width="match_parent"
+                                    android:layout_height="1dp"
+                                    android:background="@color/light_gray"
+                                    android:layout_marginBottom="8dp"
+                                    android:layout_marginTop="8dp" />
+
+                            </LinearLayout>
+
+                            <!-- Lower Section for Morning, Time, and Clock Icon in Orange, Aligned Horizontally -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+
+                                <!-- Morning Text in Orange on the Left -->
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:text="Morning"
+                                    android:textSize="16sp"
+                                    android:textColor="@color/textRed"
+                                    android:gravity="center_vertical" />
+
+                                <!-- Time and Clock Icon on the Right -->
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal"
+                                    android:gravity="center_vertical">
+
+                                    <!-- Time Text in Orange -->
                                     <TextView
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:text="Monday, Feb 24"
+                                        android:text="9:00 am"
                                         android:textSize="16sp"
                                         android:textColor="@color/textRed"
-                                        android:layout_marginBottom="8dp" />
+                                        android:layout_marginRight="8dp" />
 
-                                    <!-- Horizontal Divider in Gray, Spanning Full Card Width -->
-                                    <View
-                                        android:layout_width="match_parent"
-                                        android:layout_height="1dp"
-                                        android:background="@color/light_gray"
-                                        android:layout_marginBottom="8dp"
-                                        android:layout_marginTop="8dp" />
+                                    <!-- Clock Icon with Orange Tint -->
+                                    <ImageView
+                                        android:layout_width="20dp"
+                                        android:layout_height="20dp"
+                                        android:src="@drawable/ic_clock_start_at"
+                                        android:layout_gravity="center_vertical"
+                                        app:tint="@color/textRed" />
 
                                 </LinearLayout>
-
-                                <!-- Lower Section for Morning, Time, and Clock Icon in Orange, Aligned Horizontally -->
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal">
-
-                                    <!-- Morning Text in Orange on the Left -->
-                                    <TextView
-                                        android:layout_width="0dp"
-                                        android:layout_height="wrap_content"
-                                        android:layout_weight="1"
-                                        android:text="Morning"
-                                        android:textSize="16sp"
-                                        android:textColor="@color/textRed"
-                                        android:gravity="center_vertical" />
-
-                                    <!-- Time and Clock Icon on the Right -->
-                                    <LinearLayout
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:orientation="horizontal"
-                                        android:gravity="center_vertical">
-
-                                        <!-- Time Text in Orange -->
-                                        <TextView
-                                            android:layout_width="wrap_content"
-                                            android:layout_height="wrap_content"
-                                            android:text="9:00 am"
-                                            android:textSize="16sp"
-                                            android:textColor="@color/textRed"
-                                            android:layout_marginRight="8dp" />
-
-                                        <!-- Clock Icon with Orange Tint -->
-                                        <ImageView
-                                            android:layout_width="20dp"
-                                            android:layout_height="20dp"
-                                            android:src="@drawable/ic_clock_start_at"
-                                            android:layout_gravity="center_vertical"
-                                            app:tint="@color/textRed" />
-
-                                    </LinearLayout>
                             </LinearLayout>
                         </LinearLayout>
                     </LinearLayout>

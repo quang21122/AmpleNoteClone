@@ -45,7 +45,7 @@
         <activity android:name=".CreateNoteActivity" />
         <activity android:name=".NotesActivity" />
         <activity android:name=".settings.ChoosePlanActivity" />
-        <activity android:name=".tasks.TasksActivity"/>
+        <activity android:name=".tasks.TasksPageActivity"/>
     </application>
 
 </manifest>

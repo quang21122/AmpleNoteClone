@@ -46,12 +46,13 @@
             android:background="@color/textGray"
             android:layout_marginBottom="24dp" />
 
-        <!-- Chỗ để chứa TaskFragment -->
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/task_fragment_container"
+        <!-- RecyclerView để hiển thị danh sách tasks -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_tasks"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:name="com.example.amplenoteclone.tasks.TaskFragment" />
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="8dp" />
 
     </LinearLayout>
 </ScrollView>

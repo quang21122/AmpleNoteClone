@@ -17,7 +17,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.amplenoteclone.NotesActivity;
 import com.example.amplenoteclone.R;
-import com.example.amplenoteclone.tasks.TasksActivity;
+import com.example.amplenoteclone.tasks.TasksPageActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -62,7 +62,7 @@ public class CalendarActivity extends AppCompatActivity {
                 startActivity(intent);
                 return true;
             } else if (item.getItemId() == R.id.action_task) {
-                Intent intent = new Intent(CalendarActivity.this, TasksActivity.class);
+                Intent intent = new Intent(CalendarActivity.this, TasksPageActivity.class);
                 startActivity(intent);
                 return true;
             }
