@@ -7,8 +7,9 @@ public class NotesActivity extends DrawerActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Must have methods for initializing the activity
         super.onCreate(savedInstanceState);
-
+        setActivityContent(R.layout.activity_notes);
     }
 
     @Override

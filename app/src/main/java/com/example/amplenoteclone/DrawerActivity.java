@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -150,6 +151,17 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
         }
 
         return true;
+    }
+
+    protected void setActivityContent(int layoutResID) {
+        // Get the content frame that exists in the drawer layout
+        FrameLayout contentFrame = findViewById(R.id.content_frame);
+        if (contentFrame != null) {
+            // Clear existing views
+            contentFrame.removeAllViews();
+            // Inflate the child activity's layout into the content frame
+            getLayoutInflater().inflate(layoutResID, contentFrame);
+        }
     }
 
     protected void setupToolbar() {
