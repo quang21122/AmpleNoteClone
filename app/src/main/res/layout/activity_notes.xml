@@ -1,26 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="@color/white">
 
-    <!-- Top Bar -->
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/darkBackground"
-        android:navigationIcon="@drawable/ic_menu"
-        app:navigationIconTint="@color/white"
-        app:titleTextColor="@color/white"
-        app:title="Notes"/>
-
-    <!-- Notes Count -->
+    <!-- Notes Count and Sorting -->
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:padding="8dp">
 
         <TextView
             android:id="@+id/txtNotesCount"
@@ -28,19 +18,16 @@
             android:layout_height="wrap_content"
             android:text="67 NOTES"
             android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
-            android:padding="8dp" />
+            android:textColor="@android:color/darker_gray" />
 
         <TextView
             android:id="@+id/sortOptions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:padding="8dp"
             android:text="Date Created"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:textColor="@android:color/darker_gray" />
     </RelativeLayout>
 
     <!-- Notes List (RecyclerView) -->
@@ -49,16 +36,6 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="8dp"
         android:clipToPadding="false" />
-
-    <!-- Bottom Navigation (Always at the bottom) -->
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNav"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        app:menu="@menu/bottom_nav"
-        app:itemIconTint="@color/iconGray" />
 
 </LinearLayout>
