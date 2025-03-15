@@ -40,5 +40,12 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        app:menu="@menu/drawer_nav"/>
+        android:background="@color/darkBackground"
+        app:headerLayout="@layout/drawer_header"
+        app:menu="@menu/drawer_nav"
+        app:itemTextColor="@color/white"
+        app:itemIconTint="@color/iconGray"
+        app:itemIconSize="20dp"
+        app:itemHorizontalPadding="16dp"
+        app:itemVerticalPadding="12dp" />
 </androidx.drawerlayout.widget.DrawerLayout>
