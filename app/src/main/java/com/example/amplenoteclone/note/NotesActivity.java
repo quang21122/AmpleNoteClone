@@ -1,7 +1,10 @@
-package com.example.amplenoteclone;
+package com.example.amplenoteclone.note;
 
 import android.os.Bundle;
 import android.view.Menu;
+
+import com.example.amplenoteclone.DrawerActivity;
+import com.example.amplenoteclone.R;
 
 public class NotesActivity extends DrawerActivity {
 

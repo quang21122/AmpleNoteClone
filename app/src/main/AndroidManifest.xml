@@ -50,8 +50,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".SettingsActivity" />
-        <activity android:name=".CreateNoteActivity" />
-        <activity android:name=".NotesActivity" />
+        <activity android:name=".note.CreateNoteActivity" />
+        <activity android:name=".note.NotesActivity" />
         <activity android:name=".settings.ChoosePlanActivity" />
         <activity android:name=".TasksActivity"/>
     </application>
