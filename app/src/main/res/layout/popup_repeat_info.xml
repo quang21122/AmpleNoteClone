@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/dark"
+    android:padding="16dp"
+    android:elevation="8dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Use repeating tasks to capture periodic tasks that you perform on a fixed schedule or with a fixed interval"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        android:gravity="center" />
+
+</LinearLayout>
