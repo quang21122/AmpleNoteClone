@@ -2,4 +2,7 @@
 <resources>
     <dimen name="nav_bar_padding">8dp</dimen>
     <dimen name="nav_bar_height">64dp</dimen>
+    <dimen name="note_title_text_size">24sp</dimen>
+    <dimen name="note_icon_size">32sp</dimen>
+    <dimen name="note_content_text_size">14sp</dimen>
 </resources>

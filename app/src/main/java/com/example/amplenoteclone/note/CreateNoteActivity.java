@@ -1,8 +1,10 @@
-package com.example.amplenoteclone;
+package com.example.amplenoteclone.note;
 
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.amplenoteclone.R;
 
 public class CreateNoteActivity extends AppCompatActivity {
 

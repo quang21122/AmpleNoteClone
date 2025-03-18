@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.amplenoteclone.calendar.CalendarActivity;
+import com.example.amplenoteclone.note.NotesActivity;
 import com.example.amplenoteclone.settings.SettingsActivity;
 import com.example.amplenoteclone.authentication.Login;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
