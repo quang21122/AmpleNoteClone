@@ -55,16 +55,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".settings.ChoosePlanActivity" android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity android:name=".CreateNoteActivity" />
-        <activity android:name=".NotesActivity" />
-
+        <activity android:name=".note.CreateNoteActivity" />
+        <activity android:name=".note.NotesActivity" />
+        <activity android:name=".settings.ChoosePlanActivity" />
         <activity android:name=".TasksActivity"/>
+        <activity
+            android:name=".note.ViewNoteActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

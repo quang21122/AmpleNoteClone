@@ -20,6 +20,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+
     <!--    Pro plan-->
     <string name="pro_plan">Pro</string>
     <string name="unlimited_plan">Unlimited</string>
@@ -36,4 +37,6 @@
     <string name="payment_method">MoMo e-wallet: ***1101</string>
     <string name="alternative_payment">Bạn muốn dùng “Đăng ký” bằng cách khác? Bạn có thể dùng Google Play hoặc chọn một phương thức thanh toán khác</string>
     <string name="subscribe">Đăng ký</string>
+    <string name="open_drawer">Open Navigation Drawer</string>
+    <string name="close_drawer">Close Navigation Drawer</string>
 </resources>

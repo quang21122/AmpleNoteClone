@@ -47,7 +47,7 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:menu="@menu/menu_tasks_toolbar" />
+                app:menu="@menu/toolbar_tasks" />
         </RelativeLayout>
 
         <!-- Sort Section -->
