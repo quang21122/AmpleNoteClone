@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/option_hide_this_afternoon"
+        android:title="This afternoon" />
+    <item
+        android:id="@+id/option_hide_tomorrow"
+        android:title="Tomorrow" />
+    <item
+        android:id="@+id/option_hide_this_weekend"
+        android:title="This weekend" />
+    <item
+        android:id="@+id/option_hide_one_week"
+        android:title="One week" />
+    <item
+        android:id="@+id/option_hide_three_weeks"
+        android:title="Three weeks" />
+    <item
+        android:id="@+id/option_hide_choose_date"
+        android:title="Choose date" />
+</menu>

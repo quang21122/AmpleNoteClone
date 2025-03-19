@@ -10,10 +10,14 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 import com.example.amplenoteclone.DrawerActivity;
 import com.example.amplenoteclone.R;
+import com.example.amplenoteclone.tasks.TasksPageActivity;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
@@ -43,6 +47,7 @@ public class CalendarActivity extends DrawerActivity {
     protected void onCreate(Bundle savedInstanceState) {
         // Must have methods for initializing the activity
         super.onCreate(savedInstanceState);
+
         setActivityContent(R.layout.activity_calendar);
 
         initializeViews();

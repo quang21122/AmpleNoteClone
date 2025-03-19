@@ -58,10 +58,7 @@
         <activity android:name=".note.CreateNoteActivity" />
         <activity android:name=".note.NotesActivity" />
         <activity android:name=".settings.ChoosePlanActivity" />
-        <activity android:name=".TasksActivity"/>
-        <activity
-            android:name=".note.ViewNoteActivity"
-            android:exported="false" />
+        <activity android:name=".tasks.TasksPageActivity"/>
     </application>
 
 </manifest>

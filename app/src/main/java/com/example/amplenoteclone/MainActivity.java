@@ -16,6 +16,7 @@ import com.example.amplenoteclone.calendar.CalendarActivity;
 import com.example.amplenoteclone.note.NotesActivity;
 import com.example.amplenoteclone.settings.SettingsActivity;
 import com.example.amplenoteclone.authentication.Login;
+import com.example.amplenoteclone.tasks.TasksPageActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -99,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         tasksButton.setOnClickListener(v -> {
-            Intent intent = new Intent(getApplicationContext(), TasksActivity.class);
+            Intent intent = new Intent(getApplicationContext(), TasksPageActivity.class);
             startActivity(intent);
         });
     }
