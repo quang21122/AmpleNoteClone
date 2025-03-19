@@ -10,10 +10,14 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 import com.example.amplenoteclone.DrawerActivity;
 import com.example.amplenoteclone.R;
+import com.example.amplenoteclone.tasks.TasksPageActivity;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
@@ -43,7 +47,29 @@ public class CalendarActivity extends DrawerActivity {
     protected void onCreate(Bundle savedInstanceState) {
         // Must have methods for initializing the activity
         super.onCreate(savedInstanceState);
-        setActivityContent(R.layout.activity_calendar);
+
+        setContentView(R.layout.activity_calendar);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(R.drawable.ic_menu);
+
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNav);
+        bottomNavigationView.setSelectedItemId(R.id.action_calendar);
+
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            if (item.getItemId() == R.id.action_notes) {
+                Intent intent = new Intent(CalendarActivity.this, NotesActivity.class);
+                startActivity(intent);
+                return true;
+            } else if (item.getItemId() == R.id.action_task) {
+                Intent intent = new Intent(CalendarActivity.this, TasksPageActivity.class);
+                startActivity(intent);
+                return true;
+            }
+            // Do nothing, already on Calendar page
+            else return item.getItemId() == R.id.action_calendar;
+        });
 
         initializeViews();
         setupCalendarBottomSheet();
