@@ -19,6 +19,24 @@
     <string name="calendar">Calendar</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
+    <!--    Pro plan-->
+    <string name="pro_plan">Pro</string>
+    <string name="unlimited_plan">Unlimited</string>
+    <string name="founder_plan">Founder</string>
+    <string name="pro_plan_monthly">Pro Plan - Monthly</string>
+    <string name="pro_plan_annual">Pro Plan - Annual</string>
+    <string name="trial_start">Ngày bắt đầu dùng miễn phí</string>
+    <string name="trial_period">14 ngày dùng thử miễn phí</string>
+    <string name="start_date_default">Ngày bắt đầu 22 tháng 3, 2025</string>
+    <string name="price_monthly">59.000 đ/tháng + thuế</string>
+    <string name="price_annual">499.000 đ/năm + thuế</string>
+    <string name="add_tax">Thêm thuế</string>
+    <string name="terms">• Hủy bất kỳ lúc nào trong phần Gói thuê bao trên Google Play\n• Bạn sẽ không bị tính phí nếu hủy trước 22 tháng 3, 2025\n• Chúng tôi sẽ gửi thông báo để nhắc bạn 2 ngày trước khi thời gian dùng thử của bạn kết thúc</string>
+    <string name="payment_method">MoMo e-wallet: ***1101</string>
+    <string name="alternative_payment">Bạn muốn dùng “Đăng ký” bằng cách khác? Bạn có thể dùng Google Play hoặc chọn một phương thức thanh toán khác</string>
+    <string name="subscribe">Đăng ký</string>
     <string name="open_drawer">Open Navigation Drawer</string>
     <string name="close_drawer">Close Navigation Drawer</string>
 </resources>
