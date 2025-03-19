@@ -30,66 +30,6 @@
                 app:titleTextColor="@color/white"
                 app:title="@string/calendar"/>
 
-            <!-- Tabs -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:baselineAligned="false"
-                android:orientation="horizontal"
-                android:background="@color/primary"
-                android:elevation="2dp">
-
-                <!-- Work Tab -->
-                <LinearLayout
-                    android:id="@+id/work_tab"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/work_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/work"
-                        android:textSize="16sp"
-                        android:textColor="@color/white"
-                        android:paddingVertical="12dp"/>
-
-                    <View
-                        android:id="@+id/work_indicator"
-                        android:layout_width="match_parent"
-                        android:layout_height="2dp"
-                        android:background="@color/light_blue"/>
-                </LinearLayout>
-
-                <!-- Personal Tab -->
-                <LinearLayout
-                    android:id="@+id/personal_tab"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/personal_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/personal"
-                        android:textSize="16sp"
-                        android:textColor="@color/white"
-                        android:paddingVertical="12dp"/>
-
-                    <View
-                        android:id="@+id/personal_indicator"
-                        android:layout_width="match_parent"
-                        android:layout_height="2dp"
-                        android:background="@color/light_blue"/>
-                </LinearLayout>
-            </LinearLayout>
-
             <!-- Date Selector -->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -146,24 +86,10 @@
 
         <!-- Content Container -->
         <FrameLayout
+            android:id="@+id/content_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
-
-            <!-- Work Content -->
-            <FrameLayout
-                android:id="@+id/work_content_container"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="visible"/>
-
-            <!-- Personal Content -->
-            <FrameLayout
-                android:id="@+id/personal_content_container"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone"/>
-        </FrameLayout>
+            android:layout_weight="1"/>
     </LinearLayout>
 
     <!-- Bottom Navigation -->

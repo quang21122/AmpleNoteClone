@@ -15,4 +15,9 @@
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/gray</item>
     </style>
+
+    <style name="SpinnerStyle" parent="Widget.AppCompat.Spinner">
+        <item name="android:popupElevation">8dp</item>
+        <item name="android:dropDownVerticalOffset">24dp</item>
+    </style>
 </resources>
