@@ -48,28 +48,7 @@ public class CalendarActivity extends DrawerActivity {
         // Must have methods for initializing the activity
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_calendar);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        toolbar.setNavigationIcon(R.drawable.ic_menu);
-
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNav);
-        bottomNavigationView.setSelectedItemId(R.id.action_calendar);
-
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.action_notes) {
-                Intent intent = new Intent(CalendarActivity.this, NotesActivity.class);
-                startActivity(intent);
-                return true;
-            } else if (item.getItemId() == R.id.action_task) {
-                Intent intent = new Intent(CalendarActivity.this, TasksPageActivity.class);
-                startActivity(intent);
-                return true;
-            }
-            // Do nothing, already on Calendar page
-            else return item.getItemId() == R.id.action_calendar;
-        });
+        setActivityContent(R.layout.activity_calendar);
 
         initializeViews();
         setupCalendarBottomSheet();

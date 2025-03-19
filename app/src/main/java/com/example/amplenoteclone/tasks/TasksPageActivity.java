@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.example.amplenoteclone.NotesActivity;
+import com.example.amplenoteclone.note.NotesActivity;
 import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.calendar.CalendarActivity;
 import com.example.amplenoteclone.tasks.TaskAdapter;
@@ -88,7 +88,7 @@ public class TasksPageActivity extends AppCompatActivity {
 
         // Khởi tạo BottomNavigationView
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNav);
-        bottomNavigationView.setSelectedItemId(R.id.action_task);
+        bottomNavigationView.setSelectedItemId(R.id.action_tasks);
 
         // Xử lý sự kiện cho BottomNavigationView
         bottomNavigationView.setOnItemSelectedListener(item -> {
@@ -101,7 +101,7 @@ public class TasksPageActivity extends AppCompatActivity {
                 Intent intent = new Intent(TasksPageActivity.this, NotesActivity.class);
                 startActivity(intent);
                 return true;
-            } else if (itemId == R.id.action_task) {
+            } else if (itemId == R.id.action_tasks) {
                 return true;
             }
             return false;

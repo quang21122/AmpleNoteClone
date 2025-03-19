@@ -14,6 +14,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.amplenoteclone.calendar.CalendarActivity;
 import com.example.amplenoteclone.note.NotesActivity;
+import com.example.amplenoteclone.tasks.TasksPageActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 
@@ -119,7 +120,7 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
         } else if (id == R.id.drawer_notes) {
             startActivity(new Intent(this, NotesActivity.class));
         } else if (id == R.id.drawer_tasks) {
-            startActivity(new Intent(this, TasksActivity.class));
+            startActivity(new Intent(this, TasksPageActivity.class));
         }
 
         drawerLayout.closeDrawers(); // Close drawer only when selecting a new item
@@ -148,7 +149,7 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
         } else if (id == R.id.action_notes) {
             startActivity(new Intent(this, NotesActivity.class));
         } else if (id == R.id.action_tasks) {
-            startActivity(new Intent(this, TasksActivity.class));
+            startActivity(new Intent(this, TasksPageActivity.class));
         }
 
         return true;
