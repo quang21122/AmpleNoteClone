@@ -8,10 +8,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.amplenoteclone.adapters.TaskAdapter;
+import com.example.amplenoteclone.models.Task;
 import com.example.amplenoteclone.note.NotesActivity;
 import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.calendar.CalendarActivity;
-import com.example.amplenoteclone.tasks.TaskAdapter;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.util.ArrayList;
 import java.util.List;

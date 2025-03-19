@@ -1,4 +1,4 @@
-package com.example.amplenoteclone.tasks;
+package com.example.amplenoteclone.adapters;
 
 import android.app.DatePickerDialog;
 import android.content.Context;
@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.widget.PopupMenu;
 
 import com.example.amplenoteclone.R;
+import com.example.amplenoteclone.models.Task;
 import com.google.android.material.button.MaterialButton;
 
 import java.text.SimpleDateFormat;
@@ -432,7 +433,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
     // Hàm cập nhật trạng thái giao diện của các nút trong Priority Card
     private void updatePriorityButtonStates(Task task, TaskViewHolder holder) {
-        Set<String> selectedPriority = task.getPriority();
+        String selectedPriority = task.getPriority();
         Context context = holder.itemView.getContext();
 
         int defaultBackgroundColor = ContextCompat.getColor(context, R.color.dark_blue_gray);
@@ -440,31 +441,26 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         int defaultTextColor = ContextCompat.getColor(context, R.color.textGray);
         int selectedTextColor = ContextCompat.getColor(context, R.color.white);
 
-        // Cập nhật nút "Important"
         holder.priorityImportantButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
-                selectedPriority.contains("Important") ? selectedBackgroundColor : defaultBackgroundColor));
+                selectedPriority != null && selectedPriority.equals("Important") ? selectedBackgroundColor : defaultBackgroundColor));
         holder.priorityImportantButton.setTextColor(
-                selectedPriority.contains("Important") ? selectedTextColor : defaultTextColor);
+                selectedPriority != null && selectedPriority.equals("Important") ? selectedTextColor : defaultTextColor);
 
-        // Cập nhật nút "Urgent"
         holder.priorityUrgentButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
-                selectedPriority.contains("Urgent") ? selectedBackgroundColor : defaultBackgroundColor));
+                selectedPriority != null && selectedPriority.equals("Urgent") ? selectedBackgroundColor : defaultBackgroundColor));
         holder.priorityUrgentButton.setTextColor(
-                selectedPriority.contains("Urgent") ? selectedTextColor : defaultTextColor);
+                selectedPriority != null && selectedPriority.equals("Urgent") ? selectedTextColor : defaultTextColor);
     }
     // Hàm xử lý chọn/bỏ chọn nút trong Priority Card
     private void togglePriorityButton(Task task, String priority, TaskViewHolder holder) {
-        Set<String> currentPriority = task.getPriority();
+        String currentPriority = task.getPriority();
 
-        // Nếu priority đã được chọn, bỏ chọn nó (xóa khỏi Set)
-        if (currentPriority.contains(priority)) {
-            currentPriority.remove(priority);
+        if (currentPriority != null && currentPriority.equals(priority)) {
+            task.setPriority(null);
         } else {
-            // Nếu chưa được chọn, thêm vào Set
-            currentPriority.add(priority);
+            task.setPriority(priority);
         }
 
-        task.setPriority(currentPriority);
         updatePriorityButtonStates(task, holder);
     }
 

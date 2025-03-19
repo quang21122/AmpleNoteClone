@@ -1,9 +1,6 @@
-package com.example.amplenoteclone.tasks;
+package com.example.amplenoteclone.models;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
 
 public class Task {
@@ -16,7 +13,7 @@ public class Task {
     private String startPeriod;
     private String startTime;
     private String notificationTime;
-    private Set<String> priority;
+    private String priority;
     private String duration;
     private String hideDate;
     private String hideTime;
@@ -34,10 +31,7 @@ public class Task {
         this.startPeriod = startPeriod;
         this.startTime = startTime;
         this.notificationTime = notificationTime;
-        this.priority = new HashSet<>(); // Khởi tạo Set rỗng
-        if (priority != null && !priority.isEmpty()) {
-            this.priority.add(priority); // Chuyển giá trị cũ (nếu có) vào Set
-        }
+        this.priority = priority;
         this.duration = duration;
         this.hideDate = hideDate;
         this.hideTime = hideTime;
@@ -49,7 +43,7 @@ public class Task {
     }
 
     public void setChecked(boolean checked) {
-        isChecked = checked;
+        this.isChecked = checked;
     }
 
     public String getTitle() {
@@ -116,12 +110,10 @@ public class Task {
         this.notificationTime = notificationTime;
     }
 
-    public Set<String> getPriority() {
+    public String getPriority() {
         return priority;
     }
-    public void setPriority(Set<String> priority) {
-        this.priority = priority != null ? priority : new HashSet<>();
-    }
+    public void setPriority(String priority) { this.priority = priority; }
     public String getDuration() {
         return duration;
     }
