@@ -16,6 +16,7 @@ import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.calendar.CalendarActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class TasksPageActivity extends AppCompatActivity {
@@ -45,39 +46,14 @@ public class TasksPageActivity extends AppCompatActivity {
         taskList = new ArrayList<>();
 
         // Thêm Task 1
-        taskList.add(new Task(
-                false,              // isChecked
-                "Task 1",           // title
-                "February 24th, 2025", // date
-                "Created 23 minutes ago", // createdTime
-                "Doesn't repeat",   // repeatOption (mặc định)
-                "", // startDate (mặc định, vì ngày hiện tại là 18/03/2025)
-                "",                 // startPeriod (rỗng)
-                "",                 // startTime (rỗng)
-                null,               // notificationTime (null)
-                null,               // priority (null)
-                null,               // duration (null)
-                "",
-                ""
-        ));
+        taskList.add(new Task(false, "Test Task", new Date(), "task1", "Doesn't repeat",
+                "", "", "", "",
+                "Important", "30 min", "", ""));
 
         // Thêm Task 2
-        taskList.add(new Task(
-                true,               // isChecked
-                "Task 2",           // title
-                "February 25th, 2025", // date
-                "Created 1 hour ago", // createdTime
-                "Doesn't repeat",   // repeatOption (mặc định)
-                "e.g. Today, Mar 18", // startDate (mặc định, vì ngày hiện tại là 18/03/2025)
-                "",                 // startPeriod (rỗng)
-                "",                 // startTime (rỗng)
-                null,               // notificationTime (null)
-                null,               // priority (null)
-                null,                // duration (null)
-                 "",
-                ""
-
-        ));
+        taskList.add(new Task(false, "Test Task", new Date(), "task2", "Doesn't repeat",
+                "Monday, Mar 18", "Morning", "9:00 am", "5 min",
+                "Important", "30 min", "Saturday, Mar 22", "9:00 pm"));
 
 
         taskAdapter = new TaskAdapter(taskList, new TaskAdapter.OnItemClickListener() {

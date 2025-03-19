@@ -29,7 +29,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder> {
 
@@ -56,16 +55,16 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     public void onBindViewHolder(@NonNull TaskViewHolder holder, int position) {
         Task task = taskList.get(position);
 
-        holder.checkTask.setChecked(task.isChecked());
+        holder.checkTask.setChecked(task.isCompleted());
         holder.taskTitle.setText(task.getTitle());
-        holder.taskDate.setText(task.getDate());
-        holder.taskCreatedTime.setText(task.getCreatedTime());
-        holder.repeatOptionText.setText(task.getRepeatOption());
-        holder.startAtPeriodText.setText(task.getStartPeriod());
-        holder.startAtTimeText.setText(task.getStartTime());
-        holder.startAtDateText.setText(task.getStartDate());
-        holder.hideUntilTimeText.setText(task.getHideTime());
-        holder.hideUntilDateText.setText(task.getHideDate());
+        holder.taskDate.setText(task.getCreateAt().toString());
+        holder.taskCreatedTime.setText(task.getId());
+        holder.repeatOptionText.setText(task.getRepeat());
+        holder.startAtPeriodText.setText(task.getStartAtPeriod());
+        holder.startAtTimeText.setText(task.getStartAtTime());
+        holder.startAtDateText.setText(task.getStartAtDate());
+        holder.hideUntilTimeText.setText(task.getHideUntilTime());
+        holder.hideUntilDateText.setText(task.getHideUntilDate());
 
         String curDateSample = getCurDateSample();
         if (holder.startAtDateText.getText() == null || holder.startAtDateText.getText().toString().isEmpty()) {
@@ -80,21 +79,21 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
                 holder.startAtTimeText, holder.startAtClockIcon, holder.itemView.getContext());
 
         // Ẩn/hiện icon đồng hồ dựa trên giá trị của startAtTimeText
-        if (task.getStartTime() == null || task.getStartTime().isEmpty()) {
+        if (task.getStartAtTime() == null || task.getStartAtTime().isEmpty()) {
             holder.startAtClockIcon.setVisibility(View.GONE);
         } else {
             holder.startAtClockIcon.setVisibility(View.VISIBLE);
         }
 
         // Ẩn/hiện Start Noti Card dựa trên giá trị của startDate
-        if (task.getStartDate().equals(curDateSample) || task.getStartDate().isEmpty()) {
+        if (task.getStartAtDate().equals(curDateSample) || task.getStartAtDate().isEmpty()) {
             holder.startNotiCard.setVisibility(View.GONE);
         } else {
             holder.startNotiCard.setVisibility(View.VISIBLE);
         }
 
         // Kiểm tra isPastTime và vô hiệu hóa các nút trong Start Noti Card nếu cần
-        boolean isPast = isPastTime(task.getStartDate(), task.getStartTime());
+        boolean isPast = isPastTime(task.getStartAtDate(), task.getStartAtTime());
         holder.startNoti5MinButton.setEnabled(!isPast);
         holder.startNoti15MinButton.setEnabled(!isPast);
         holder.startNoti60MinButton.setEnabled(!isPast);
@@ -174,7 +173,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
                 PopupMenu popupMenu = new PopupMenu(context, holder.repeatCard);
                 popupMenu.getMenuInflater().inflate(R.menu.repeat_options_menu, popupMenu.getMenu());
 
-                String currentOption = task.getRepeatOption();
+                String currentOption = task.getRepeat();
                 if (currentOption.equals("Doesn't repeat")) {
                     popupMenu.getMenu().findItem(R.id.option_doesnt_repeat).setChecked(true);
                 } else if (currentOption.equals("On a fixed schedule")) {
@@ -189,15 +188,15 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
                         int itemId = item.getItemId();
                         if (itemId == R.id.option_doesnt_repeat) {
                             holder.repeatOptionText.setText("Doesn't repeat");
-                            task.setRepeatOption("Doesn't repeat");
+                            task.setRepeat("Doesn't repeat");
                             return true;
                         } else if (itemId == R.id.option_fixed_schedule) {
                             holder.repeatOptionText.setText("On a fixed schedule");
-                            task.setRepeatOption("On a fixed schedule");
+                            task.setRepeat("On a fixed schedule");
                             return true;
                         } else if (itemId == R.id.option_when_task_complete) {
                             holder.repeatOptionText.setText("When task is complete");
-                            task.setRepeatOption("When task is complete");
+                            task.setRepeat("When task is complete");
                             return true;
                         }
                         return false;
@@ -213,7 +212,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             @Override
             public void onClick(View v) {
                 String defaultDate = getCurDateSample();
-                if (task.getStartDate().equals(defaultDate) || task.getStartDate().isEmpty()) {
+                if (task.getStartAtDate().equals(defaultDate) || task.getStartAtDate().isEmpty()) {
                     showStartAtDatePickerDialog(holder.startAtDateText, task, position, holder.startAtPeriodText,
                             holder.startAtTimeText, holder.startAtClockIcon);
                 } else {
@@ -250,7 +249,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             @Override
             public void onClick(View v) {
                 String defaultDate = getCurDateSample();
-                if (task.getHideDate().equals(defaultDate) || task.getHideDate().isEmpty()) {
+                if (task.getHideUntilDate().equals(defaultDate) || task.getHideUntilDate().isEmpty()) {
                     showHideUntilDatePickerDialog(holder.hideUntilDateText, task, position, holder.hideUntilTimeText);
                 } else {
                     showHideUntilDateOptionsMenu(v.getContext(), holder.hideUntilDateContainer, holder.hideUntilDateText,
@@ -467,7 +466,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
     // Hàm cập nhật trạng thái giao diện của các nút trong Start Noti Card
     private void updateNotificationButtonStates(Task task, TaskViewHolder holder) {
-        String selectedTime = task.getNotificationTime();
+        String selectedTime = task.getStartNoti();
         Context context = holder.itemView.getContext();
 
         int defaultBackgroundColor = ContextCompat.getColor(context, R.color.dark_blue_gray);
@@ -497,12 +496,12 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     }
     // Hàm xử lý chọn/bỏ chọn nút trong Start Noti Card
     private void toggleNotificationButton(Task task, String time, TaskViewHolder holder) {
-        String currentNotificationTime = task.getNotificationTime();
+        String currentNotificationTime = task.getStartNoti();
 
         if (currentNotificationTime != null && currentNotificationTime.equals(time)) {
-            task.setNotificationTime(null);
+            task.setStartNoti(null);
         } else {
-            task.setNotificationTime(time);
+            task.setStartNoti(time);
         }
 
         updateNotificationButtonStates(task, holder);
@@ -524,15 +523,15 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         popupMenu.setOnMenuItemClickListener(item -> {
             String selectedTime = item.getTitle().toString();
             timeTextView.setText(selectedTime);
-            task.setHideTime(selectedTime);
+            task.setHideUntilTime(selectedTime);
 
             Calendar calendar = Calendar.getInstance();
             String defaultDate = getCurDateSample();
-            if (task.getHideDate().equals(defaultDate) || task.getHideDate().isEmpty()) {
+            if (task.getHideUntilDate().equals(defaultDate) || task.getHideUntilDate().isEmpty()) {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, MMM d", Locale.getDefault());
                 String formattedDate = dateFormat.format(calendar.getTime());
                 dateTextView.setText(formattedDate);
-                task.setHideDate(formattedDate);
+                task.setHideUntilDate(formattedDate);
             }
 
             return true;
@@ -642,8 +641,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             String[] parts = formattedDateTime.split(" at ");
             if (parts.length == 2) {
                 dateTextView.setText(parts[0]); // "Wed, Mar 19"
-                task.setHideDate(parts[0]);
-                task.setHideTime(parts[1]); // "2pm"
+                task.setHideUntilDate(parts[0]);
+                task.setHideUntilTime(parts[1]); // "2pm"
                 timeTextView.setText(parts[1]);
             }
 
@@ -669,10 +668,10 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
                     String formattedDate = dateFormat.format(selectedDate.getTime());
 
                     dateTextView.setText(formattedDate);
-                    task.setHideDate(formattedDate);
+                    task.setHideUntilDate(formattedDate);
 
-                    if (task.getHideTime() == null || task.getHideTime().isEmpty()) {
-                        task.setHideTime("9:00 am");
+                    if (task.getHideUntilTime() == null || task.getHideUntilTime().isEmpty()) {
+                        task.setHideUntilTime("9:00 am");
                         timeTextView.setText("9:00 am");
                     }
 
@@ -716,19 +715,19 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         popupMenu.setOnMenuItemClickListener(item -> {
             String selectedTime = item.getTitle().toString();
             timeTextView.setText(selectedTime);
-            task.setStartTime(selectedTime);
+            task.setStartAtTime(selectedTime);
 
             if (selectedTime.equals("8:00 am") || selectedTime.equals("9:00 am") || selectedTime.equals("10:00 am")) {
                 periodTextView.setText("Morning");
-                task.setStartPeriod("Morning");
+                task.setStartAtPeriod("Morning");
 
                 Calendar calendar = Calendar.getInstance();
                 String defaultDate = getCurDateSample();
-                if (task.getStartDate().equals(defaultDate) || task.getStartDate().isEmpty()) {
+                if (task.getStartAtDate().equals(defaultDate) || task.getStartAtDate().isEmpty()) {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, MMM d", Locale.getDefault());
                     String formattedDate = dateFormat.format(calendar.getTime());
                     dateTextView.setText(formattedDate);
-                    task.setStartDate(formattedDate);
+                    task.setStartAtDate(formattedDate);
                 }
             }
 
@@ -752,30 +751,30 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         popupMenu.setOnMenuItemClickListener(item -> {
             String selectedPeriod = item.getTitle().toString();
             periodTextView.setText(selectedPeriod);
-            task.setStartPeriod(selectedPeriod);
+            task.setStartAtPeriod(selectedPeriod);
 
             if (selectedPeriod.equals("Early morning")) {
-                task.setStartTime("4:00 am");
+                task.setStartAtTime("4:00 am");
             } else if (selectedPeriod.equals("Morning")) {
-                task.setStartTime("9:00 am");
+                task.setStartAtTime("9:00 am");
             } else if (selectedPeriod.equals("Afternoon")) {
-                task.setStartTime("2:00 pm");
+                task.setStartAtTime("2:00 pm");
             } else if (selectedPeriod.equals("Evening")) {
-                task.setStartTime("5:00 pm");
+                task.setStartAtTime("5:00 pm");
             } else if (selectedPeriod.equals("Late night")) {
-                task.setStartTime("9:00 pm");
+                task.setStartAtTime("9:00 pm");
             } else if (selectedPeriod.equals("Any time")) {
-                task.setStartTime("11:00 am");
+                task.setStartAtTime("11:00 am");
             }
-            timeTextView.setText(task.getStartTime());
+            timeTextView.setText(task.getStartAtTime());
 
             Calendar calendar = Calendar.getInstance();
             String defaultDate = getCurDateSample();
-            if (task.getStartDate().equals(defaultDate) || task.getStartDate().isEmpty()) {
+            if (task.getStartAtDate().equals(defaultDate) || task.getStartAtDate().isEmpty()) {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, MMM d", Locale.getDefault());
                 String formattedDate = dateFormat.format(calendar.getTime());
                 dateTextView.setText(formattedDate);
-                task.setStartDate(formattedDate);
+                task.setStartAtDate(formattedDate);
             }
 
             updateStartAtComponentsColor(task, dateTextView, periodTextView, timeTextView, clockIcon, context);
@@ -855,13 +854,13 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             }
             String formattedDate = dateFormat.format(newDate.getTime());
             dateTextView.setText(formattedDate);
-            task.setStartDate(formattedDate);
+            task.setStartAtDate(formattedDate);
 
             // Nếu period hoặc time chưa được đặt, mặc định là "Morning" và "9:00 am"
-            if ((task.getStartPeriod() == null || task.getStartPeriod().isEmpty()) &&
-                    (task.getStartTime() == null || task.getStartTime().isEmpty())) {
-                task.setStartPeriod("Morning");
-                task.setStartTime("9:00 am");
+            if ((task.getStartAtPeriod() == null || task.getStartAtPeriod().isEmpty()) &&
+                    (task.getStartAtTime() == null || task.getStartAtTime().isEmpty())) {
+                task.setStartAtPeriod("Morning");
+                task.setStartAtTime("9:00 am");
                 periodTextView.setText("Morning");
                 timeTextView.setText("9:00 am");
             }
@@ -878,12 +877,12 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
                                               TextView startAtTimeText, ImageView startAtClockIcon, Context context) {
         String defaultDate = getCurDateSample();
 
-        if (task.getStartDate().equals(defaultDate) || task.getStartDate().isEmpty()) {
+        if (task.getStartAtDate().equals(defaultDate) || task.getStartAtDate().isEmpty()) {
             startAtDateText.setTextColor(ContextCompat.getColor(context, R.color.textGray));
             startAtPeriodText.setTextColor(ContextCompat.getColor(context, android.R.color.black));
             startAtTimeText.setTextColor(ContextCompat.getColor(context, android.R.color.black));
             startAtClockIcon.setColorFilter(ContextCompat.getColor(context, android.R.color.black));
-        } else if (isPastTime(task.getStartDate(), task.getStartTime())) {
+        } else if (isPastTime(task.getStartAtDate(), task.getStartAtTime())) {
             startAtDateText.setTextColor(ContextCompat.getColor(context, R.color.textRed));
             startAtPeriodText.setTextColor(ContextCompat.getColor(context, R.color.textRed));
             startAtTimeText.setTextColor(ContextCompat.getColor(context, R.color.textRed));
@@ -912,12 +911,12 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
                     String formattedDate = dateFormat.format(selectedDate.getTime());
 
                     dateTextView.setText(formattedDate);
-                    task.setStartDate(formattedDate);
+                    task.setStartAtDate(formattedDate);
 
-                    if ((task.getStartPeriod() == null || task.getStartPeriod().isEmpty()) &&
-                            (task.getStartTime() == null || task.getStartTime().isEmpty())) {
-                        task.setStartPeriod("Morning");
-                        task.setStartTime("9:00 am");
+                    if ((task.getStartAtPeriod() == null || task.getStartAtPeriod().isEmpty()) &&
+                            (task.getStartAtTime() == null || task.getStartAtTime().isEmpty())) {
+                        task.setStartAtPeriod("Morning");
+                        task.setStartAtTime("9:00 am");
                         periodTextView.setText("Morning");
                         timeTextView.setText("9:00 am");
                     }

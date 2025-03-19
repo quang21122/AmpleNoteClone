@@ -86,7 +86,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/task_created_time"
             android:orientation="vertical"
-            android:background="@color/light_blue_gray">
+            android:background="@color/light_blue_gray"
+            android:visibility="gone">
 
             <!-- REPEAT Card -->
             <LinearLayout

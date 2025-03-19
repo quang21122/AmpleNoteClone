@@ -1,49 +1,55 @@
 package com.example.amplenoteclone.models;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Date;
 
 public class Task {
-    private boolean isChecked;
+    private String id;
+    private String noteId;
+    private String userId;
+    private boolean isCompleted;
     private String title;
-    private String date;
-    private String createdTime;
-    private String repeatOption;
-    private String startDate;
-    private String startPeriod;
-    private String startTime;
-    private String notificationTime;
+    private Date createAt;
+
+    private String repeat;
+    private String startAtDate;
+    private String startAtPeriod;
+    private String startAtTime;
+    private Date startAt;
+    private String startNoti;
     private String priority;
     private String duration;
-    private String hideDate;
-    private String hideTime;
+    private String hideUntilDate;
+    private String hideUntilTime;
+    private Date hideUntil;
+    private float score;
 
     // Constructor
-    public Task(boolean isChecked, String title, String date, String createdTime, String repeatOption,
-                String startDate, String startPeriod, String startTime, String notificationTime,
-                String priority, String duration, String hideDate, String hideTime) {
-        this.isChecked = isChecked;
+    public Task(boolean isCompleted, String title, Date createAt, String id, String repeat,
+                String startAtDate, String startAtPeriod, String startAtTime, String startNoti,
+                String priority, String duration, String hideUntilDate, String hideUntilTime) {
+        this.isCompleted = isCompleted;
         this.title = title;
-        this.date = date;
-        this.createdTime = createdTime;
-        this.repeatOption = repeatOption;
-        this.startDate = startDate;
-        this.startPeriod = startPeriod;
-        this.startTime = startTime;
-        this.notificationTime = notificationTime;
-        this.priority = priority;
+        this.createAt = createAt != null ? createAt : new Date();
+        this.id = id;
+        this.repeat = repeat;
+        this.startAtDate = startAtDate;
+        this.startAtPeriod = startAtPeriod;
+        this.startAtTime = startAtTime;
+        this.startNoti = startNoti;
+        this.priority = priority; // Giữ nguyên giá trị String
         this.duration = duration;
-        this.hideDate = hideDate;
-        this.hideTime = hideTime;
+        this.hideUntilDate = hideUntilDate;
+        this.hideUntilTime = hideUntilTime;
+        this.score = 0.0f; // Giá trị mặc định cho score
     }
 
     // Getters and Setters
-    public boolean isChecked() {
-        return isChecked;
+    public boolean isCompleted() {
+        return isCompleted;
     }
 
-    public void setChecked(boolean checked) {
-        this.isChecked = checked;
+    public void setCompleted(boolean completed) {
+        this.isCompleted = completed;
     }
 
     public String getTitle() {
@@ -54,66 +60,94 @@ public class Task {
         this.title = title;
     }
 
-    public String getDate() {
-        return date;
+    public Date getCreateAt() {
+        return createAt;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setCreateAt(Date createAt) {
+        this.createAt = createAt != null ? createAt : new Date();
     }
 
-    public String getCreatedTime() {
-        return createdTime;
+    public String getId() {
+        return id;
     }
 
-    public void setCreatedTime(String createdTime) {
-        this.createdTime = createdTime;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public String getRepeatOption() {
-        return repeatOption;
+    public String getNoteId() {
+        return noteId;
     }
 
-    public void setRepeatOption(String repeatOption) {
-        this.repeatOption = repeatOption;
+    public void setNoteId(String noteId) {
+        this.noteId = noteId;
     }
 
-    public String getStartDate() {
-        return startDate;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setStartDate(String startDate) {
-        this.startDate = startDate;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
-    public String getStartPeriod() {
-        return startPeriod;
+    public String getRepeat() {
+        return repeat;
     }
 
-    public void setStartPeriod(String startPeriod) {
-        this.startPeriod = startPeriod;
+    public void setRepeat(String repeat) {
+        this.repeat = repeat;
     }
 
-    public String getStartTime() {
-        return startTime;
+    public String getStartAtDate() {
+        return startAtDate;
     }
 
-    public void setStartTime(String startTime) {
-        this.startTime = startTime;
+    public void setStartAtDate(String startAtDate) {
+        this.startAtDate = startAtDate;
     }
 
-    public String getNotificationTime() {
-        return notificationTime;
+    public String getStartAtPeriod() {
+        return startAtPeriod;
     }
 
-    public void setNotificationTime(String notificationTime) {
-        this.notificationTime = notificationTime;
+    public void setStartAtPeriod(String startAtPeriod) {
+        this.startAtPeriod = startAtPeriod;
+    }
+
+    public String getStartAtTime() {
+        return startAtTime;
+    }
+
+    public void setStartAtTime(String startAtTime) {
+        this.startAtTime = startAtTime;
+    }
+
+    public Date getStartAt() {
+        return startAt;
+    }
+
+    public void setStartAt(Date startAt) {
+        this.startAt = startAt;
+    }
+
+    public String getStartNoti() {
+        return startNoti;
+    }
+
+    public void setStartNoti(String startNoti) {
+        this.startNoti = startNoti;
     }
 
     public String getPriority() {
         return priority;
     }
-    public void setPriority(String priority) { this.priority = priority; }
+
+    public void setPriority(String priority) {
+        this.priority = priority;
+    }
+
     public String getDuration() {
         return duration;
     }
@@ -122,18 +156,35 @@ public class Task {
         this.duration = duration;
     }
 
-    public String getHideDate() {
-        return hideDate;
-    }
-    public void setHideDate(String hideDate) {
-        this.hideDate = hideDate;
+    public String getHideUntilDate() {
+        return hideUntilDate;
     }
 
-    public String getHideTime() {
-        return hideTime;
+    public void setHideUntilDate(String hideUntilDate) {
+        this.hideUntilDate = hideUntilDate;
     }
 
-    public void setHideTime(String hideTime) {
-        this.hideTime = hideTime;
+    public String getHideUntilTime() {
+        return hideUntilTime;
+    }
+
+    public void setHideUntilTime(String hideUntilTime) {
+        this.hideUntilTime = hideUntilTime;
+    }
+
+    public Date getHideUntil() {
+        return hideUntil;
+    }
+
+    public void setHideUntil(Date hideUntil) {
+        this.hideUntil = hideUntil;
+    }
+
+    public float getScore() {
+        return score;
+    }
+
+    public void setScore(float score) {
+        this.score = score;
     }
 }
