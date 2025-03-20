@@ -14,6 +14,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -21,12 +22,19 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.amplenoteclone.NotesActivity;
 import com.example.amplenoteclone.R;
+import com.example.amplenoteclone.models.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -382,7 +390,58 @@ public class CalendarActivity extends AppCompatActivity {
         bottomSheetDialog.setContentView(bottomSheetView);
         setupDurationSpinner(bottomSheetView);
 
-        // Set height to 75% of screen height
+        // Setup RecyclerView
+        RecyclerView tasksRecyclerView = bottomSheetView.findViewById(R.id.tasks_recycler_view);
+        tasksRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        TaskCalendarAdapter adapter = new TaskCalendarAdapter(this);
+        tasksRecyclerView.setAdapter(adapter);
+
+        // Load tasks from Firestore
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            FirebaseFirestore.getInstance()
+                    .collection("tasks")
+                    .whereEqualTo("userId", currentUser.getUid())
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        List<Task> tasks = new ArrayList<>();
+                        for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                            try {
+                                // Manual mapping of document data
+                                Task task = new Task(
+                                        document.getBoolean("isCompleted") != null ? document.getBoolean("isCompleted") : false,
+                                        document.getString("title"),
+                                        document.getDate("createdAt"),
+                                        document.getId(),
+                                        document.getString("repeat"),
+                                        document.getString("startAtDate"),
+                                        document.getString("startAtPeriod"),
+                                        document.getString("startAtTime"),
+                                        document.getString("startNoti"),
+                                        document.getString("priority"),
+                                        String.valueOf(document.get("duration")),
+                                        document.getDate("startAt"),
+                                        document.getString("hideUntilDate"),
+                                        document.getString("hideUntilTime")
+                                );
+                                task.setUserId(document.getString("userId"));
+                                System.out.println("Task: " + task.getStartAt());
+                                tasks.add(task);
+                            } catch (Exception e) {
+                                System.out.println("Error parsing document: " + document.getId());
+                                e.printStackTrace();
+                            }
+                        }
+                        adapter.setTasks(tasks);
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Error loading tasks: " + e.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                        e.printStackTrace();
+                    });
+        }
+
+        // Set dialog height
         View parentView = (View) bottomSheetView.getParent();
         BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(parentView);
         int screenHeight = getResources().getDisplayMetrics().heightPixels;

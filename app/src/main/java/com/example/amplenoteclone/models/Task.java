@@ -23,10 +23,15 @@ public class Task {
     private Date hideUntil;
     private float score;
 
+
+    public Task() {
+        // Default constructor required for calls to DataSnapshot.getValue(Task.class)
+    }
+
     // Constructor
     public Task(boolean isCompleted, String title, Date createAt, String id, String repeat,
                 String startAtDate, String startAtPeriod, String startAtTime, String startNoti,
-                String priority, String duration, String hideUntilDate, String hideUntilTime) {
+                String priority, String duration, Date startAt, String hideUntilDate, String hideUntilTime) {
         this.isCompleted = isCompleted;
         this.title = title;
         this.createAt = createAt != null ? createAt : new Date();
@@ -36,6 +41,7 @@ public class Task {
         this.startAtPeriod = startAtPeriod;
         this.startAtTime = startAtTime;
         this.startNoti = startNoti;
+        this.startAt = startAt;
         this.priority = priority; // Giữ nguyên giá trị String
         this.duration = duration;
         this.hideUntilDate = hideUntilDate;
