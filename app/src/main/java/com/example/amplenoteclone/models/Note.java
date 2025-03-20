@@ -1,16 +1,17 @@
 package com.example.amplenoteclone.models;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Note {
+public class Note implements Serializable {
 
-    private long id;
+    private String id;
     private String title;
     private String content;
     private ArrayList<String> tags;
     private ArrayList<String> tasks;
     private String createdAt;
-    private int userId;
+    private String userId;
     private String updatedAt;
     Boolean isProtected;
 
@@ -19,21 +20,21 @@ public class Note {
         this.tasks = new ArrayList<>();
     }
 
-    public Note(long id, String title, String content, ArrayList<String> tags, String createdAt) {
+    public Note(String id, String title, String content, ArrayList<String> tags, ArrayList<String> tasks, String createdAt) {
         this.id = id;
         this.title = title;
         this.content = content;
         this.tags = tags != null ? tags : new ArrayList<>();
-        this.tasks = new ArrayList<>();
+        this.tasks = tasks != null ? tasks : new ArrayList<>();
         this.createdAt = createdAt;
         this.updatedAt = createdAt;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -85,11 +86,11 @@ public class Note {
         this.updatedAt = updatedAt;
     }
 
-    public int getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 

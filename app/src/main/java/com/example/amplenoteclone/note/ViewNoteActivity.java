@@ -1,6 +1,9 @@
 package com.example.amplenoteclone.note;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.Menu;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -10,73 +13,83 @@ import com.example.amplenoteclone.DrawerActivity;
 import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.models.Note;
 
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class ViewNoteActivity extends DrawerActivity {
-    public static final String EXTRA_NOTE_ID = "note_id";
+    private static final long AUTOSAVE_DELAY = 5000; // 5 seconds
 
     private EditText titleEditText;
-    private TextView lastUpdatedText;
-    private TextView addTagText;
+    private TextView lastUpdatedTextView;
+    private TextView addTagTextView;
     private EditText contentEditText;
-    private TextView tabHidden;
-    private TextView tabCompleted;
-    private TextView tabBacklinks;
-    private TextView noCompletedTasksText;
+    private TextView hiddenTabTextView;
+    private TextView completedTabTextView;
+    private TextView backlinksTabTextView;
+    private TextView noCompletedTasksTextView;
 
     private Note currentNote;
     private Timer autoSaveTimer;
+    private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setActivityContent(R.layout.activity_view_note);
 
-        titleEditText = findViewById(R.id.note_title);
-        lastUpdatedText = findViewById(R.id.last_updated);
-        addTagText = findViewById(R.id.add_tag);
-        contentEditText = findViewById(R.id.note_content);
-        tabHidden = findViewById(R.id.tab_hidden);
-        tabCompleted = findViewById(R.id.tab_completed);
-        tabBacklinks = findViewById(R.id.tab_backlinks);
-        noCompletedTasksText = findViewById(R.id.no_completed_tasks);
-
-        long noteId = getIntent().getLongExtra(EXTRA_NOTE_ID, -1);
-        if (noteId != -1) {
-            loadNote(noteId);
-        } else {
-            currentNote = new Note();
-            currentNote.setTitle("");
-            currentNote.setContent("");
-            currentNote.setUpdatedAt(String.valueOf(System.currentTimeMillis()));
-//            updateUI();
-        }
-
+        initializeViews();
+        initializeNote();
         setupListeners();
         setupAutoSave();
     }
 
-    private void loadNote(long noteId) {
-        currentNote = new Note();
-        currentNote.setId(noteId);
-        currentNote.setTitle("Try faking it");
-        currentNote.setContent("Feedback recordings into an acoustic situation");
-        currentNote.setUpdatedAt(String.valueOf(System.currentTimeMillis() - 3600000));
-//        updateUI();
+    private void initializeViews() {
+        titleEditText = findViewById(R.id.note_title);
+        lastUpdatedTextView = findViewById(R.id.last_updated);
+        addTagTextView = findViewById(R.id.add_tag);
+        contentEditText = findViewById(R.id.note_content);
+        hiddenTabTextView = findViewById(R.id.tab_hidden);
+        completedTabTextView = findViewById(R.id.tab_completed);
+        backlinksTabTextView = findViewById(R.id.tab_backlinks);
+        noCompletedTasksTextView = findViewById(R.id.no_completed_tasks);
     }
 
-//    private void updateUI() {
-//        titleEditText.setText(currentNote.getTitle());
-//        contentEditText.setText(currentNote.getContent());
-//
-//        long timeDiff = System.currentTimeMillis() - currentNote.getUpdatedAt();
-//        lastUpdatedText.setText("Updated " + formatTimeAgo(timeDiff));
-//
-//        tabHidden.setTextColor(getResources().getColor(currentNote.isHidden() ? android.R.color.white : android.R.color.darker_gray));
-//        tabCompleted.setTextColor(getResources().getColor(currentNote.isCompleted() ? android.R.color.white : android.R.color.darker_gray));
-//        noCompletedTasksText.setVisibility(currentNote.isCompleted() ? View.GONE : View.VISIBLE);
-//    }
+    private void initializeNote() {
+        loadNote("note");
+        if (currentNote == null) {
+            createNewNote();
+        }
+        updateUI();
+    }
+
+    private void createNewNote() {
+        currentNote = new Note();
+        currentNote.setTitle("");
+        currentNote.setContent("");
+        currentNote.setUpdatedAt(String.valueOf(System.currentTimeMillis()));
+    }
+
+    private void loadNote(String extra) {
+        this.currentNote = (Note) getIntent().getSerializableExtra(extra);
+    }
+
+    private void updateUI() {
+        titleEditText.setText(currentNote.getTitle());
+        contentEditText.setText(currentNote.getContent());
+        lastUpdatedTextView.setText(formatLastUpdated(currentNote.getUpdatedAt()));
+    }
+
+    private String formatLastUpdated(String timestampString) {
+        try {
+            long timestamp = Long.parseLong(timestampString);
+            long timeDiff = System.currentTimeMillis() - timestamp;
+            return "Updated " + formatTimeAgo(timeDiff);
+        } catch (NumberFormatException e) {
+            Log.e("ViewNoteActivity", "Error parsing timestamp: " + timestampString, e);
+            return "Updated unknown time ago"; // Or some other default message
+        }
+    }
 
     private String formatTimeAgo(long timeDiff) {
         if (timeDiff < 60000) return "just now";
@@ -86,20 +99,18 @@ public class ViewNoteActivity extends DrawerActivity {
     }
 
     private void setupListeners() {
-//        tabHidden.setOnClickListener(v -> {
-//            currentNote.setHidden(!currentNote.isHidden());
-//            saveNote();
-//            updateUI();
-//        });
+        hiddenTabTextView.setOnClickListener(v -> {
+            saveNote();
+            updateUI();
+        });
 
-//        tabCompleted.setOnClickListener(v -> {
-//            currentNote.setCompleted(!currentNote.isCompleted());
-//            saveNote();
-//            updateUI();
-//        });
+        completedTabTextView.setOnClickListener(v -> {
+            saveNote();
+            updateUI();
+        });
 
-        tabBacklinks.setOnClickListener(v -> Toast.makeText(this, "Backlinks feature coming soon", Toast.LENGTH_SHORT).show());
-        addTagText.setOnClickListener(v -> Toast.makeText(this, "Tag feature coming soon", Toast.LENGTH_SHORT).show());
+        backlinksTabTextView.setOnClickListener(v -> Toast.makeText(this, "Backlinks feature coming soon", Toast.LENGTH_SHORT).show());
+        addTagTextView.setOnClickListener(v -> Toast.makeText(this, "Tag feature coming soon", Toast.LENGTH_SHORT).show());
     }
 
     private void setupAutoSave() {
@@ -108,16 +119,16 @@ public class ViewNoteActivity extends DrawerActivity {
             @Override
             public void run() {
                 if (hasNoteChanged()) {
-                    runOnUiThread(() -> saveNote());
+                    mainThreadHandler.post(() -> saveNote());
                 }
             }
-        }, 5000, 5000);
+        }, AUTOSAVE_DELAY, AUTOSAVE_DELAY);
     }
 
     private boolean hasNoteChanged() {
         return currentNote != null &&
-                (!titleEditText.getText().toString().equals(currentNote.getTitle()) ||
-                        !contentEditText.getText().toString().equals(currentNote.getContent()));
+                (!Objects.equals(titleEditText.getText().toString(), currentNote.getTitle()) ||
+                        !Objects.equals(contentEditText.getText().toString(), currentNote.getContent()));
     }
 
     private void saveNote() {
@@ -125,7 +136,7 @@ public class ViewNoteActivity extends DrawerActivity {
         currentNote.setContent(contentEditText.getText().toString());
         currentNote.setUpdatedAt(String.valueOf(System.currentTimeMillis()));
         Toast.makeText(this, "Note saved", Toast.LENGTH_SHORT).show();
-//        updateUI();
+        updateUI();
     }
 
     @Override
@@ -143,10 +154,20 @@ public class ViewNoteActivity extends DrawerActivity {
     protected void onPause() {
         super.onPause();
         if (hasNoteChanged()) saveNote();
+        cancelAutoSave();
+    }
+
+    private void cancelAutoSave() {
         if (autoSaveTimer != null) {
             autoSaveTimer.cancel();
             autoSaveTimer = null;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        cancelAutoSave();
     }
 
     public String getToolbarTitle() {
