@@ -15,11 +15,13 @@ import com.example.amplenoteclone.note.NotesActivity;
 import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.calendar.CalendarActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.example.amplenoteclone.DrawerActivity;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class TasksPageActivity extends AppCompatActivity {
+public class TasksPageActivity extends DrawerActivity {
 
     private RecyclerView recyclerView;
     private TaskAdapter taskAdapter;
@@ -28,15 +30,7 @@ public class TasksPageActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tasks);
-
-        // Khởi tạo Toolbar
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        toolbar.setNavigationIcon(R.drawable.ic_menu);
-        toolbar.setNavigationOnClickListener(v -> {
-            Toast.makeText(this, "Menu Clicked", Toast.LENGTH_SHORT).show();
-        });
+        setActivityContent(R.layout.activity_tasks);
 
         // Khởi tạo RecyclerView
         recyclerView = findViewById(R.id.recycler_view_tasks);
@@ -63,32 +57,20 @@ public class TasksPageActivity extends AppCompatActivity {
             }
         });
         recyclerView.setAdapter(taskAdapter);
-
-        // Khởi tạo BottomNavigationView
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNav);
-        bottomNavigationView.setSelectedItemId(R.id.action_tasks);
-
-        // Xử lý sự kiện cho BottomNavigationView
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.action_calendar) {
-                Intent intent = new Intent(TasksPageActivity.this, CalendarActivity.class);
-                startActivity(intent);
-                return true;
-            } else if (itemId == R.id.action_notes) {
-                Intent intent = new Intent(TasksPageActivity.this, NotesActivity.class);
-                startActivity(intent);
-                return true;
-            } else if (itemId == R.id.action_tasks) {
-                return true;
-            }
-            return false;
-        });
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.toolbar_calendar, menu);
+        getMenuInflater().inflate(R.menu.toolbar_tasks, menu);
         return true;
     }
+    @Override
+    public String getToolbarTitle() {
+        return "Tasks";
+    }
+    @Override
+    protected int getCurrentPageId() {
+        return R.id.action_tasks;
+    }
+
 }
