@@ -25,7 +25,7 @@ import java.util.Locale;
 import java.util.Calendar;
 import android.widget.FrameLayout;
 
-public class OneDayFragment extends Fragment implements DateSelectable {
+public class OneDayFragment extends Fragment implements DateSelectable, TaskView {
     private LinearLayout timelineContainer;
     private ScrollView scrollView;
     private View currentTimeIndicator;
@@ -48,21 +48,16 @@ public class OneDayFragment extends Fragment implements DateSelectable {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
                 view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 setupTimeline();
-
+                loadTasksForDate(selectedDate);
                 if (isToday(selectedDate)) {
-                    new Handler().postDelayed(() -> {
-                        if (isAdded()) {
-                            startTimeUpdates();
-                            updateCurrentTimeIndicator();
-                            scrollToCurrentTime();
-                        }
-                    }, INDICATOR_UPDATE_DELAY);
+                    startTimeUpdates();
+                    updateCurrentTimeIndicator();
+                    scrollToCurrentTime();
                 }
             }
         });
@@ -151,6 +146,7 @@ public class OneDayFragment extends Fragment implements DateSelectable {
         }
     }
 
+    @Override
     public void setSelectedDate(Date date) {
         this.selectedDate = date;
 
@@ -323,7 +319,8 @@ public class OneDayFragment extends Fragment implements DateSelectable {
         return Math.round(dp * density);
     }
 
-    private void addTaskToTimeline(Task task) {
+    @Override
+    public void addTaskToTimeline(Task task) {
         if (task.getStartAt() == null || timelineContainer == null) {
             return;
         }
@@ -344,43 +341,38 @@ public class OneDayFragment extends Fragment implements DateSelectable {
             taskView.setBackgroundResource(R.drawable.task_calendar_background);
             taskView.setPadding(dpToPx(8), dpToPx(4), dpToPx(8), dpToPx(4));
 
+            // Always single line with ellipsis
+            taskView.setSingleLine(true);
+            taskView.setEllipsize(android.text.TextUtils.TruncateAt.END);
+
             // Calculate position with safety margin
             float minuteProgress = taskMinute / 60f;
             int slotHeight = timeSlot.getHeight() > 0 ? timeSlot.getHeight() : dpToPx(140);
-
-            // Calculate max safe margin (leave space for task height ~32dp)
-            int maxTopMargin = slotHeight - dpToPx(40); // Task height + padding
+            int maxTopMargin = slotHeight - dpToPx(40);
             int topMargin = Math.min((int)(slotHeight * minuteProgress), maxTopMargin);
 
-            // Add task view to timeline
+            // Use match_parent width with margins
             FrameLayout.LayoutParams taskParams = new FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.WRAP_CONTENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT,
                     FrameLayout.LayoutParams.WRAP_CONTENT);
-            taskParams.leftMargin = dpToPx(60);
+            taskParams.leftMargin = dpToPx(60); // Space for time label
+            taskParams.rightMargin = dpToPx(8); // Right margin
             taskParams.topMargin = topMargin + dpToPx(12);
             taskView.setLayoutParams(taskParams);
-
-            // If task is near end of hour slot, adjust text size or show overflow indicator
-            if (taskMinute >= 45) {
-                taskView.setMaxLines(1); // Limit to single line
-                taskView.setEllipsize(android.text.TextUtils.TruncateAt.END); // Add ellipsis
-                // Add small arrow to indicate task continues
-//                taskView.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_arrow_right, 0);
-                taskView.setCompoundDrawablePadding(dpToPx(4));
-            }
 
             timeSlot.addView(taskView);
         }
     }
 
-    private void loadTasksForDate(Date date) {
+    @Override
+    public void loadTasksForDate(Date date) {
         if (!isAdded() || date == null) return;
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) return;
 
         Calendar cal = Calendar.getInstance();
-        cal.setTime(date); // Set calendar to selected date
+        cal.setTime(date);
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
@@ -397,41 +389,15 @@ public class OneDayFragment extends Fragment implements DateSelectable {
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!isAdded()) return;
                     for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
-                        // Only process tasks for current user
-                        if (!currentUser.getUid().equals(document.getString("userId"))) {
-                            continue;
-                        }
-                        try {
-                            Task task = new Task(
-                                    document.getBoolean("isCompleted") != null ? document.getBoolean("isCompleted") : false,
-                                    document.getString("title"),
-                                    document.getDate("createdAt"),
-                                    document.getId(),
-                                    document.getString("repeat"),
-                                    document.getString("startAtDate"),
-                                    document.getString("startAtPeriod"),
-                                    document.getString("startAtTime"),
-                                    document.getString("startNoti"),
-                                    document.getString("priority"),
-                                    String.valueOf(document.get("duration")),
-                                    document.getDate("startAt"),
-                                    document.getString("hideUntilDate"),
-                                    document.getString("hideUntilTime")
-                            );
-                            task.setUserId(document.getString("userId"));
-                            if (task.getStartAt() != null) {
-                                System.out.println("Task: " + task.getTitle() + " at " + task.getStartAt());
-                                addTaskToTimeline(task);
-                            }
-                        } catch (Exception e) {
-                            System.out.println("Error parsing document: " + document.getId());
-                            e.printStackTrace();
-                        }
+                        Task task = new Task();
+                        task.setId(document.getId());
+                        task.setTitle(document.getString("title"));
+                        task.setStartAt(document.getDate("startAt"));
+                        task.setDuration(String.valueOf(document.get("duration")));
+                        task.setUserId(document.getString("userId"));
+                        addTaskToTimeline(task);
                     }
                 })
-                .addOnFailureListener(e -> {
-                    System.out.println("Error getting tasks: " + e.getMessage());
-                    e.printStackTrace();
-                });
+                .addOnFailureListener(e -> e.printStackTrace());
     }
 }

@@ -92,6 +92,12 @@ public class CalendarActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.content_container, currentFragment)
                 .commit();
+
+        new Handler().postDelayed(() -> {
+            if (currentFragment instanceof DateSelectable) {
+                ((DateSelectable) currentFragment).setSelectedDate(new Date());
+            }
+        }, 100);
     }
 
     private void setupCalendarBottomSheet() {

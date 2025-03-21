@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,13 +15,18 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.example.amplenoteclone.R;
+import com.example.amplenoteclone.models.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-public class ThreeDaysFragment extends Fragment implements DateSelectable {
+public class ThreeDaysFragment extends Fragment implements DateSelectable, TaskView {
     private LinearLayout timelineContainer;
     private View currentTimeIndicator;
     private ScrollView scrollView;
@@ -40,6 +46,7 @@ public class ThreeDaysFragment extends Fragment implements DateSelectable {
         initializeViews(view);
         setupTimeline();
         updateDaysHeader();
+        loadTasksForDate(selectedDate);
 
         return view;
     }
@@ -330,16 +337,154 @@ public class ThreeDaysFragment extends Fragment implements DateSelectable {
         return Math.round(dp * density);
     }
 
+    private boolean isSameDay(Date date1, Date date2) {
+        Calendar cal1 = Calendar.getInstance();
+        cal1.setTime(date1);
+        Calendar cal2 = Calendar.getInstance();
+        cal2.setTime(date2);
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)
+                && cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
+    }
+
+    @Override
     public void setSelectedDate(Date date) {
         this.selectedDate = date;
         if (getView() != null) {
+
+            // Setup timeline
             setupTimeline();
             updateDaysHeader();
+
+            // Load tasks after timeline is set up
+            new Handler().post(() -> loadTasksForDate(date));
+
+            // Handle time indicator
             if (isToday(date)) {
                 startTimeUpdates();
                 updateCurrentTimeIndicator();
             } else {
                 stopTimeUpdates();
+            }
+        }
+    }
+
+    @Override
+    public void loadTasksForDate(Date date) {
+        if (!isAdded() || date == null) return;
+
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) return;
+
+        // Lấy thời gian bắt đầu của ngày được chọn
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        Date startDate = cal.getTime();
+
+        // Lấy thời gian kết thúc sau 3 ngày
+        cal.add(Calendar.DAY_OF_MONTH, 3);
+        Date endDate = cal.getTime();
+
+        FirebaseFirestore.getInstance()
+                .collection("tasks")
+                .whereGreaterThanOrEqualTo("startAt", startDate)
+                .whereLessThan("startAt", endDate)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!isAdded()) return;
+                    for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                        try {
+                            Task task = new Task();
+                            task.setId(document.getId());
+                            task.setTitle(document.getString("title"));
+                            task.setStartAt(document.getDate("startAt"));
+
+                            // Handle duration conversion
+                            Object durationObj = document.get("duration");
+                            if (durationObj instanceof Long) {
+                                task.setDuration(String.valueOf(durationObj));
+                            } else {
+                                task.setDuration(document.getString("duration"));
+                            }
+
+                            task.setUserId(document.getString("userId"));
+                            System.out.println("Task: " + task.getTitle() + " - " + task.getStartAt());
+                            addTaskToTimeline(task);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> e.printStackTrace());
+    }
+
+    @Override
+    public void addTaskToTimeline(Task task) {
+        if (task.getStartAt() == null || timelineContainer == null) return;
+
+        Calendar taskCal = Calendar.getInstance();
+        taskCal.setTime(task.getStartAt());
+
+        Calendar selectedCal = Calendar.getInstance();
+        selectedCal.setTime(selectedDate);
+        selectedCal.set(Calendar.HOUR_OF_DAY, 0);
+        selectedCal.set(Calendar.MINUTE, 0);
+        selectedCal.set(Calendar.SECOND, 0);
+        selectedCal.set(Calendar.MILLISECOND, 0);
+
+        // Tìm vị trí ngày trong 3 ngày
+        int dayPosition = -1;
+        for (int i = 0; i < 3; i++) {
+            Calendar checkCal = (Calendar) selectedCal.clone();
+            checkCal.add(Calendar.DAY_OF_MONTH, i);
+            if (isSameDay(checkCal.getTime(), task.getStartAt())) {
+                dayPosition = i;
+                break;
+            }
+        }
+
+        if (dayPosition != -1) {
+            int taskHour = taskCal.get(Calendar.HOUR_OF_DAY);
+            int taskMinute = taskCal.get(Calendar.MINUTE);
+
+            // Tìm time slot tương ứng
+            View hourSlot = timelineContainer.findViewWithTag("hour_" + taskHour);
+            if (hourSlot instanceof LinearLayout) {
+                LinearLayout timeSlot = (LinearLayout) hourSlot;
+                LinearLayout contentContainer = (LinearLayout) timeSlot.getChildAt(2);
+                LinearLayout daysContainer = (LinearLayout) contentContainer.getChildAt(1);
+
+                // Lấy column của ngày (nhớ là có divider nên * 2)
+                FrameLayout dayColumn = (FrameLayout) daysContainer.getChildAt(dayPosition * 2);
+
+                // Tạo task view
+                TextView taskView = new TextView(getContext());
+                taskView.setText(task.getTitle());
+                taskView.setTextColor(getResources().getColor(android.R.color.black));
+                taskView.setBackgroundResource(R.drawable.task_calendar_background);
+                taskView.setPadding(dpToPx(4), dpToPx(2), dpToPx(4), dpToPx(2));
+                taskView.setSingleLine(true);
+                taskView.setEllipsize(TextUtils.TruncateAt.END);
+                taskView.setTextSize(12);
+
+                // Tính toán vị trí dựa trên phút
+                float minuteProgress = taskMinute / 60f;
+                int slotHeight = hourSlot.getHeight() > 0 ? hourSlot.getHeight() : dpToPx(140);
+                int maxTopMargin = slotHeight - dpToPx(30);
+                int topMargin = Math.min((int)(slotHeight * minuteProgress), maxTopMargin);
+
+                FrameLayout.LayoutParams taskParams = new FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.WRAP_CONTENT);
+                taskParams.leftMargin = dpToPx(2);
+                taskParams.rightMargin = dpToPx(2);
+                taskParams.topMargin = topMargin;
+                taskView.setLayoutParams(taskParams);
+
+                dayColumn.addView(taskView);
             }
         }
     }
