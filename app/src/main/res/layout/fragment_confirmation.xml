@@ -235,7 +235,7 @@
                 android:textSize="16sp"
                 android:visibility="gone"
                 android:textAllCaps="false"
-                android:backgroundTint="#f23841"
+                android:backgroundTint="@color/lightBlue"
                 android:layout_marginTop="16dp"/>
 
         </LinearLayout>

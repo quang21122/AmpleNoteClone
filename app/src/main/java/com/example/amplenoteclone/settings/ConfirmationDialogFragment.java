@@ -70,34 +70,63 @@ public class ConfirmationDialogFragment extends DialogFragment {
         Button btnConfirmAccountUpgrade = view.findViewById(R.id.btn_confirm_account_upgrade);
         ProgressBar progressBar = view.findViewById(R.id.upgrade_progress_bar);
 
-        btnSubscribe.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                v.setBackgroundColor(Color.GRAY);
-                tvUpgradeConfirmationMessage.setVisibility(View.VISIBLE);
-                btnSendUpgradeConfirmationCode.setVisibility(View.VISIBLE);
-            }
-        });
+        // Check if user is already subscribed
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseFirestore.getInstance().collection("users").document(uid)
+                .get().addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Object isPremiumObj = documentSnapshot.get("isPremium");
+                        boolean isPremium = false;
+                        if (isPremiumObj instanceof Boolean) {
+                            isPremium = (Boolean) isPremiumObj;
+                        } else if (isPremiumObj instanceof String) {
+                            isPremium = Boolean.parseBoolean((String) isPremiumObj);
+                        }
 
-        // Send upgrade confirmation code button click listener
+                        if (isPremium) {
+                            btnSubscribe.setText("Unsubscribe");
+                            btnConfirmAccountUpgrade.setText("Confirm Unsubscribe");
+                            btnSubscribe.setOnClickListener(v -> {
+                                tvUpgradeConfirmationMessage.setText("To unsubscribe, press the button below to send a confirmation code to your email.");
+                                tvUpgradeConfirmationMessage.setVisibility(View.VISIBLE);
+                                btnSendUpgradeConfirmationCode.setVisibility(View.VISIBLE);
+                            });
+                        } else {
+                            btnSubscribe.setText("Subscribe");
+                            btnConfirmAccountUpgrade.setText("Confirm Subscribe");
+                            btnSubscribe.setOnClickListener(v -> {
+                                tvUpgradeConfirmationMessage.setVisibility(View.VISIBLE);
+                                btnSendUpgradeConfirmationCode.setVisibility(View.VISIBLE);
+                            });
+                        }
+                    } else {
+                        btnSubscribe.setText("Subscribe");
+                        btnConfirmAccountUpgrade.setText("Confirm Subscribe");
+                        btnSubscribe.setOnClickListener(v -> {
+                            tvUpgradeConfirmationMessage.setVisibility(View.VISIBLE);
+                            btnSendUpgradeConfirmationCode.setVisibility(View.VISIBLE);
+                        });
+                    }
+                });
+
+        // Send upgrade/unsubscribe confirmation code button click listener
         btnSendUpgradeConfirmationCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Retrieve current user's email from Firestore
-                String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
                 FirebaseFirestore.getInstance().collection("users").document(uid)
                         .get().addOnSuccessListener(documentSnapshot -> {
                             if (documentSnapshot.exists()) {
                                 String email = documentSnapshot.getString("email");
                                 if (email != null) {
                                     // Generate a random 6-digit confirmation code
-                                    String upgradeConfirmationCode = String.valueOf(100000 + (int)(Math.random() * 900000));
+                                    String confirmationCode = String.valueOf(100000 + (int)(Math.random() * 900000));
 
                                     // Save the code to Firestore (for later verification)
                                     FirebaseFirestore.getInstance().collection("userConfirmations")
                                             .document(uid)
                                             .set(new HashMap<String, Object>() {{
-                                                put("upgradeConfirmationCode", upgradeConfirmationCode);
+                                                put("confirmationCode", confirmationCode);
                                                 put("createdAt", com.google.firebase.Timestamp.now());
                                             }})
                                             .addOnSuccessListener(aVoid -> {
@@ -111,8 +140,8 @@ public class ConfirmationDialogFragment extends DialogFragment {
                                                         // Ensure you're using the correct package path for GMailSender if you moved it
                                                         com.example.amplenoteclone.settings.GMailSender sender =
                                                                 new com.example.amplenoteclone.settings.GMailSender(gmailUser, gmailPassword);
-                                                        sender.sendMail("Your Upgrade Confirmation Code",
-                                                                "Your confirmation code is: " + upgradeConfirmationCode,
+                                                        sender.sendMail("Your Confirmation Code",
+                                                                "Your confirmation code is: " + confirmationCode,
                                                                 gmailUser,
                                                                 email);
                                                         getActivity().runOnUiThread(() ->
@@ -152,7 +181,7 @@ public class ConfirmationDialogFragment extends DialogFragment {
             }
         });
 
-        // Confirm account upgrade button click listener
+        // Confirm account upgrade/unsubscribe button click listener
         btnConfirmAccountUpgrade.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -178,21 +207,41 @@ public class ConfirmationDialogFragment extends DialogFragment {
                         .document(uid)
                         .get().addOnSuccessListener(documentSnapshot -> {
                             if (documentSnapshot.exists()) {
-                                String storedCode = documentSnapshot.getString("upgradeConfirmationCode");
+                                String storedCode = documentSnapshot.getString("confirmationCode");
                                 if (enteredCode.equals(storedCode)) {
-                                    // Code matches, proceed with the plan upgrade
-                                    // Update the user's plan in Firestore
+                                    // Code matches, proceed with the plan upgrade/unsubscribe
                                     FirebaseFirestore.getInstance().collection("users")
                                             .document(uid)
-                                            .update("isPremium", "true")
-                                            .addOnSuccessListener(aVoid -> {
-                                                progressBar.setVisibility(View.GONE);
-                                                Toast.makeText(getActivity(), "Plan upgraded successfully.", Toast.LENGTH_SHORT).show();
-                                            })
-                                            .addOnFailureListener(e -> {
-                                                progressBar.setVisibility(View.GONE);
-                                                btnConfirmAccountUpgrade.setEnabled(true);
-                                                Toast.makeText(getActivity(), "Failed to upgrade plan: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                            .get().addOnSuccessListener(userDocument -> {
+                                                if (userDocument.exists()) {
+                                                    Object isPremiumObj = userDocument.get("isPremium");
+                                                    boolean isPremium;
+                                                    if (isPremiumObj instanceof Boolean) {
+                                                        isPremium = (Boolean) isPremiumObj;
+                                                    } else if (isPremiumObj instanceof String) {
+                                                        isPremium = Boolean.parseBoolean((String) isPremiumObj);
+                                                    } else {
+                                                        isPremium = false;
+                                                    }
+
+                                                    FirebaseFirestore.getInstance().collection("users")
+                                                            .document(uid)
+                                                            .update("isPremium", !isPremium)
+                                                            .addOnSuccessListener(aVoid -> {
+                                                                progressBar.setVisibility(View.GONE);
+                                                                Toast.makeText(getActivity(), isPremium ? "Unsubscribed successfully." : "Plan upgraded successfully.", Toast.LENGTH_SHORT).show();
+                                                                btnConfirmAccountUpgrade.setText(isPremium ? "Confirm Subscribe" : "Confirm Unsubscribe");
+                                                                Bundle result = new Bundle();
+                                                                result.putBoolean("isPremium", !isPremium);
+                                                                getParentFragmentManager().setFragmentResult("requestKey", result);
+                                                                dismiss();
+                                                            })
+                                                            .addOnFailureListener(e -> {
+                                                                progressBar.setVisibility(View.GONE);
+                                                                btnConfirmAccountUpgrade.setEnabled(true);
+                                                                Toast.makeText(getActivity(), "Failed to update plan: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                            });
+                                                }
                                             });
                                 } else {
                                     progressBar.setVisibility(View.GONE);
