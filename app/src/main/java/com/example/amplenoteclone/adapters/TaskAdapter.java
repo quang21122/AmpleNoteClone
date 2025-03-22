@@ -26,6 +26,7 @@ import com.example.amplenoteclone.models.Task;
 import com.google.android.material.button.MaterialButton;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -34,6 +35,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
     private List<Task> taskList;
     private OnItemClickListener listener;
+
+    public void setTasks(ArrayList<Task> tasks) {
+        this.taskList = tasks;
+        notifyDataSetChanged();
+    }
 
     public interface OnItemClickListener {
         void onExpandClick(int position);
@@ -286,7 +292,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
     // Hàm cập nhật trạng thái giao diện của các nút trong Duration Card
     private void updateDurationButtonStates(Task task, TaskViewHolder holder) {
-        String selectedDuration = task.getDuration();
+        int selectedDuration = task.getDuration();
         Context context = holder.itemView.getContext();
 
         int defaultBackgroundColor = ContextCompat.getColor(context, R.color.dark_blue_gray);
@@ -294,32 +300,34 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         int defaultTextColor = ContextCompat.getColor(context, R.color.textGray);
         int selectedTextColor = ContextCompat.getColor(context, R.color.white);
 
+        String selectedDurationString = selectedDuration + " min";
+
         holder.duration15MinButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
-                selectedDuration != null && selectedDuration.equals("15 min") ? selectedBackgroundColor : defaultBackgroundColor));
+                selectedDurationString.equals("15 min") ? selectedBackgroundColor : defaultBackgroundColor));
         holder.duration15MinButton.setTextColor(
-                selectedDuration != null && selectedDuration.equals("15 min") ? selectedTextColor : defaultTextColor);
+                selectedDurationString.equals("15 min") ? selectedTextColor : defaultTextColor);
 
         holder.duration30MinButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
-                selectedDuration != null && selectedDuration.equals("30 min") ? selectedBackgroundColor : defaultBackgroundColor));
+                selectedDurationString.equals("30 min") ? selectedBackgroundColor : defaultBackgroundColor));
         holder.duration30MinButton.setTextColor(
-                selectedDuration != null && selectedDuration.equals("30 min") ? selectedTextColor : defaultTextColor);
+                selectedDurationString.equals("30 min") ? selectedTextColor : defaultTextColor);
 
         holder.duration60MinButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
-                selectedDuration != null && selectedDuration.equals("60 min") ? selectedBackgroundColor : defaultBackgroundColor));
+                selectedDurationString.equals("60 min") ? selectedBackgroundColor : defaultBackgroundColor));
         holder.duration60MinButton.setTextColor(
-                selectedDuration != null && selectedDuration.equals("60 min") ? selectedTextColor : defaultTextColor);
+                selectedDurationString.equals("60 min") ? selectedTextColor : defaultTextColor);
 
-        // Cập nhật nút Custom với giá trị nếu có
+        // Update Custom button with value if available
         String customText = "Custom...";
-        if (selectedDuration != null && selectedDuration.startsWith("Custom:")) {
-            customText = selectedDuration;
+        if (selectedDurationString.startsWith("Custom:")) {
+            customText = selectedDurationString;
             holder.durationCustomButton.setText(customText);
         }
 
         holder.durationCustomButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
-                selectedDuration != null && selectedDuration.startsWith("Custom:") ? selectedBackgroundColor : defaultBackgroundColor));
+                selectedDurationString.startsWith("Custom:") ? selectedBackgroundColor : defaultBackgroundColor));
         holder.durationCustomButton.setTextColor(
-                selectedDuration != null && selectedDuration.startsWith("Custom:") ? selectedTextColor : defaultTextColor);
+                selectedDurationString.startsWith("Custom:") ? selectedTextColor : defaultTextColor);
     }
     // Hàm hiển thị dialog cho nút "Custom..." dưới dạng PopupWindow
     private void showCustomDurationDialog(Task task, TaskViewHolder holder, int position) {
@@ -351,26 +359,24 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         MaterialButton customDurationApply = dialogView.findViewById(R.id.custom_duration_apply);
 
         // Đặt giá trị mặc định cho ô nhập liệu nếu có giá trị custom hiện tại
-        String currentDuration = task.getDuration();
-        if (currentDuration != null && currentDuration.startsWith("Custom:")) {
+        String currentDuration = task.getDuration() + " min";
+        if (currentDuration.startsWith("Custom:")) {
             String customValue = currentDuration.replace("Custom:", "").trim();
             customDurationInput.setText(customValue);
         }
 
         // Xử lý chọn các tùy chọn có sẵn
-        customDuration2Hours.setOnClickListener(v -> customDurationInput.setText("2 hours"));
-        customDuration4Hours.setOnClickListener(v -> customDurationInput.setText("4 hours"));
-        customDurationAllDay.setOnClickListener(v -> customDurationInput.setText("All day"));
+        customDuration2Hours.setOnClickListener(v -> customDurationInput.setText("120 min"));
+        customDuration4Hours.setOnClickListener(v -> customDurationInput.setText("240 min"));
+        customDurationAllDay.setOnClickListener(v -> customDurationInput.setText("1440 min"));
 
         // Xử lý nút APPLY
         customDurationApply.setOnClickListener(v -> {
             String newDuration = customDurationInput.getText().toString().trim();
             if (!newDuration.isEmpty()) {
-                String currentCustomValue = (currentDuration != null && currentDuration.startsWith("Custom:"))
-                        ? currentDuration.replace("Custom:", "").trim()
-                        : "";
+                String currentCustomValue = currentDuration.startsWith("Custom:") ? currentDuration.replace("Custom:", "").trim() : "";
                 if (!newDuration.equals(currentCustomValue)) {
-                    task.setDuration("Custom: " + newDuration);
+                    task.setDuration(Integer.parseInt(newDuration.replace(" min", "")));
                     updateDurationButtonStates(task, holder);
                     notifyItemChanged(position);
                 }
@@ -398,9 +404,10 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         popupWindow.showAtLocation(holder.durationCustomButton, Gravity.NO_GRAVITY, xOffset, yOffset);
         popupWindow.update();
     }
+
     // Hàm xử lý sự kiện nhấn vào nút "Custom..." trong Duration Card
     private void handleCustomDurationButtonClick(Task task, TaskViewHolder holder, int position) {
-        String currentDuration = task.getDuration();
+        int currentDuration = task.getDuration();
         String customButtonText = holder.durationCustomButton.getText().toString();
 
         // Nếu duration là "Custom..." (chưa có giá trị cụ thể), hiển thị dialog để nhập giá trị
@@ -410,22 +417,26 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         }
 
         // Nếu duration bắt đầu bằng "Custom:" (đã có giá trị cụ thể như "Custom: 4 hours")
-        if (currentDuration != null && currentDuration.startsWith("Custom:")) {
+        if (customButtonText.startsWith("Custom:")) {
             showCustomDurationDialog(task, holder, position);
         } else {
-            task.setDuration(customButtonText);
+            // Remove " min" and parse the integer value
+            int newDuration = Integer.parseInt(customButtonText.replace(" min", ""));
+            task.setDuration(newDuration);
             updateDurationButtonStates(task, holder);
         }
     }
     // Hàm xử lý chọn/bỏ chọn nút trong Duration Card
+    // Hàm xử lý chọn/bỏ chọn nút trong Duration Card
     private void toggleDurationButton(Task task, String duration, TaskViewHolder holder) {
-        String currentDuration = task.getDuration();
-        if (currentDuration != null && currentDuration.equals(duration)) {
-            task.setDuration(null);
+        String currentDuration = String.valueOf(task.getDuration()) + " min";
+        if (currentDuration.equals(duration)) {
+            task.setDuration(0);
         } else {
-            task.setDuration(duration);
+            // Remove " min" and parse the integer value
+            int newDuration = Integer.parseInt(duration.replace(" min", ""));
+            task.setDuration(newDuration);
         }
-
         updateDurationButtonStates(task, holder);
     }
 
@@ -466,7 +477,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
     // Hàm cập nhật trạng thái giao diện của các nút trong Start Noti Card
     private void updateNotificationButtonStates(Task task, TaskViewHolder holder) {
-        String selectedTime = task.getStartNoti();
+        int selectedTime = task.getStartNoti();
         Context context = holder.itemView.getContext();
 
         int defaultBackgroundColor = ContextCompat.getColor(context, R.color.dark_blue_gray);
@@ -474,34 +485,55 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         int defaultTextColor = ContextCompat.getColor(context, R.color.textGray);
         int selectedTextColor = ContextCompat.getColor(context, R.color.white);
 
+        String selectedTimeString = selectedTime == 1440 ? "1 day" : selectedTime + " min";
+
         holder.startNoti5MinButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
-                selectedTime != null && selectedTime.equals("5 min") ? selectedBackgroundColor : defaultBackgroundColor));
+                selectedTimeString.equals("5 min") ? selectedBackgroundColor : defaultBackgroundColor));
         holder.startNoti5MinButton.setTextColor(
-                selectedTime != null && selectedTime.equals("5 min") ? selectedTextColor : defaultTextColor);
+                selectedTimeString.equals("5 min") ? selectedTextColor : defaultTextColor);
 
         holder.startNoti15MinButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
-                selectedTime != null && selectedTime.equals("15 min") ? selectedBackgroundColor : defaultBackgroundColor));
+                selectedTimeString.equals("15 min") ? selectedBackgroundColor : defaultBackgroundColor));
         holder.startNoti15MinButton.setTextColor(
-                selectedTime != null && selectedTime.equals("15 min") ? selectedTextColor : defaultTextColor);
+                selectedTimeString.equals("15 min") ? selectedTextColor : defaultTextColor);
 
         holder.startNoti60MinButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
-                selectedTime != null && selectedTime.equals("60 min") ? selectedBackgroundColor : defaultBackgroundColor));
+                selectedTimeString.equals("60 min") ? selectedBackgroundColor : defaultBackgroundColor));
         holder.startNoti60MinButton.setTextColor(
-                selectedTime != null && selectedTime.equals("60 min") ? selectedTextColor : defaultTextColor);
+                selectedTimeString.equals("60 min") ? selectedTextColor : defaultTextColor);
 
         holder.startNoti1DayButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
-                selectedTime != null && selectedTime.equals("1 day") ? selectedBackgroundColor : defaultBackgroundColor));
+                selectedTimeString.equals("1 day") ? selectedBackgroundColor : defaultBackgroundColor));
         holder.startNoti1DayButton.setTextColor(
-                selectedTime != null && selectedTime.equals("1 day") ? selectedTextColor : defaultTextColor);
+                selectedTimeString.equals("1 day") ? selectedTextColor : defaultTextColor);
     }
     // Hàm xử lý chọn/bỏ chọn nút trong Start Noti Card
     private void toggleNotificationButton(Task task, String time, TaskViewHolder holder) {
-        String currentNotificationTime = task.getStartNoti();
+        int currentNotificationTime = task.getStartNoti();
+        int newNotificationTime;
 
-        if (currentNotificationTime != null && currentNotificationTime.equals(time)) {
-            task.setStartNoti(null);
+        switch (time) {
+            case "5 min":
+                newNotificationTime = 5;
+                break;
+            case "15 min":
+                newNotificationTime = 15;
+                break;
+            case "60 min":
+                newNotificationTime = 60;
+                break;
+            case "1 day":
+                newNotificationTime = 1440; // 1 day = 1440 minutes
+                break;
+            default:
+                newNotificationTime = 0;
+                break;
+        }
+
+        if (currentNotificationTime == newNotificationTime) {
+            task.setStartNoti(0);
         } else {
-            task.setStartNoti(time);
+            task.setStartNoti(newNotificationTime);
         }
 
         updateNotificationButtonStates(task, holder);

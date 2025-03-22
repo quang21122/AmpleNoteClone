@@ -15,9 +15,9 @@ public class Task {
     private String startAtPeriod;
     private String startAtTime;
     private Date startAt;
-    private String startNoti;
+    private int startNoti;
     private String priority;
-    private String duration;
+    private int duration;
     private String hideUntilDate;
     private String hideUntilTime;
     private Date hideUntil;
@@ -25,8 +25,9 @@ public class Task {
 
     // Constructor
     public Task(boolean isCompleted, String title, Date createAt, String id, String repeat,
-                String startAtDate, String startAtPeriod, String startAtTime, String startNoti,
-                String priority, String duration, String hideUntilDate, String hideUntilTime) {
+                String startAtDate, String startAtPeriod, String startAtTime, int startNoti, // Changed to int
+                String priority, int duration, // Changed to int
+                String hideUntilDate, String hideUntilTime) {
         this.isCompleted = isCompleted;
         this.title = title;
         this.createAt = createAt != null ? createAt : new Date();
@@ -35,12 +36,12 @@ public class Task {
         this.startAtDate = startAtDate;
         this.startAtPeriod = startAtPeriod;
         this.startAtTime = startAtTime;
-        this.startNoti = startNoti;
-        this.priority = priority; // Giữ nguyên giá trị String
-        this.duration = duration;
+        this.startNoti = startNoti; // Changed to int
+        this.priority = priority;
+        this.duration = duration; // Changed to int
         this.hideUntilDate = hideUntilDate;
         this.hideUntilTime = hideUntilTime;
-        this.score = 0.0f; // Giá trị mặc định cho score
+        this.score = 0.0f;
     }
 
     // Getters and Setters
@@ -132,11 +133,11 @@ public class Task {
         this.startAt = startAt;
     }
 
-    public String getStartNoti() {
+    public int getStartNoti() { // Changed to int
         return startNoti;
     }
 
-    public void setStartNoti(String startNoti) {
+    public void setStartNoti(int startNoti) { // Changed to int
         this.startNoti = startNoti;
     }
 
@@ -148,11 +149,11 @@ public class Task {
         this.priority = priority;
     }
 
-    public String getDuration() {
+    public int getDuration() { // Changed to int
         return duration;
     }
 
-    public void setDuration(String duration) {
+    public void setDuration(int duration) { // Changed to int
         this.duration = duration;
     }
 
