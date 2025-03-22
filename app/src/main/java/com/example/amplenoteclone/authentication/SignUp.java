@@ -187,6 +187,7 @@ public class SignUp extends AppCompatActivity {
             userData.put("name", "");
             userData.put("hasCustomAvatar", false);
             userData.put("avatarBase64", "");
+            userData.put("isPremium", false);
 
             documentReference.set(userData)
                     .addOnSuccessListener(aVoid -> {

@@ -356,6 +356,32 @@ public class CalendarActivity extends AppCompatActivity {
         }
     }
 
+    public void selectDate(Date date) {
+        updateSelectedDate(date);
+
+        Calendar selectedCal = Calendar.getInstance();
+        selectedCal.setTime(date);
+
+        Calendar currentCal = Calendar.getInstance();
+        currentCal.setTime(currentSelectedDate);
+
+        // Switch fragment if month changed
+        if (selectedCal.get(Calendar.MONTH) != currentCal.get(Calendar.MONTH) ||
+                selectedCal.get(Calendar.YEAR) != currentCal.get(Calendar.YEAR)) {
+            adapter.setSelectedDate(date);
+        }
+
+        // Update current fragment's selected date
+        if (currentFragment instanceof DateSelectable) {
+            ((DateSelectable) currentFragment).setSelectedDate(date);
+        }
+
+        // Update month/year text if needed
+        if (currentFragment instanceof MonthFragment) {
+            updateCurrentDate(date.getTime());
+        }
+    }
+
     private void setupAddTaskButton() {
         ImageButton addTaskButton = findViewById(R.id.add_task);
         addTaskButton.setOnClickListener(v -> showAddTaskDialog());
@@ -377,7 +403,7 @@ public class CalendarActivity extends AppCompatActivity {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     String duration = parent.getItemAtPosition(position).toString();
-                    String minutes = duration.split(" ")[0]; // Extract the number
+                    String minutes = duration.split(" ")[0];
                     if (view instanceof TextView) {
                         ((TextView) view).setText(minutes);
                     }
@@ -390,16 +416,26 @@ public class CalendarActivity extends AppCompatActivity {
             });
         }
 
+    public void refreshCurrentFragment() {
+        if (currentFragment instanceof DateSelectable) {
+            ((DateSelectable) currentFragment).setSelectedDate(currentSelectedDate);
+        }
+    }
+
     private void showAddTaskDialog() {
         BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
         View bottomSheetView = getLayoutInflater().inflate(R.layout.layout_add_task_bottom_sheet, null);
         bottomSheetDialog.setContentView(bottomSheetView);
         setupDurationSpinner(bottomSheetView);
 
-        // Setup RecyclerView
+        // Get reference to existing duration spinner
+        Spinner durationSpinner = bottomSheetView.findViewById(R.id.spinner_duration);
+
+        // Setup RecyclerView with existing spinner
         RecyclerView tasksRecyclerView = bottomSheetView.findViewById(R.id.tasks_recycler_view);
         tasksRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        TaskCalendarAdapter adapter = new TaskCalendarAdapter(this);
+        TaskCalendarAdapter adapter = new TaskCalendarAdapter(this, durationSpinner);
+        adapter.setSelectedDate(currentSelectedDate);
         tasksRecyclerView.setAdapter(adapter);
 
         // Load tasks from Firestore
@@ -408,12 +444,12 @@ public class CalendarActivity extends AppCompatActivity {
             FirebaseFirestore.getInstance()
                     .collection("tasks")
                     .whereEqualTo("userId", currentUser.getUid())
+                    .whereEqualTo("startAt", null)
                     .get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
                         List<Task> tasks = new ArrayList<>();
                         for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
                             try {
-                                // Manual mapping of document data
                                 Task task = new Task(
                                         document.getBoolean("isCompleted") != null ? document.getBoolean("isCompleted") : false,
                                         document.getString("title"),
@@ -425,7 +461,7 @@ public class CalendarActivity extends AppCompatActivity {
                                         document.getString("startAtTime"),
                                         document.getString("startNoti"),
                                         document.getString("priority"),
-                                        String.valueOf(document.get("duration")),
+                                        document.get("duration") != null ? document.getLong("duration").intValue() : 0,
                                         document.getDate("startAt"),
                                         document.getString("hideUntilDate"),
                                         document.getString("hideUntilTime")
@@ -447,7 +483,6 @@ public class CalendarActivity extends AppCompatActivity {
                     });
         }
 
-        // Set dialog height
         View parentView = (View) bottomSheetView.getParent();
         BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(parentView);
         int screenHeight = getResources().getDisplayMetrics().heightPixels;

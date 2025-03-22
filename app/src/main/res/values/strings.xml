@@ -28,7 +28,7 @@
     <string-array name="task_duration">
         <item>15 minutes</item>
         <item>30 minutes</item>
+        <item>45 minutes</item>
         <item>60 minutes</item>
-        <item>90 minutes</item>
     </string-array>
 </resources>

@@ -9,6 +9,7 @@ public class User {
     private String email;
     private boolean hasCustomAvatar;
     private String name;
+    private Boolean isPremium;
 
     public User() {}
 
@@ -19,6 +20,7 @@ public class User {
         this.createdAt = Timestamp.now();
         this.hasCustomAvatar = false;
         this.avatarBase64 = "";
+        this.isPremium = false;
     }
 
     // Add ID getter/setter
@@ -54,6 +56,10 @@ public class User {
         this.email = email;
     }
 
+    public void setIsPremium(Boolean isPremium) {
+        this.isPremium = isPremium;
+    }
+
     public boolean isHasCustomAvatar() {
         return hasCustomAvatar;
     }
@@ -64,6 +70,10 @@ public class User {
 
     public String getName() {
         return name;
+    }
+
+    public Boolean getIsPremium() {
+        return isPremium;
     }
 
     public void setName(String name) {

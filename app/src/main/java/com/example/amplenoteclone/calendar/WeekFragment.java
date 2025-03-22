@@ -1,5 +1,6 @@
 package com.example.amplenoteclone.calendar;
 
+import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -8,21 +9,31 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.FrameLayout;
+import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.models.Task;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class WeekFragment extends Fragment implements DateSelectable, TaskView {
@@ -43,7 +54,6 @@ public class WeekFragment extends Fragment implements DateSelectable, TaskView {
         View view = inflater.inflate(R.layout.fragment_week, container, false);
         timelineContainer = view.findViewById(R.id.timelineContainer);
 
-        // Initialize views
         for (int i = 0; i < 7; i++) {
             int dayNumber = getResources().getIdentifier("day" + (i + 1) + "Number", "id", requireContext().getPackageName());
             int dayContainer = getResources().getIdentifier("day" + (i + 1) + "Container", "id", requireContext().getPackageName());
@@ -61,10 +71,14 @@ public class WeekFragment extends Fragment implements DateSelectable, TaskView {
 
     @Override
     public void setSelectedDate(Date date) {
+        if (timelineContainer != null) {
+            clearAllTasks();
+        }
+
         this.selectedDate = date;
         if (getView() != null) {
             updateDayHeaders();
-            new Handler().postDelayed(() -> loadTasksForDate(selectedDate), 100);
+            new Handler().postDelayed(() -> loadTasksForDate(date), 100);
         }
     }
 
@@ -82,7 +96,6 @@ public class WeekFragment extends Fragment implements DateSelectable, TaskView {
             Date currentDate = calendar.getTime();
             dayNumbers[i].setText(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)));
 
-            // Highlight current day
             boolean isToday = isToday(currentDate);
             dayNumbers[i].setTypeface(null, Typeface.BOLD);
             dayIndicators[i].setVisibility(isToday ? View.VISIBLE : View.INVISIBLE);
@@ -116,7 +129,6 @@ public class WeekFragment extends Fragment implements DateSelectable, TaskView {
             timeContainer.addView(timeLabel);
             timeSlot.addView(timeContainer);
 
-            // Vertical divider after time label
             View verticalDivider = new View(getContext());
             LinearLayout.LayoutParams verticalDividerParams = new LinearLayout.LayoutParams(
                     dpToPx(1),
@@ -134,7 +146,6 @@ public class WeekFragment extends Fragment implements DateSelectable, TaskView {
             contentContainer.setLayoutParams(contentParams);
             contentContainer.setOrientation(LinearLayout.VERTICAL);
 
-            // Horizontal divider at top
             View horizontalDivider = new View(getContext());
             LinearLayout.LayoutParams horizontalDividerParams = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
@@ -143,7 +154,6 @@ public class WeekFragment extends Fragment implements DateSelectable, TaskView {
             horizontalDivider.setBackgroundColor(getResources().getColor(R.color.light_gray));
             contentContainer.addView(horizontalDivider);
 
-            // Days container
             LinearLayout daysContainer = new LinearLayout(getContext());
             LinearLayout.LayoutParams daysContainerParams = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
@@ -154,7 +164,6 @@ public class WeekFragment extends Fragment implements DateSelectable, TaskView {
             contentContainer.addView(daysContainer);
             timeSlot.addView(contentContainer);
 
-            // Add 7 day columns
             for (int i = 0; i < 7; i++) {
                 LinearLayout dayColumn = new LinearLayout(getContext());
                 LinearLayout.LayoutParams columnParams = new LinearLayout.LayoutParams(
@@ -165,7 +174,6 @@ public class WeekFragment extends Fragment implements DateSelectable, TaskView {
                 dayColumn.setTag("day_" + i + "_hour_" + hour);
                 daysContainer.addView(dayColumn);
 
-                // Add vertical divider between days (except last)
                 if (i < 6) {
                     View divider = new View(getContext());
                     LinearLayout.LayoutParams dividerParams = new LinearLayout.LayoutParams(
@@ -264,6 +272,8 @@ public class WeekFragment extends Fragment implements DateSelectable, TaskView {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) return;
 
+        clearAllTasks();
+
         // Get Monday of the week
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
@@ -292,18 +302,18 @@ public class WeekFragment extends Fragment implements DateSelectable, TaskView {
                             task.setTitle(document.getString("title"));
                             task.setStartAt(document.getDate("startAt"));
                             task.setUserId(document.getString("userId"));
+                            task.setCompleted(document.getBoolean("isCompleted") != null ?
+                                    document.getBoolean("isCompleted") : false);
 
-                            // Filter tasks by date range in memory
                             if (task.getStartAt() != null &&
                                     task.getStartAt().after(startWeek) &&
                                     task.getStartAt().before(endWeek)) {
 
-                                // Handle duration conversion
                                 Object durationObj = document.get("duration");
                                 if (durationObj instanceof Long) {
-                                    task.setDuration(String.valueOf(durationObj));
+                                    task.setDuration(Integer.parseInt(String.valueOf(durationObj)));
                                 } else {
-                                    task.setDuration(document.getString("duration"));
+                                    task.setDuration(Integer.parseInt(document.getString("duration")));
                                 }
                                 addTaskToTimeline(task);
                             }
@@ -330,7 +340,6 @@ public class WeekFragment extends Fragment implements DateSelectable, TaskView {
         selectedCal.set(Calendar.SECOND, 0);
         selectedCal.set(Calendar.MILLISECOND, 0);
 
-        // Calculate day position (0-6)
         int dayPosition = -1;
         for (int i = 0; i < 7; i++) {
             Calendar checkCal = (Calendar) selectedCal.clone();
@@ -351,35 +360,337 @@ public class WeekFragment extends Fragment implements DateSelectable, TaskView {
                 LinearLayout contentContainer = (LinearLayout) timeSlot.getChildAt(2);
                 LinearLayout daysContainer = (LinearLayout) contentContainer.getChildAt(1);
 
-                // Get the correct day column (accounting for dividers)
                 LinearLayout dayColumn = (LinearLayout) daysContainer.getChildAt(dayPosition * 2);
 
-                // Create task view
+                int slotHeight = hourSlot.getHeight() > 0 ? hourSlot.getHeight() : dpToPx(120);
+                int taskHeight;
+                switch (task.getDuration()) {
+                    case 15:
+                        taskHeight = slotHeight / 4;
+                        break;
+                    case 30:
+                        taskHeight = slotHeight / 2;
+                        break;
+                    case 45:
+                        taskHeight = (slotHeight * 3) / 4;
+                        break;
+                    case 60:
+                        taskHeight = slotHeight;
+                        break;
+                    default:
+                        taskHeight = dpToPx(30);
+                }
+
                 TextView taskView = new TextView(getContext());
                 taskView.setText(task.getTitle());
                 taskView.setTextColor(getResources().getColor(android.R.color.black));
+                if (task.isCompleted()) {
+                    taskView.setPaintFlags(taskView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                }
                 taskView.setBackgroundResource(R.drawable.task_calendar_background);
                 taskView.setPadding(dpToPx(4), dpToPx(2), dpToPx(4), dpToPx(2));
                 taskView.setSingleLine(true);
                 taskView.setEllipsize(TextUtils.TruncateAt.END);
                 taskView.setTextSize(12);
 
-                // Calculate vertical position based on minutes
                 float minuteProgress = taskMinute / 60f;
-                int slotHeight = hourSlot.getHeight() > 0 ? hourSlot.getHeight() : dpToPx(120);
-                int maxTopMargin = slotHeight - dpToPx(30);
-                int topMargin = Math.min((int)(slotHeight * minuteProgress), maxTopMargin);
+                int topMargin = Math.min((int)(slotHeight * minuteProgress), slotHeight - taskHeight);
 
                 LinearLayout.LayoutParams taskParams = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT);
+                        taskHeight);
                 taskParams.leftMargin = dpToPx(2);
                 taskParams.rightMargin = dpToPx(2);
                 taskParams.topMargin = topMargin;
                 taskView.setLayoutParams(taskParams);
-
+                taskView.setOnClickListener(v -> showTaskDialog(task));
                 dayColumn.addView(taskView);
             }
         }
+    }
+
+    private void showTaskDialog(Task task) {
+        BottomSheetDialog dialog = new BottomSheetDialog(requireContext());
+        View view = getLayoutInflater().inflate(R.layout.layout_task_details_bottom_sheet, null);
+        dialog.setContentView(view);
+
+        CheckBox checkbox = view.findViewById(R.id.task_checkbox);
+        TextView titleText = view.findViewById(R.id.task_title);
+        View incompleteSection = view.findViewById(R.id.incomplete_section);
+        View completedSection = view.findViewById(R.id.completed_section);
+
+        checkbox.setChecked(task.isCompleted());
+        titleText.setText(task.getTitle());
+        if (task.isCompleted()) {
+            titleText.setPaintFlags(titleText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            completedSection.setVisibility(View.VISIBLE);
+            incompleteSection.setVisibility(View.GONE);
+        } else {
+            titleText.setPaintFlags(titleText.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
+            completedSection.setVisibility(View.GONE);
+            incompleteSection.setVisibility(View.VISIBLE);
+        }
+
+        checkbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            FirebaseFirestore.getInstance()
+                    .collection("tasks")
+                    .document(task.getId())
+                    .update("isCompleted", isChecked)
+                    .addOnSuccessListener(aVoid -> {
+                        task.setCompleted(isChecked);
+
+                        dialog.dismiss();
+
+                        if (requireActivity() instanceof CalendarActivity) {
+                            ((CalendarActivity) requireActivity()).refreshCurrentFragment();
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        checkbox.setChecked(!isChecked);
+                        Toast.makeText(requireContext(), "Failed to update task", Toast.LENGTH_SHORT).show();
+                    });
+        });
+
+        setupRescheduleButtons(view, task, dialog);
+
+        view.findViewById(R.id.btn_remove_schedule).setOnClickListener(v -> {
+            removeSchedule(task);
+            dialog.dismiss();
+        });
+
+        view.findViewById(R.id.btn_edit_details).setOnClickListener(v -> {
+            // Show edit dialog
+            dialog.dismiss();
+        });
+
+        view.findViewById(R.id.btn_view_details).setOnClickListener(v -> {
+            // view details
+            dialog.dismiss();
+        });
+
+        view.findViewById(R.id.btn_view_notes).setOnClickListener(v -> {
+            // view notes
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
+    private void setupRescheduleButtons(View view, Task task, BottomSheetDialog dialog) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(task.getStartAt());
+        int hour = cal.get(Calendar.HOUR_OF_DAY);
+        int minute = cal.get(Calendar.MINUTE);
+
+        Button todayButton = view.findViewById(R.id.btn_today);
+        if (!isToday(task.getStartAt())) {
+            todayButton.setVisibility(View.VISIBLE);
+            todayButton.setOnClickListener(v -> {
+                rescheduleTask(task, 0, hour, minute);
+                dialog.dismiss();
+            });
+        } else {
+            todayButton.setVisibility(View.GONE);
+        }
+
+        view.findViewById(R.id.btn_tomorrow).setOnClickListener(v -> {
+            rescheduleTask(task, 1, hour, minute);
+            dialog.dismiss();
+        });
+
+        view.findViewById(R.id.btn_two_days).setOnClickListener(v -> {
+            rescheduleTask(task, 2, hour, minute);
+            dialog.dismiss();
+        });
+
+        view.findViewById(R.id.btn_one_week).setOnClickListener(v -> {
+            rescheduleTask(task, 7, hour, minute);
+            dialog.dismiss();
+        });
+
+        view.findViewById(R.id.btn_three_weeks).setOnClickListener(v -> {
+            rescheduleTask(task, 21, hour, minute);
+            dialog.dismiss();
+        });
+
+        view.findViewById(R.id.btn_select_date).setOnClickListener(v -> {
+            showDatePicker(task, hour, minute, dialog);
+        });
+    }
+
+    private int getDaysBetween(Date date1, Date date2) {
+        Calendar cal1 = Calendar.getInstance();
+        cal1.setTime(date1);
+        cal1.set(Calendar.HOUR_OF_DAY, 0);
+        cal1.set(Calendar.MINUTE, 0);
+        cal1.set(Calendar.SECOND, 0);
+        cal1.set(Calendar.MILLISECOND, 0);
+
+        Calendar cal2 = Calendar.getInstance();
+        cal2.setTime(date2);
+        cal2.set(Calendar.HOUR_OF_DAY, 0);
+        cal2.set(Calendar.MINUTE, 0);
+        cal2.set(Calendar.SECOND, 0);
+        cal2.set(Calendar.MILLISECOND, 0);
+
+        return (int) ((cal2.getTimeInMillis() - cal1.getTimeInMillis()) / (24 * 60 * 60 * 1000));
+    }
+
+    private void showDatePicker(Task task, int hour, int minute, BottomSheetDialog currentDialog) {
+        BottomSheetDialog datePickerDialog = new BottomSheetDialog(requireContext());
+        View datePickerView = getLayoutInflater().inflate(R.layout.layout_date_picker, null);
+        datePickerDialog.setContentView(datePickerView);
+
+        TextView monthYearText = datePickerView.findViewById(R.id.monthYearText);
+        GridView calendarGrid = datePickerView.findViewById(R.id.calendar_grid);
+        ImageButton prevMonth = datePickerView.findViewById(R.id.previousMonth);
+        ImageButton nextMonth = datePickerView.findViewById(R.id.nextMonth);
+        ImageButton backButton = datePickerView.findViewById(R.id.backButton);
+        ImageButton closeButton = datePickerView.findViewById(R.id.closeButton);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(selectedDate);
+        updateCalendarView(calendar, monthYearText, calendarGrid);
+
+        prevMonth.setOnClickListener(v -> {
+            calendar.add(Calendar.MONTH, -1);
+            updateCalendarView(calendar, monthYearText, calendarGrid);
+        });
+
+        nextMonth.setOnClickListener(v -> {
+            calendar.add(Calendar.MONTH, 1);
+            updateCalendarView(calendar, monthYearText, calendarGrid);
+        });
+
+        backButton.setOnClickListener(v -> {
+            datePickerDialog.dismiss();
+            currentDialog.show();
+        });
+
+        closeButton.setOnClickListener(v -> {
+            datePickerDialog.dismiss();
+            currentDialog.dismiss();
+        });
+
+        calendarGrid.setOnItemClickListener((parent, view, position, id) -> {
+            Date selectedDate = (Date) calendarGrid.getItemAtPosition(position);
+            if (selectedDate != null) {
+                int daysToAdd = getDaysBetween(Calendar.getInstance().getTime(), selectedDate);
+                rescheduleTask(task, daysToAdd, hour, minute);
+                datePickerDialog.dismiss();
+                currentDialog.dismiss();
+            }
+        });
+
+        currentDialog.dismiss();
+        datePickerDialog.show();
+    }
+
+    private void updateCalendarView(Calendar calendar, TextView monthYearText, GridView calendarGrid) {
+        SimpleDateFormat monthYearFormat = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
+        monthYearText.setText(monthYearFormat.format(calendar.getTime()));
+
+        List<Date> dates = generateCalendarDates(calendar);
+        CustomCalendarAdapter adapter = new CustomCalendarAdapter(requireContext(), dates);
+        calendarGrid.setAdapter(adapter);
+    }
+
+    private List<Date> generateCalendarDates(Calendar calendar) {
+        List<Date> dates = new ArrayList<>();
+
+        Calendar current = (Calendar) calendar.clone();
+
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+
+        int firstDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1;
+        int daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+        for (int i = 0; i < firstDayOfWeek; i++) {
+            dates.add(null);
+        }
+
+        for (int i = 1; i <= daysInMonth; i++) {
+            calendar.set(Calendar.DAY_OF_MONTH, i);
+            dates.add(calendar.getTime());
+        }
+
+        int remainingDays = 42 - dates.size();
+        for (int i = 0; i < remainingDays; i++) {
+            dates.add(null);
+        }
+
+        calendar.setTime(current.getTime());
+
+        return dates;
+    }
+
+    private void rescheduleTask(Task task, int daysToAdd, int hour, int minute) {
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_MONTH, daysToAdd);
+        cal.set(Calendar.HOUR_OF_DAY, hour);
+        cal.set(Calendar.MINUTE, minute);
+        Date newDate = cal.getTime();
+
+        FirebaseFirestore.getInstance()
+                .collection("tasks")
+                .document(task.getId())
+                .update("startAt", newDate)
+                .addOnSuccessListener(aVoid -> {
+                    if (requireActivity() instanceof CalendarActivity) {
+                        clearAllTasks();
+
+                        Calendar newCal = Calendar.getInstance();
+                        newCal.setTime(newDate);
+
+                        Calendar selectedCal = Calendar.getInstance();
+                        selectedCal.setTime(selectedDate);
+                        selectedCal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+
+                        Calendar endWeek = (Calendar) selectedCal.clone();
+                        endWeek.add(Calendar.DAY_OF_MONTH, 7);
+
+                        if (newDate.before(selectedCal.getTime()) || newDate.after(endWeek.getTime())) {
+                            ((CalendarActivity) requireActivity()).selectDate(newDate);
+                        } else {
+                            loadTasksForDate(selectedDate);
+                        }
+                    }
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(requireContext(), "Failed to reschedule task", Toast.LENGTH_SHORT).show());
+    }
+
+    private void clearAllTasks() {
+        if (!isAdded() || timelineContainer == null) return;
+
+        for (int hour = 0; hour < 24; hour++) {
+            View hourSlot = timelineContainer.findViewWithTag("hour_" + hour);
+            if (hourSlot instanceof LinearLayout) {
+                LinearLayout timeSlot = (LinearLayout) hourSlot;
+                LinearLayout contentContainer = (LinearLayout) timeSlot.getChildAt(2);
+                LinearLayout daysContainer = (LinearLayout) contentContainer.getChildAt(1);
+
+                for (int i = 0; i < daysContainer.getChildCount(); i++) {
+                    View child = daysContainer.getChildAt(i);
+                    if (child instanceof ViewGroup) {
+                        ((ViewGroup) child).removeAllViews();
+                    }
+                }
+            }
+        }
+    }
+
+    private void removeSchedule(Task task) {
+        FirebaseFirestore.getInstance()
+                .collection("tasks")
+                .document(task.getId())
+                .update("startAt", null, "duration", 0)
+                .addOnSuccessListener(aVoid -> {
+                    if (requireActivity() instanceof CalendarActivity) {
+                        ((CalendarActivity) requireActivity()).refreshCurrentFragment();
+                    }
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(requireContext(), "Failed to remove schedule", Toast.LENGTH_SHORT).show());
     }
 }

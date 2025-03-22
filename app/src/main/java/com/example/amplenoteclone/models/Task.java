@@ -17,7 +17,7 @@ public class Task {
     private Date startAt;
     private String startNoti;
     private String priority;
-    private String duration;
+    private int duration;
     private String hideUntilDate;
     private String hideUntilTime;
     private Date hideUntil;
@@ -31,7 +31,7 @@ public class Task {
     // Constructor
     public Task(boolean isCompleted, String title, Date createAt, String id, String repeat,
                 String startAtDate, String startAtPeriod, String startAtTime, String startNoti,
-                String priority, String duration, Date startAt, String hideUntilDate, String hideUntilTime) {
+                String priority, int duration, Date startAt, String hideUntilDate, String hideUntilTime) {
         this.isCompleted = isCompleted;
         this.title = title;
         this.createAt = createAt != null ? createAt : new Date();
@@ -154,11 +154,11 @@ public class Task {
         this.priority = priority;
     }
 
-    public String getDuration() {
+    public int getDuration() {
         return duration;
     }
 
-    public void setDuration(String duration) {
+    public void setDuration(int duration) {
         this.duration = duration;
     }
 
