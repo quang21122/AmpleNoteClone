@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.ui.customviews.NoteCardView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHolder> {
@@ -21,8 +22,18 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
     private NoteCardView.OnNoteCardClickListener clickListener;
 
     // Constructor
+    public NotesAdapter() {
+        this.noteList = new ArrayList<>();
+    }
     public NotesAdapter(List<NoteCardView> notes) {
         this.noteList = notes;
+    }
+
+    // Setters
+    public void setNotes(List<NoteCardView> notes) {
+        if (this.noteList != null)
+            this.noteList.clear();
+        this.noteList.addAll(notes);
     }
 
     public void setOnNoteCardClickListener(NoteCardView.OnNoteCardClickListener listener) {
