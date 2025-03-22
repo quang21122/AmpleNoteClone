@@ -14,8 +14,6 @@ import com.example.amplenoteclone.adapters.NotesAdapter;
 import com.example.amplenoteclone.models.Note;
 import com.example.amplenoteclone.ui.customviews.NoteCardView;
 import com.google.firebase.Timestamp;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -24,10 +22,6 @@ import com.google.firebase.firestore.Source;
 import java.util.ArrayList;
 
 public class NotesActivity extends DrawerActivity {
-    public interface FirestoreCallback {
-        void onCallback(ArrayList<NoteCardView> notes);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,9 +33,8 @@ public class NotesActivity extends DrawerActivity {
         NotesAdapter adapter = new NotesAdapter(); // Empty list initially
         recyclerView.setAdapter(adapter);
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        String userId = user != null ? user.getUid() : null;
-        getNotesFromFirebase(userId, notes -> runOnUiThread(() -> {
+
+        getNotesFromFirebase(this.userId, notes -> runOnUiThread(() -> {
             adapter.setNotes(notes);
             adapter.notifyDataSetChanged();
         }));
@@ -76,7 +69,7 @@ public class NotesActivity extends DrawerActivity {
         return "Notes";
     }
 
-    private void getNotesFromFirebase(String userId, FirestoreCallback firestoreCallback) {
+    private void getNotesFromFirebase(String userId, FirestoreCallback<NoteCardView> firestoreCallback) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference collectionRef = db.collection("notes");
 
