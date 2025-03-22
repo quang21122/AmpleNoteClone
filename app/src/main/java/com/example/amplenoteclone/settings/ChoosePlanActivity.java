@@ -23,18 +23,18 @@ public class ChoosePlanActivity extends AppCompatActivity {  // Extend AppCompat
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_plan); // Ensure you have the correct XML layout file
 
-        RadioGroup radioGroup = findViewById(R.id.radio_group);
-        RadioButton monthlyBilling = findViewById(R.id.monthly_billing);
-        RadioButton annualBilling = findViewById(R.id.annual_billing);
+//        RadioGroup radioGroup = findViewById(R.id.radio_group);
+//        RadioButton monthlyBilling = findViewById(R.id.monthly_billing);
+//        RadioButton annualBilling = findViewById(R.id.annual_billing);
         TextView subscriptionInfo = findViewById(R.id.subscription_info);
 
-        radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
-            if (checkedId == R.id.monthly_billing) {
-                subscriptionInfo.setText("We'll charge 59.000 đ at the end of your free trial.");
-            } else if (checkedId == R.id.annual_billing) {
-                subscriptionInfo.setText("We'll charge 499.000 đ at the end of your free trial.");
-            }
-        });
+//        radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
+//            if (checkedId == R.id.monthly_billing) {
+//                subscriptionInfo.setText("We'll charge 59.000 đ at the end of your free trial.");
+//            } else if (checkedId == R.id.annual_billing) {
+//                subscriptionInfo.setText("We'll charge 499.000 đ at the end of your free trial.");
+//            }
+//        });
 
         ImageView backIcon = findViewById(R.id.back_icon);
         backIcon.setOnClickListener(v -> finish());
@@ -44,19 +44,19 @@ public class ChoosePlanActivity extends AppCompatActivity {  // Extend AppCompat
         continueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String selectedPlan;
-                RadioButton monthlyBilling = findViewById(R.id.monthly_billing);
-                RadioButton annualBilling = findViewById(R.id.annual_billing);
+//                String selectedPlan;
+//                RadioButton monthlyBilling = findViewById(R.id.monthly_billing);
+//                RadioButton annualBilling = findViewById(R.id.annual_billing);
+//
+//                if (monthlyBilling.isChecked()) {
+//                    selectedPlan = "monthly";
+//                } else if (annualBilling.isChecked()) {
+//                    selectedPlan = "annual";
+//                } else {
+//                    return;
+//                }
 
-                if (monthlyBilling.isChecked()) {
-                    selectedPlan = "monthly";
-                } else if (annualBilling.isChecked()) {
-                    selectedPlan = "annual";
-                } else {
-                    return;
-                }
-
-                ConfirmationDialogFragment dialog = ConfirmationDialogFragment.newInstance(selectedPlan);
+                ConfirmationDialogFragment dialog = ConfirmationDialogFragment.newInstance();
                 dialog.show(getSupportFragmentManager(), "confirmation_dialog");
             }
         });
