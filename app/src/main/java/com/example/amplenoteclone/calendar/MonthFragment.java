@@ -49,9 +49,12 @@ public class MonthFragment extends Fragment implements DateSelectable, TaskView 
         View view = inflater.inflate(R.layout.fragment_month, container, false);
         calendarGrid = view.findViewById(R.id.calendarGrid);
 
+        selectedDate = new Date();
+
         adapter = new CalendarAdapter(getContext());
         calendarGrid.setAdapter(adapter);
 
+        setSelectedDate(selectedDate);
 
         return view;
     }
@@ -154,12 +157,15 @@ public class MonthFragment extends Fragment implements DateSelectable, TaskView 
 
         public void setDate(Date date) {
             calendar.setTime(date);
-            calendar.set(Calendar.DAY_OF_MONTH, 1);
+            calendar.set(Calendar.DAY_OF_MONTH, 1); // Đặt về ngày 1 của tháng
 
             days.clear();
 
-            int firstDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1;
-            calendar.add(Calendar.DAY_OF_MONTH, -firstDayOfWeek);
+            int currentMonth = calendar.get(Calendar.MONTH);
+
+            calendar.setFirstDayOfWeek(Calendar.MONDAY);
+            int firstDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+            calendar.add(Calendar.DAY_OF_MONTH, -(firstDayOfWeek - Calendar.MONDAY));
 
             while (days.size() < 42) {
                 days.add(calendar.getTime());
@@ -195,60 +201,58 @@ public class MonthFragment extends Fragment implements DateSelectable, TaskView 
             LinearLayout taskContainer = convertView.findViewById(R.id.taskContainer);
             Date date = days.get(position);
 
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(date);
+            Calendar displayMonth = Calendar.getInstance();
+            displayMonth.setTime(selectedDate);
 
-            Calendar current = Calendar.getInstance();
-            current.setTime(selectedDate);
+            Calendar dateCal = Calendar.getInstance();
+            dateCal.setTime(date);
 
-            Calendar today = Calendar.getInstance();
+            boolean isCurrentMonth = dateCal.get(Calendar.MONTH) == displayMonth.get(Calendar.MONTH);
 
-            // Set day number
-            dayText.setText(String.valueOf(cal.get(Calendar.DAY_OF_MONTH)));
+            dayText.setText(String.valueOf(dateCal.get(Calendar.DAY_OF_MONTH)));
 
-            // Set day text color
-            if (cal.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
-                    cal.get(Calendar.MONTH) == today.get(Calendar.MONTH) &&
-                    cal.get(Calendar.DAY_OF_MONTH) == today.get(Calendar.DAY_OF_MONTH)) {
-                dayText.setTextColor(getResources().getColor(R.color.green));
-            } else if (cal.get(Calendar.MONTH) != current.get(Calendar.MONTH)) {
-                dayText.setTextColor(getResources().getColor(android.R.color.darker_gray));
+            if (isToday(date)) {
+                dayText.setTextColor(context.getResources().getColor(R.color.green));
+            } else if (!isCurrentMonth) {
+                dayText.setTextColor(context.getResources().getColor(android.R.color.darker_gray));
             } else {
-                dayText.setTextColor(getResources().getColor(android.R.color.black));
+                dayText.setTextColor(context.getResources().getColor(android.R.color.black));
             }
 
             taskContainer.removeAllViews();
-
             String dateKey = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                     .format(date);
             List<Task> tasksForDay = tasksByDate.get(dateKey);
-
             if (tasksForDay != null) {
-                for (Task task : tasksForDay) {
-                    TextView taskView = new TextView(context);
-                    taskView.setText(task.getTitle());
-                    taskView.setTextSize(12);
-                    taskView.setMaxLines(1);
-                    taskView.setEllipsize(TextUtils.TruncateAt.END);
-                    if (task.isCompleted()) {
-                        taskView.setPaintFlags(taskView.getPaintFlags() | android.graphics.Paint.STRIKE_THRU_TEXT_FLAG);
-                    }
-                    taskView.setPadding(4, 2, 4, 2);
-                    taskView.setBackgroundResource(R.drawable.task_calendar_background);
-                    taskView.setTextColor(context.getResources().getColor(android.R.color.black));
-
-                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.MATCH_PARENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT
-                    );
-                    params.setMargins(2, 2, 2, 2);
-                    taskView.setLayoutParams(params);
-                    taskView.setOnClickListener(v -> showTaskDialog(task));
-                    taskContainer.addView(taskView);
-                }
+                addTasksToContainer(taskContainer, tasksForDay);
             }
 
             return convertView;
+        }
+
+        private void addTasksToContainer(LinearLayout container, List<Task> tasks) {
+            for (Task task : tasks) {
+                TextView taskView = new TextView(context);
+                taskView.setText(task.getTitle());
+                taskView.setTextSize(12);
+                taskView.setMaxLines(1);
+                taskView.setEllipsize(TextUtils.TruncateAt.END);
+                if (task.isCompleted()) {
+                    taskView.setPaintFlags(taskView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                }
+                taskView.setPadding(4, 2, 4, 2);
+                taskView.setBackgroundResource(R.drawable.task_calendar_background);
+                taskView.setTextColor(context.getResources().getColor(android.R.color.black));
+
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+                params.setMargins(2, 2, 2, 2);
+                taskView.setLayoutParams(params);
+                taskView.setOnClickListener(v -> showTaskDialog(task));
+                container.addView(taskView);
+            }
         }
     }
 

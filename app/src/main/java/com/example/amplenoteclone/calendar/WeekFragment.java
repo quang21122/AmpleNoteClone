@@ -277,21 +277,26 @@ public class WeekFragment extends Fragment implements DateSelectable, TaskView {
         // Get Monday of the week
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
-        cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        cal.setFirstDayOfWeek(Calendar.MONDAY); // Set Monday as first day of week
+
+        // Điều chỉnh về Monday của tuần hiện tại
+        while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
+            cal.add(Calendar.DAY_OF_MONTH, -1);
+        }
+
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
         Date startWeek = cal.getTime();
 
-        // Get next Monday
         cal.add(Calendar.DAY_OF_MONTH, 7);
         Date endWeek = cal.getTime();
-
 
         FirebaseFirestore.getInstance()
                 .collection("tasks")
                 .whereEqualTo("userId", currentUser.getUid())
+                .orderBy("startAt")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!isAdded()) return;
@@ -305,18 +310,14 @@ public class WeekFragment extends Fragment implements DateSelectable, TaskView {
                             task.setCompleted(document.getBoolean("isCompleted") != null ?
                                     document.getBoolean("isCompleted") : false);
 
-                            if (task.getStartAt() != null &&
-                                    task.getStartAt().after(startWeek) &&
-                                    task.getStartAt().before(endWeek)) {
-
-                                Object durationObj = document.get("duration");
-                                if (durationObj instanceof Long) {
-                                    task.setDuration(Integer.parseInt(String.valueOf(durationObj)));
-                                } else {
-                                    task.setDuration(Integer.parseInt(document.getString("duration")));
-                                }
-                                addTaskToTimeline(task);
+                            Object durationObj = document.get("duration");
+                            if (durationObj instanceof Long) {
+                                task.setDuration(Integer.parseInt(String.valueOf(durationObj)));
+                            } else {
+                                task.setDuration(Integer.parseInt(document.getString("duration")));
                             }
+                            System.out.println("Task: " + task.getTitle() + " - " + task.getStartAt());
+                            addTaskToTimeline(task);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -329,83 +330,83 @@ public class WeekFragment extends Fragment implements DateSelectable, TaskView {
     public void addTaskToTimeline(Task task) {
         if (task.getStartAt() == null || timelineContainer == null) return;
 
+        Calendar mondayCal = Calendar.getInstance();
+        mondayCal.setTime(selectedDate);
+        mondayCal.setFirstDayOfWeek(Calendar.MONDAY);
+
+        while (mondayCal.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
+            mondayCal.add(Calendar.DAY_OF_MONTH, -1);
+        }
+
+        mondayCal.set(Calendar.HOUR_OF_DAY, 0);
+        mondayCal.set(Calendar.MINUTE, 0);
+        mondayCal.set(Calendar.SECOND, 0);
+        mondayCal.set(Calendar.MILLISECOND, 0);
+
         Calendar taskCal = Calendar.getInstance();
         taskCal.setTime(task.getStartAt());
-
-        Calendar selectedCal = Calendar.getInstance();
-        selectedCal.setTime(selectedDate);
-        selectedCal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-        selectedCal.set(Calendar.HOUR_OF_DAY, 0);
-        selectedCal.set(Calendar.MINUTE, 0);
-        selectedCal.set(Calendar.SECOND, 0);
-        selectedCal.set(Calendar.MILLISECOND, 0);
+        int taskHour = taskCal.get(Calendar.HOUR_OF_DAY);
+        int taskMinute = taskCal.get(Calendar.MINUTE);
 
         int dayPosition = -1;
+        Calendar tempCal = (Calendar) mondayCal.clone();
         for (int i = 0; i < 7; i++) {
-            Calendar checkCal = (Calendar) selectedCal.clone();
-            checkCal.add(Calendar.DAY_OF_MONTH, i);
-            if (isSameDay(checkCal.getTime(), task.getStartAt())) {
+            if (isSameDay(tempCal.getTime(), task.getStartAt())) {
                 dayPosition = i;
                 break;
             }
+            tempCal.add(Calendar.DAY_OF_MONTH, 1);
         }
 
         if (dayPosition != -1) {
-            int taskHour = taskCal.get(Calendar.HOUR_OF_DAY);
-            int taskMinute = taskCal.get(Calendar.MINUTE);
-
             View hourSlot = timelineContainer.findViewWithTag("hour_" + taskHour);
             if (hourSlot instanceof LinearLayout) {
                 LinearLayout timeSlot = (LinearLayout) hourSlot;
                 LinearLayout contentContainer = (LinearLayout) timeSlot.getChildAt(2);
                 LinearLayout daysContainer = (LinearLayout) contentContainer.getChildAt(1);
-
                 LinearLayout dayColumn = (LinearLayout) daysContainer.getChildAt(dayPosition * 2);
 
-                int slotHeight = hourSlot.getHeight() > 0 ? hourSlot.getHeight() : dpToPx(120);
-                int taskHeight;
-                switch (task.getDuration()) {
-                    case 15:
-                        taskHeight = slotHeight / 4;
-                        break;
-                    case 30:
-                        taskHeight = slotHeight / 2;
-                        break;
-                    case 45:
-                        taskHeight = (slotHeight * 3) / 4;
-                        break;
-                    case 60:
-                        taskHeight = slotHeight;
-                        break;
-                    default:
-                        taskHeight = dpToPx(30);
+                if (dayColumn != null) {
+                    int slotHeight = hourSlot.getHeight() > 0 ? hourSlot.getHeight() : dpToPx(120);
+
+                    TextView taskView = new TextView(getContext());
+                    taskView.setText(task.getTitle());
+                    taskView.setTextColor(getResources().getColor(android.R.color.black));
+                    if (task.isCompleted()) {
+                        taskView.setPaintFlags(taskView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                    }
+                    taskView.setBackgroundResource(R.drawable.task_calendar_background);
+                    taskView.setPadding(dpToPx(4), dpToPx(2), dpToPx(4), dpToPx(2));
+                    taskView.setSingleLine(true);
+                    taskView.setEllipsize(TextUtils.TruncateAt.END);
+                    taskView.setTextSize(12);
+
+                    int taskHeight = calculateTaskHeight(task.getDuration(), slotHeight);
+                    float minuteProgress = taskMinute / 60f;
+                    int topMargin = Math.min((int)(slotHeight * minuteProgress), slotHeight - taskHeight);
+
+                    LinearLayout.LayoutParams taskParams = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            taskHeight);
+                    taskParams.leftMargin = dpToPx(2);
+                    taskParams.rightMargin = dpToPx(2);
+                    taskParams.topMargin = topMargin;
+                    taskView.setLayoutParams(taskParams);
+
+                    taskView.setOnClickListener(v -> showTaskDialog(task));
+                    dayColumn.addView(taskView);
                 }
-
-                TextView taskView = new TextView(getContext());
-                taskView.setText(task.getTitle());
-                taskView.setTextColor(getResources().getColor(android.R.color.black));
-                if (task.isCompleted()) {
-                    taskView.setPaintFlags(taskView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                }
-                taskView.setBackgroundResource(R.drawable.task_calendar_background);
-                taskView.setPadding(dpToPx(4), dpToPx(2), dpToPx(4), dpToPx(2));
-                taskView.setSingleLine(true);
-                taskView.setEllipsize(TextUtils.TruncateAt.END);
-                taskView.setTextSize(12);
-
-                float minuteProgress = taskMinute / 60f;
-                int topMargin = Math.min((int)(slotHeight * minuteProgress), slotHeight - taskHeight);
-
-                LinearLayout.LayoutParams taskParams = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        taskHeight);
-                taskParams.leftMargin = dpToPx(2);
-                taskParams.rightMargin = dpToPx(2);
-                taskParams.topMargin = topMargin;
-                taskView.setLayoutParams(taskParams);
-                taskView.setOnClickListener(v -> showTaskDialog(task));
-                dayColumn.addView(taskView);
             }
+        }
+    }
+
+    private int calculateTaskHeight(int duration, int slotHeight) {
+        switch (duration) {
+            case 15: return slotHeight / 4;
+            case 30: return slotHeight / 2;
+            case 45: return (slotHeight * 3) / 4;
+            case 60: return slotHeight;
+            default: return dpToPx(30);
         }
     }
 
