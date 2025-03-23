@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.amplenoteclone.calendar.CalendarActivity;
+import com.example.amplenoteclone.models.User;
 import com.example.amplenoteclone.note.NotesActivity;
 import com.example.amplenoteclone.settings.SettingsActivity;
 import com.example.amplenoteclone.authentication.Login;
@@ -106,34 +107,31 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadUserProfile() {
-        FirebaseUser user = mAuth.getCurrentUser();
-        if (user != null) {
-            db.collection("users").document(user.getUid())
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        if (firebaseUser != null) {
+            db.collection("users").document(firebaseUser.getUid())
                     .get()
                     .addOnSuccessListener(document -> {
                         if (document.exists()) {
-                            String name = document.getString("name");
-                            boolean hasCustomAvatar = Boolean.TRUE.equals(document.getBoolean("hasCustomAvatar"));
-                            String base64Image = document.getString("avatarBase64");
+                            User user = document.toObject(User.class);
+                            if (user != null) {
+                                userNameTextView.setText(user.getName().isEmpty() ? user.getEmail() : user.getName());
 
-                            userNameTextView.setText(name.isEmpty() ? user.getEmail() : name);
+                                if (user.isHasCustomAvatar() && user.getAvatarBase64() != null && !user.getAvatarBase64().isEmpty()) {
+                                    byte[] decodedString = Base64.decode(user.getAvatarBase64(), Base64.DEFAULT);
+                                    Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
 
-                            if (hasCustomAvatar && base64Image != null && !base64Image.isEmpty()) {
-                                // Decode base64 string to bitmap
-                                byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
-                                Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-
-                                profileImage.setImageBitmap(bitmap);
-                                profileImage.setVisibility(View.VISIBLE);
-                                defaultAvatarText.setVisibility(View.GONE);
-                            } else {
-                                // Show default avatar
-                                String firstLetter = name.isEmpty() ?
-                                        user.getEmail().substring(0, 1).toUpperCase() :
-                                        name.substring(0, 1).toUpperCase();
-                                defaultAvatarText.setText(firstLetter);
-                                profileImage.setVisibility(View.GONE);
-                                defaultAvatarText.setVisibility(View.VISIBLE);
+                                    profileImage.setImageBitmap(bitmap);
+                                    profileImage.setVisibility(View.VISIBLE);
+                                    defaultAvatarText.setVisibility(View.GONE);
+                                } else {
+                                    String firstLetter = user.getName().isEmpty() ?
+                                            user.getEmail().substring(0, 1).toUpperCase() :
+                                            user.getName().substring(0, 1).toUpperCase();
+                                    defaultAvatarText.setText(firstLetter);
+                                    profileImage.setVisibility(View.GONE);
+                                    defaultAvatarText.setVisibility(View.VISIBLE);
+                                }
                             }
                         }
                     })

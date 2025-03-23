@@ -4,22 +4,36 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.amplenoteclone.DrawerActivity;
 import com.example.amplenoteclone.R;
+
+import com.example.amplenoteclone.models.Task;
 import com.example.amplenoteclone.tasks.TasksPageActivity;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,38 +42,28 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class CalendarActivity extends DrawerActivity {
-    private LinearLayout workTab;
-    private LinearLayout personalTab;
-    private TextView workText;
-    private TextView personalText;
-    private View workIndicator;
-    private View personalIndicator;
-    private boolean isWorkSelected = true;
 
+public class CalendarActivity extends DrawerActivity {
     private TextView currentDateText;
     private ImageButton calendarPickerButton;
     private CustomCalendarAdapter adapter;
     private java.util.Calendar currentCalendar;
     private Date currentSelectedDate = new Date();
+    private Fragment currentFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Must have methods for initializing the activity
         super.onCreate(savedInstanceState);
-
         setActivityContent(R.layout.activity_calendar);
-
         initializeViews();
         setupCalendarBottomSheet();
-        setupListeners();
-        updateTabState(true);
+        setupAddTaskButton();
         updateCurrentDate(System.currentTimeMillis());
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.toolbar_calendar, menu);
         return true;
     }
@@ -72,29 +76,20 @@ public class CalendarActivity extends DrawerActivity {
     }
 
     private void initializeViews() {
-        workTab = findViewById(R.id.work_tab);
-        personalTab = findViewById(R.id.personal_tab);
-        workText = findViewById(R.id.work_text);
-        personalText = findViewById(R.id.personal_text);
-        workIndicator = findViewById(R.id.work_indicator);
-        personalIndicator = findViewById(R.id.personal_indicator);
         currentDateText = findViewById(R.id.current_date);
         calendarPickerButton = findViewById(R.id.calendar_picker_button);
         currentCalendar = java.util.Calendar.getInstance();
-    }
 
-    private void setupListeners() {
-        workTab.setOnClickListener(v -> {
-            if (!isWorkSelected) {
-                updateTabState(true);
-            }
-        });
+        currentFragment = new OneDayFragment();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.content_container, currentFragment)
+                .commit();
 
-        personalTab.setOnClickListener(v -> {
-            if (isWorkSelected) {
-                updateTabState(false);
+        new Handler().postDelayed(() -> {
+            if (currentFragment instanceof DateSelectable) {
+                ((DateSelectable) currentFragment).setSelectedDate(new Date());
             }
-        });
+        }, 100);
     }
 
     private void setupCalendarBottomSheet() {
@@ -104,7 +99,6 @@ public class CalendarActivity extends DrawerActivity {
 
         setupTabsBottom(bottomSheetView, bottomSheetDialog);
 
-        // Set height to 90% of screen height
         View parentView = (View) bottomSheetView.getParent();
         BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(parentView);
         int screenHeight = getResources().getDisplayMetrics().heightPixels;
@@ -123,17 +117,14 @@ public class CalendarActivity extends DrawerActivity {
 
         closeButton.setOnClickListener(v -> bottomSheetDialog.dismiss());
 
-        // First initialize the calendar grid
         updateCalendarGrid(calendarGrid, monthYearText);
-
-        // Then update button visibility
         updateGoToTodayButtonVisibility(goToTodayButton);
 
         calendarGrid.setOnItemClickListener((parent, view, position, id) -> {
             Date selectedDate = (Date) adapter.getItem(position);
             if (selectedDate != null) {
                 adapter.setSelectedDate(selectedDate);
-                updateSelectedDate(selectedDate); // Use new method here
+                updateSelectedDate(selectedDate);
                 updateGoToTodayButtonVisibility(goToTodayButton);
                 bottomSheetDialog.dismiss();
             }
@@ -155,7 +146,7 @@ public class CalendarActivity extends DrawerActivity {
             Calendar today = Calendar.getInstance();
             currentCalendar = today;
             adapter.setSelectedDate(today.getTime());
-            updateSelectedDate(today.getTime()); // Use new method here
+            updateSelectedDate(today.getTime());
             updateCalendarGrid(calendarGrid, monthYearText);
             updateGoToTodayButtonVisibility(goToTodayButton);
             bottomSheetDialog.dismiss();
@@ -172,18 +163,6 @@ public class CalendarActivity extends DrawerActivity {
 
         TextView[] tabs = {oneDay, threeDays, week, month};
 
-        // Initialize with separate OneDayFragment instances
-        Fragment initialWorkFragment = new OneDayFragment();
-        Fragment initialPersonalFragment = new OneDayFragment();
-
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.work_content_container, initialWorkFragment)
-                .commit();
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.personal_content_container, initialPersonalFragment)
-                .commit();
-
-        // Set initial colors and background
         oneDay.setTextColor(getResources().getColor(android.R.color.black));
         oneDay.setBackgroundResource(R.color.light_gray);
         for (int i = 1; i < tabs.length; i++) {
@@ -192,55 +171,39 @@ public class CalendarActivity extends DrawerActivity {
         }
 
         View.OnClickListener tabClickListener = v -> {
-            // Reset all tabs
             for (TextView tab : tabs) {
                 tab.setTextColor(getResources().getColor(android.R.color.darker_gray));
                 tab.setBackgroundColor(getResources().getColor(android.R.color.transparent));
             }
 
-            // Update selected tab
             TextView selectedTab = (TextView) v;
             selectedTab.setTextColor(getResources().getColor(android.R.color.black));
             selectedTab.setBackgroundResource(R.color.light_gray);
 
-            // Create new fragments based on selected tab
-            Fragment newWorkFragment;
-            Fragment newPersonalFragment;
-
+            Fragment newFragment;
             int id = v.getId();
             if (id == R.id.tab_one_day) {
-                newWorkFragment = new OneDayFragment();
-                newPersonalFragment = new OneDayFragment();
+                newFragment = new OneDayFragment();
             } else if (id == R.id.tab_three_days) {
-                newWorkFragment = new ThreeDaysFragment();
-                newPersonalFragment = new ThreeDaysFragment();
+                newFragment = new ThreeDaysFragment();
             } else if (id == R.id.tab_week) {
-                newWorkFragment = new WeekFragment();
-                newPersonalFragment = new WeekFragment();
+                newFragment = new WeekFragment();
             } else {
-                newWorkFragment = new MonthFragment();
-                newPersonalFragment = new MonthFragment();
+                newFragment = new MonthFragment();
             }
 
-            // Replace fragments in both containers
+            currentFragment = newFragment;
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.work_content_container, newWorkFragment)
-                    .commit();
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.personal_content_container, newPersonalFragment)
+                    .replace(R.id.content_container, newFragment)
                     .commit();
 
-            // Execute transactions immediately
             getSupportFragmentManager().executePendingTransactions();
 
-            // Update selected date for both fragments
-            if (newWorkFragment instanceof DateSelectable) {
-                ((DateSelectable) newWorkFragment).setSelectedDate(currentSelectedDate);
-            }
-            if (newPersonalFragment instanceof DateSelectable) {
-                ((DateSelectable) newPersonalFragment).setSelectedDate(currentSelectedDate);
+            if (newFragment instanceof DateSelectable) {
+                ((DateSelectable) newFragment).setSelectedDate(currentSelectedDate);
             }
 
+            updateCurrentDate(currentSelectedDate.getTime());
             dialog.dismiss();
         };
 
@@ -275,24 +238,19 @@ public class CalendarActivity extends DrawerActivity {
 
     private void updateCalendarGrid(GridView calendarGrid, TextView monthYearText) {
         List<Date> dates = new ArrayList<>();
+        Calendar calendar = (Calendar) currentCalendar.clone();
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        int firstDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1;
 
-        // Get start of month
-        java.util.Calendar calendar = (java.util.Calendar) currentCalendar.clone();
-        calendar.set(java.util.Calendar.DAY_OF_MONTH, 1);
-        int firstDayOfWeek = calendar.get(java.util.Calendar.DAY_OF_WEEK) - 1;
-
-        // Add empty spaces for days before start of month
         for (int i = 0; i < firstDayOfWeek; i++) {
             dates.add(null);
         }
 
-        // Add days of month
-        while (calendar.get(java.util.Calendar.MONTH) == currentCalendar.get(java.util.Calendar.MONTH)) {
+        while (calendar.get(Calendar.MONTH) == currentCalendar.get(Calendar.MONTH)) {
             dates.add(calendar.getTime());
-            calendar.add(java.util.Calendar.DAY_OF_MONTH, 1);
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
         }
 
-        // Add empty spaces to complete 6 rows (42 cells)
         while (dates.size() < 42) {
             dates.add(null);
         }
@@ -300,13 +258,11 @@ public class CalendarActivity extends DrawerActivity {
         adapter = new CustomCalendarAdapter(this, dates);
         calendarGrid.setAdapter(adapter);
 
-        // Select current date if it's in current month, otherwise select first day of month
         Calendar today = Calendar.getInstance();
-        if (currentCalendar.get(java.util.Calendar.MONTH) == today.get(java.util.Calendar.MONTH) &&
-                currentCalendar.get(java.util.Calendar.YEAR) == today.get(java.util.Calendar.YEAR)) {
+        if (currentCalendar.get(Calendar.MONTH) == today.get(Calendar.MONTH) &&
+                currentCalendar.get(Calendar.YEAR) == today.get(Calendar.YEAR)) {
             adapter.setSelectedDate(today.getTime());
         } else {
-            // Select first valid date of current month
             for (Date date : dates) {
                 if (date != null) {
                     adapter.setSelectedDate(date);
@@ -315,100 +271,71 @@ public class CalendarActivity extends DrawerActivity {
             }
         }
 
-        // Set month year text
         SimpleDateFormat formatter = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
         monthYearText.setText(formatter.format(currentCalendar.getTime()));
     }
 
     private void updateCurrentDate(long timeInMillis) {
         try {
-            SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.getDefault());
-            SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d", Locale.getDefault());
-            SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy", Locale.getDefault());
-
             Date date = new Date(timeInMillis);
-            String dayOfWeek = dayFormat.format(date);
-            String dateWithoutYear = dateFormat.format(date);
-            String year = yearFormat.format(date);
-
             android.text.SpannableStringBuilder builder = new android.text.SpannableStringBuilder();
 
-            builder.append(dayOfWeek + "\n");
-            builder.setSpan(new android.text.style.AbsoluteSizeSpan(14, true),
-                    0, dayOfWeek.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            if (currentFragment instanceof MonthFragment) {
+                SimpleDateFormat monthFormat = new SimpleDateFormat("MMMM", Locale.getDefault());
+                SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy", Locale.getDefault());
+                String month = monthFormat.format(date);
+                String year = yearFormat.format(date);
 
-            int dateStart = builder.length();
-            builder.append(dateWithoutYear);
-            builder.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
-                    dateStart, builder.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            builder.setSpan(new android.text.style.AbsoluteSizeSpan(20, true),
-                    dateStart, builder.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                builder.append(month);
+                builder.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
+                        0, month.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                builder.append(" " + year);
+                builder.setSpan(new android.text.style.AbsoluteSizeSpan(20, true),
+                        0, builder.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            } else if (currentFragment instanceof WeekFragment) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.getDefault());
 
-            builder.append(", " + year);
-            builder.setSpan(new android.text.style.AbsoluteSizeSpan(20, true),
-                    builder.length() - year.length(), builder.length(),
-                    android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                builder.append("Week of\n");
+                builder.setSpan(new android.text.style.AbsoluteSizeSpan(14, true),
+                        0, builder.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                int dateStart = builder.length();
+                String dateStr = dateFormat.format(date);
+                builder.append(dateStr);
+                builder.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
+                        dateStart, builder.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                builder.setSpan(new android.text.style.AbsoluteSizeSpan(20, true),
+                        dateStart, builder.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            } else {
+                SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.getDefault());
+                SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d", Locale.getDefault());
+                SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy", Locale.getDefault());
+
+                String dayOfWeek = dayFormat.format(date);
+                String dateWithoutYear = dateFormat.format(date);
+                String year = yearFormat.format(date);
+
+                builder.append(dayOfWeek + "\n");
+                builder.setSpan(new android.text.style.AbsoluteSizeSpan(14, true),
+                        0, dayOfWeek.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                int dateStart = builder.length();
+                builder.append(dateWithoutYear);
+                builder.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
+                        dateStart, builder.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                builder.setSpan(new android.text.style.AbsoluteSizeSpan(20, true),
+                        dateStart, builder.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                builder.append(", " + year);
+                builder.setSpan(new android.text.style.AbsoluteSizeSpan(20, true),
+                        builder.length() - year.length(), builder.length(),
+                        android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
 
             currentDateText.setText(builder);
         } catch (Exception e) {
-            currentDateText.setText(new SimpleDateFormat("EEEE\nMMM d, yyyy", Locale.getDefault())
+            currentDateText.setText(new SimpleDateFormat("MMMM yyyy", Locale.getDefault())
                     .format(new Date()));
-        }
-    }
-
-    private void updateTabState(boolean selectWork) {
-        isWorkSelected = selectWork;
-
-        // Update tab UI
-        workText.setTextColor(getResources().getColor(
-                selectWork ? R.color.tab_selected : R.color.tab_unselected));
-        personalText.setTextColor(getResources().getColor(
-                selectWork ? R.color.tab_unselected : R.color.tab_selected));
-        workIndicator.setVisibility(selectWork ? View.VISIBLE : View.INVISIBLE);
-        personalIndicator.setVisibility(selectWork ? View.INVISIBLE : View.VISIBLE);
-
-        // Show/hide containers first
-        findViewById(R.id.work_content_container).setVisibility(
-                selectWork ? View.VISIBLE : View.GONE);
-        findViewById(R.id.personal_content_container).setVisibility(
-                selectWork ? View.GONE : View.VISIBLE);
-
-        // Get or create fragments
-        Fragment workFragment = getSupportFragmentManager().findFragmentById(R.id.work_content_container);
-        Fragment personalFragment = getSupportFragmentManager().findFragmentById(R.id.personal_content_container);
-
-        // Create fragments if needed
-        if (workFragment == null) {
-            workFragment = new OneDayFragment();
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.work_content_container, workFragment)
-                    .commit();
-            getSupportFragmentManager().executePendingTransactions();
-        }
-
-        if (personalFragment == null) {
-            personalFragment = new OneDayFragment();
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.personal_content_container, personalFragment)
-                    .commit();
-            getSupportFragmentManager().executePendingTransactions();
-        }
-
-        // Force refresh both fragments
-        if (workFragment instanceof OneDayFragment) {
-            ((DateSelectable) workFragment).setSelectedDate(currentSelectedDate);
-        }
-        if (personalFragment instanceof OneDayFragment) {
-            ((DateSelectable) personalFragment).setSelectedDate(currentSelectedDate);
-        }
-
-        // Update current fragment view
-        Fragment currentFragment = selectWork ? workFragment : personalFragment;
-        if (currentFragment instanceof OneDayFragment) {
-            // Delay để đảm bảo view đã được inflate
-            new Handler().post(() -> {
-                ((DateSelectable) currentFragment).setSelectedDate(currentSelectedDate);
-            });
         }
     }
 
@@ -416,15 +343,147 @@ public class CalendarActivity extends DrawerActivity {
         currentSelectedDate = date;
         updateCurrentDate(date.getTime());
 
-        // Update both fragments
-        updateFragmentDate(R.id.work_content_container, date);
-        updateFragmentDate(R.id.personal_content_container, date);
+        if (currentFragment instanceof DateSelectable) {
+            ((DateSelectable) currentFragment).setSelectedDate(date);
+        }
     }
 
-    private void updateFragmentDate(int containerId, Date date) {
-        Fragment fragment = getSupportFragmentManager().findFragmentById(containerId);
-        if (fragment instanceof DateSelectable) {
-            ((DateSelectable) fragment).setSelectedDate(date);
+    public void selectDate(Date date) {
+        updateSelectedDate(date);
+
+        Calendar selectedCal = Calendar.getInstance();
+        selectedCal.setTime(date);
+
+        Calendar currentCal = Calendar.getInstance();
+        currentCal.setTime(currentSelectedDate);
+
+        // Switch fragment if month changed
+        if (selectedCal.get(Calendar.MONTH) != currentCal.get(Calendar.MONTH) ||
+                selectedCal.get(Calendar.YEAR) != currentCal.get(Calendar.YEAR)) {
+            adapter.setSelectedDate(date);
         }
+
+        // Update current fragment's selected date
+        if (currentFragment instanceof DateSelectable) {
+            ((DateSelectable) currentFragment).setSelectedDate(date);
+        }
+
+        // Update month/year text if needed
+        if (currentFragment instanceof MonthFragment) {
+            updateCurrentDate(date.getTime());
+        }
+    }
+
+    private void setupAddTaskButton() {
+        ImageButton addTaskButton = findViewById(R.id.add_task);
+        addTaskButton.setOnClickListener(v -> showAddTaskDialog());
+    }
+
+        private void setupDurationSpinner(View bottomSheetView) {
+            Spinner durationSpinner = bottomSheetView.findViewById(R.id.spinner_duration);
+
+            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                    bottomSheetView.getContext(),
+                    R.array.task_duration,
+                    android.R.layout.simple_spinner_item
+            );
+
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            durationSpinner.setAdapter(adapter);
+
+            durationSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    String duration = parent.getItemAtPosition(position).toString();
+                    String minutes = duration.split(" ")[0];
+                    if (view instanceof TextView) {
+                        ((TextView) view).setText(minutes);
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                    // Do nothing
+                }
+            });
+        }
+
+    public void refreshCurrentFragment() {
+        if (currentFragment instanceof DateSelectable) {
+            ((DateSelectable) currentFragment).setSelectedDate(currentSelectedDate);
+        }
+    }
+
+    private void showAddTaskDialog() {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+        View bottomSheetView = getLayoutInflater().inflate(R.layout.layout_add_task_bottom_sheet, null);
+        bottomSheetDialog.setContentView(bottomSheetView);
+        setupDurationSpinner(bottomSheetView);
+
+        // Get reference to existing duration spinner
+        Spinner durationSpinner = bottomSheetView.findViewById(R.id.spinner_duration);
+
+        // Setup RecyclerView with existing spinner
+        RecyclerView tasksRecyclerView = bottomSheetView.findViewById(R.id.tasks_recycler_view);
+        tasksRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        TaskCalendarAdapter adapter = new TaskCalendarAdapter(this, durationSpinner);
+        adapter.setSelectedDate(currentSelectedDate);
+        tasksRecyclerView.setAdapter(adapter);
+
+        // Load tasks from Firestore
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            FirebaseFirestore.getInstance()
+                    .collection("tasks")
+                    .whereEqualTo("userId", currentUser.getUid())
+                    .whereEqualTo("startAt", null)
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        List<Task> tasks = new ArrayList<>();
+                        for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                            try {
+                                Task task = new Task(
+                                        document.getBoolean("isCompleted") != null ? document.getBoolean("isCompleted") : false,
+                                        document.getString("title"),
+                                        document.getDate("createdAt"),
+                                        document.getId(),
+                                        document.getString("repeat"),
+                                        document.getString("startAtDate"),
+                                        document.getString("startAtPeriod"),
+                                        document.getString("startAtTime"),
+                                        document.getString("startNoti"),
+                                        document.getString("priority"),
+                                        document.get("duration") != null ? document.getLong("duration").intValue() : 0,
+                                        document.getDate("startAt"),
+                                        document.getString("hideUntilDate"),
+                                        document.getString("hideUntilTime")
+                                );
+                                task.setUserId(document.getString("userId"));
+                                System.out.println("Task: " + task.getStartAt());
+                                tasks.add(task);
+                            } catch (Exception e) {
+                                System.out.println("Error parsing document: " + document.getId());
+                                e.printStackTrace();
+                            }
+                        }
+                        adapter.setTasks(tasks);
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Error loading tasks: " + e.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                        e.printStackTrace();
+                    });
+        }
+
+        View parentView = (View) bottomSheetView.getParent();
+        BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(parentView);
+        int screenHeight = getResources().getDisplayMetrics().heightPixels;
+        int dialogHeight = (int) (screenHeight * 0.75);
+
+        bottomSheetView.setMinimumHeight(dialogHeight);
+        behavior.setPeekHeight(dialogHeight);
+        behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+
+        bottomSheetDialog.show();
     }
 }
