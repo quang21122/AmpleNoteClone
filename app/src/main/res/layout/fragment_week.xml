@@ -1,14 +1,320 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white"
     tools:context=".calendar.WeekFragment">
-
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
+        android:id="@+id/daysHeader"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:orientation="vertical">
 
-</FrameLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Space
+                android:layout_width="60dp"
+                android:layout_height="match_parent" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <!-- Monday -->
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <LinearLayout
+                        android:id="@+id/day1Container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingBottom="8dp">
+
+                        <TextView
+                            android:id="@+id/day1Number"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/day1Name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="MON"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:id="@+id/day1Indicator"
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:layout_gravity="bottom"
+                        android:background="@color/green"
+                        android:visibility="invisible" />
+                </FrameLayout>
+
+                <!-- Tuesday -->
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <LinearLayout
+                        android:id="@+id/day2Container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingBottom="8dp">
+
+                        <TextView
+                            android:id="@+id/day2Number"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/day2Name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="TUE"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:id="@+id/day2Indicator"
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:layout_gravity="bottom"
+                        android:background="@color/green"
+                        android:visibility="invisible" />
+                </FrameLayout>
+
+                <!-- Wednesday -->
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <LinearLayout
+                        android:id="@+id/day3Container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingBottom="8dp">
+
+                        <TextView
+                            android:id="@+id/day3Number"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/day3Name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="WED"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:id="@+id/day3Indicator"
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:layout_gravity="bottom"
+                        android:background="@color/green"
+                        android:visibility="invisible" />
+                </FrameLayout>
+
+                <!-- Thursday -->
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <LinearLayout
+                        android:id="@+id/day4Container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingBottom="8dp">
+
+                        <TextView
+                            android:id="@+id/day4Number"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/day4Name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="THU"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:id="@+id/day4Indicator"
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:layout_gravity="bottom"
+                        android:background="@color/green"
+                        android:visibility="invisible" />
+                </FrameLayout>
+
+                <!-- Friday -->
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <LinearLayout
+                        android:id="@+id/day5Container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingBottom="8dp">
+
+                        <TextView
+                            android:id="@+id/day5Number"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/day5Name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="FRI"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:id="@+id/day5Indicator"
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:layout_gravity="bottom"
+                        android:background="@color/green"
+                        android:visibility="invisible" />
+                </FrameLayout>
+
+                <!-- Saturday -->
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <LinearLayout
+                        android:id="@+id/day6Container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingBottom="8dp">
+
+                        <TextView
+                            android:id="@+id/day6Number"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/day6Name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="SAT"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:id="@+id/day6Indicator"
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:layout_gravity="bottom"
+                        android:background="@color/green"
+                        android:visibility="invisible" />
+                </FrameLayout>
+
+                <!-- Sunday -->
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <LinearLayout
+                        android:id="@+id/day7Container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingBottom="8dp">
+
+                        <TextView
+                            android:id="@+id/day7Number"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/day7Name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="SUN"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:id="@+id/day7Indicator"
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:layout_gravity="bottom"
+                        android:background="@color/green"
+                        android:visibility="invisible" />
+                </FrameLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Bottom divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/light_gray" />
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/timelineContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+    </ScrollView>
+</LinearLayout>
