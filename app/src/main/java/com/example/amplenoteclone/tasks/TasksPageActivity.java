@@ -1,31 +1,26 @@
 package com.example.amplenoteclone.tasks;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.amplenoteclone.adapters.TaskAdapter;
 import com.example.amplenoteclone.models.Task;
-import com.example.amplenoteclone.note.NotesActivity;
 import com.example.amplenoteclone.R;
-import com.example.amplenoteclone.calendar.CalendarActivity;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.example.amplenoteclone.DrawerActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class TasksPageActivity extends DrawerActivity {
@@ -33,50 +28,124 @@ public class TasksPageActivity extends DrawerActivity {
     private RecyclerView recyclerView;
     private TaskAdapter taskAdapter;
     private List<Task> taskList;
+    private FirebaseFirestore db;
+    private ListenerRegistration taskListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setActivityContent(R.layout.activity_tasks);
 
+        // Khởi tạo Firestore
+        db = FirebaseFirestore.getInstance();
+
         // Khởi tạo RecyclerView
         recyclerView = findViewById(R.id.recycler_view_tasks);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-//        // Khởi tạo danh sách tasks (có thể lấy từ API hoặc database)
-//        taskList = new ArrayList<>();
-//
-//        // Thêm Task 1
-//        taskList.add(new Task(false, "Test Task", new Date(), "task1", "Doesn't repeat",
-//                "", "", "", "",
-//                "Important", "30 min", "", ""));
-//
-//        // Thêm Task 2
-//        taskList.add(new Task(false, "Test Task", new Date(), "task2", "Doesn't repeat",
-//                "Monday, Mar 18", "Morning", "9:00 am", "5 min",
-//                "Important", "30 min", "Saturday, Mar 22", "9:00 pm"));
-//
-//
-//        taskAdapter = new TaskAdapter(taskList, new TaskAdapter.OnItemClickListener() {
-//            @Override
-//            public void onExpandClick(int position) {
-//                // Xử lý khi click expand (nếu cần)
-//            }
-//        });
+        // Khởi tạo danh sách tasks
+        taskList = new ArrayList<>();
 
-        taskAdapter = new TaskAdapter(new ArrayList<>(), position -> {
+        taskAdapter = new TaskAdapter(taskList, position -> {
             // Handle expand click
         });
         recyclerView.setAdapter(taskAdapter);
 
+        // Lấy userId từ FirebaseAuth
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String userId = user != null ? user.getUid() : null;
-        getTasksFromFirebase(userId, tasks -> runOnUiThread(() -> {
-            taskAdapter.setTasks(tasks);
-            taskAdapter.notifyDataSetChanged();
-        }));
 
-        recyclerView.setAdapter(this.taskAdapter);
+        // Lắng nghe thay đổi từ Firestore
+        if (userId != null) {
+            listenToTasks(userId);
+        } else {
+            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+    }
+
+    private void listenToTasks(String userId) {
+        CollectionReference collectionRef = db.collection("tasks");
+        taskListener = collectionRef
+                .whereEqualTo("userId", userId)
+                .whereEqualTo("isCompleted", false) // Chỉ lấy các task chưa hoàn thành
+                .orderBy("createAt", Query.Direction.ASCENDING) // Sắp xếp theo createAt (tăng dần)
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        Log.e("Firestore", "Error listening to tasks: ", error);
+                        Toast.makeText(this, "Error loading tasks: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    taskList.clear();
+                    for (QueryDocumentSnapshot document : value) {
+                        Task taskItem = new Task(
+                                document.getString("userId"),
+                                document.getString("noteId"),
+                                document.getString("title"),
+                                document.getDate("createAt"),
+                                document.getBoolean("isCompleted"),
+                                document.getString("repeat"),
+                                document.getDate("startAt"),
+                                document.getString("startAtDate"),
+                                document.getString("startAtPeriod"),
+                                document.getString("startAtTime"),
+                                document.getLong("startNoti") != null ? document.getLong("startNoti").intValue() : 0,
+                                document.getDate("hideUntil"),
+                                document.getString("hideUntilDate"),
+                                document.getString("hideUntilTime"),
+                                document.getString("priority"),
+                                document.getLong("duration") != null ? document.getLong("duration").intValue() : 0,
+                                document.getDouble("score") != null ? document.getDouble("score").floatValue() : 0.0f
+                        );
+                        taskItem.setId(document.getId());
+                        taskList.add(taskItem);
+                        Log.d("Task Debug", taskItem.toString());
+                    }
+
+                    taskAdapter.setTasks(new ArrayList<>(taskList));
+                    taskAdapter.notifyDataSetChanged();
+                });
+    }
+
+    public void updateTaskInFirestore(Task task) {
+        CollectionReference collectionRef = db.collection("tasks");
+
+        collectionRef.document(task.getId())
+                .set(task)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("Firestore", "Task successfully updated!");
+                    // Không cần cập nhật giao diện vì listener sẽ tự động làm điều đó
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Firestore", "Error updating task", e);
+                    Toast.makeText(this, "Error updating task: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    public void deleteTaskFromFirestore(Task task) {
+        CollectionReference collectionRef = db.collection("tasks");
+
+        collectionRef.document(task.getId())
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("Firestore", "Task successfully deleted!");
+                    taskList.remove(task);
+                    taskAdapter.notifyDataSetChanged();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Firestore", "Error deleting task", e);
+                    Toast.makeText(this, "Error deleting task: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Hủy lắng nghe khi activity bị hủy
+        if (taskListener != null) {
+            taskListener.remove();
+        }
     }
 
     @Override
@@ -84,57 +153,14 @@ public class TasksPageActivity extends DrawerActivity {
         getMenuInflater().inflate(R.menu.toolbar_tasks, menu);
         return true;
     }
+
     @Override
     public String getToolbarTitle() {
         return "Tasks";
     }
+
     @Override
     protected int getCurrentPageId() {
         return R.id.action_tasks;
     }
-
-    // In TasksPageActivity.java
-    private void getTasksFromFirebase(String userId, FirestoreCallback firestoreCallback) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference collectionRef = db.collection("tasks");
-
-        // Fetch only tasks for the given userId
-        collectionRef.whereEqualTo("userId", userId)
-                .get(Source.SERVER) // Force fetch from server
-                .addOnCompleteListener(task -> {
-                    ArrayList<Task> tasks = new ArrayList<>();
-
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            Task taskItem = new Task(
-                                    document.getBoolean("isCompleted"),
-                                    document.getString("title"),
-                                    document.getDate("createAt"),
-                                    document.getString("id"),
-                                    document.getString("repeat"),
-                                    document.getString("startAtDate"),
-                                    document.getString("startAtPeriod"),
-                                    document.getString("startAtTime"),
-                                    document.getLong("startNoti") != null ? document.getLong("startNoti").intValue() : 0, // Null check added
-                                    document.getString("priority"),
-                                    document.getLong("duration") != null ? document.getLong("duration").intValue() : 0, // Changed to int
-                                    document.getString("hideUntilDate"),
-                                    document.getString("hideUntilTime")
-                            );
-                            taskItem.setUserId(document.getString("userId"));
-                            taskItem.setNoteId(document.getString("noteId"));
-                            tasks.add(taskItem);
-                        }
-                    } else {
-                        Log.e("ERROR", "Firestore query failed: ", task.getException());
-                    }
-
-                    firestoreCallback.onCallback(tasks);
-                });
-    }
-
-    public interface FirestoreCallback {
-        void onCallback(ArrayList<Task> tasks);
-    }
-
 }

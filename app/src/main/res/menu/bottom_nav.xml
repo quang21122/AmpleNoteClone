@@ -27,9 +27,9 @@
         app:showAsAction="ifRoom"/>
 
     <item
-        android:id="@+id/action_new_note"
+        android:id="@+id/action_new_task"
         android:icon="@drawable/ic_add_nav"
-        android:title="Add Note"
+        android:title="Add Task"
         app:showAsAction="ifRoom"/>
 
 

@@ -14,6 +14,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.amplenoteclone.calendar.CalendarActivity;
 import com.example.amplenoteclone.note.NotesActivity;
+import com.example.amplenoteclone.tasks.CreateTaskBottomSheet;
 import com.example.amplenoteclone.tasks.TasksPageActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
@@ -138,6 +139,14 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
      */
     private boolean onBottomNavItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
+
+        // Xử lý khi nhấn vào action_new_task
+        if (id == R.id.action_new_task) {
+            // Hiển thị BottomSheet để tạo task mới
+            CreateTaskBottomSheet bottomSheet = new CreateTaskBottomSheet();
+            bottomSheet.show(getSupportFragmentManager(), bottomSheet.getTag());
+            return true; // Trả về true để không thay đổi mục được chọn trong BottomNavigationView
+        }
 
         // If the selected item is already the current page, do nothing
         if (id == getCurrentPageId()) {
