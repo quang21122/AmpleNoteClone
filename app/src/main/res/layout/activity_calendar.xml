@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".calendar.CalendarActivity">
-    
+
+    <!-- Header section (Tabs + Date Selector) -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Header section (Toolbar + Tabs + Date Selector) -->
+        <!-- Tabs -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -69,36 +70,19 @@
                         android:layout_height="12dp"/>
                 </LinearLayout>
 
-                <ImageButton
-                    android:id="@+id/add_task"
-                    android:background="@color/light_blue"
-                    android:src="@drawable/ic_calendar_plus"
-                    android:layout_marginStart="32dp"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"/>
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/light_gray"/>
+            <ImageButton
+                android:id="@+id/add_task"
+                android:background="@color/light_blue"
+                android:src="@drawable/ic_calendar_plus"
+                android:layout_marginStart="32dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"/>
         </LinearLayout>
 
-        <!-- Content Container -->
         <FrameLayout
             android:id="@+id/content_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"/>
     </LinearLayout>
-
-    <!-- Bottom Navigation -->
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNav"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:background="@color/white"
-        app:menu="@menu/bottom_nav"
-        app:itemIconTint="@color/iconGray"/>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>

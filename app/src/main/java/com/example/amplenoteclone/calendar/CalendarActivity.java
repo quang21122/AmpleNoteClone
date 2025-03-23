@@ -1,9 +1,8 @@
 package com.example.amplenoteclone.calendar;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
 import android.os.Handler;
+import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -18,16 +17,16 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.amplenoteclone.NotesActivity;
+import com.example.amplenoteclone.DrawerActivity;
 import com.example.amplenoteclone.R;
+
 import com.example.amplenoteclone.models.Task;
+import com.example.amplenoteclone.tasks.TasksPageActivity;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -43,7 +42,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class CalendarActivity extends AppCompatActivity {
+
+public class CalendarActivity extends DrawerActivity {
     private TextView currentDateText;
     private ImageButton calendarPickerButton;
     private CustomCalendarAdapter adapter;
@@ -53,24 +53,9 @@ public class CalendarActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Must have methods for initializing the activity
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_calendar);
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        toolbar.setNavigationIcon(R.drawable.ic_menu);
-
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNav);
-        bottomNavigationView.setSelectedItemId(R.id.action_calendar);
-
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.action_notes) {
-                startActivity(new Intent(CalendarActivity.this, NotesActivity.class));
-                return true;
-            }
-            return item.getItemId() == R.id.action_calendar;
-        });
-
+        setActivityContent(R.layout.activity_calendar);
         initializeViews();
         setupCalendarBottomSheet();
         setupAddTaskButton();
@@ -81,6 +66,13 @@ public class CalendarActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.toolbar_calendar, menu);
         return true;
+    }
+
+    public int getCurrentPageId() {
+        return R.id.action_calendar;
+    }
+    public String getToolbarTitle() {
+        return "Calendar";
     }
 
     private void initializeViews() {
