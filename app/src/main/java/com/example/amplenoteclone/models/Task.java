@@ -1,61 +1,111 @@
 package com.example.amplenoteclone.models;
 
+import com.google.firebase.firestore.Exclude;
+import com.google.firebase.firestore.PropertyName;
+
+import java.io.Serializable;
 import java.util.Date;
 
-public class Task {
+public class Task implements Serializable {
     private String id;
-    private String noteId;
     private String userId;
-    private boolean isCompleted;
+    private String noteId;
     private String title;
     private Date createAt;
-
+    private boolean isCompleted;
     private String repeat;
+    private Date startAt;
     private String startAtDate;
     private String startAtPeriod;
     private String startAtTime;
-    private Date startAt;
-    private String startNoti;
-    private String priority;
-    private int duration;
+    private int startNoti;
+    private Date hideUntil;
     private String hideUntilDate;
     private String hideUntilTime;
-    private Date hideUntil;
+    private String priority;
+    private int duration;
     private float score;
 
-
+    // Constructor mặc định (yêu cầu bởi Firestore)
     public Task() {
-        // Default constructor required for calls to DataSnapshot.getValue(Task.class)
     }
 
-    // Constructor
-    public Task(boolean isCompleted, String title, Date createAt, String id, String repeat,
-                String startAtDate, String startAtPeriod, String startAtTime, String startNoti,
-                String priority, int duration, Date startAt, String hideUntilDate, String hideUntilTime) {
-        this.isCompleted = isCompleted;
+    // Constructor đầy đủ
+    public Task(String userId, String noteId, String title, Date createAt, boolean isCompleted, String repeat,
+                Date startAt, String startAtDate, String startAtPeriod, String startAtTime, int startNoti,
+                Date hideUntil, String hideUntilDate, String hideUntilTime, String priority, int duration, float score) {
+        this.userId = userId;
+        this.noteId = noteId;
         this.title = title;
-        this.createAt = createAt != null ? createAt : new Date();
-        this.id = id;
+        this.createAt = createAt;
+        this.isCompleted = isCompleted;
         this.repeat = repeat;
+        this.startAt = startAt;
         this.startAtDate = startAtDate;
         this.startAtPeriod = startAtPeriod;
         this.startAtTime = startAtTime;
         this.startNoti = startNoti;
-        this.startAt = startAt;
-        this.priority = priority; // Giữ nguyên giá trị String
-        this.duration = duration;
+        this.hideUntil = hideUntil;
         this.hideUntilDate = hideUntilDate;
         this.hideUntilTime = hideUntilTime;
-        this.score = 0.0f; // Giá trị mặc định cho score
+        this.priority = priority;
+        this.duration = duration;
+        this.score = score;
     }
 
-    // Getters and Setters
-    public boolean isCompleted() {
-        return isCompleted;
+        @Override
+        public String toString() {
+            return "Task{" +
+                    "id='" + id + '\'' +
+                    ", userId='" + userId + '\'' +
+                    ", noteId='" + noteId + '\'' +
+                    ", title='" + title + '\'' +
+                    ", createAt=" + createAt +
+                    ", isCompleted=" + isCompleted +
+                    ", repeat='" + repeat + '\'' +
+                    ", startAt=" + startAt +
+                    ", startAtDate='" + startAtDate + '\'' +
+                    ", startAtPeriod='" + startAtPeriod + '\'' +
+                    ", startAtTime='" + startAtTime + '\'' +
+                    ", startNoti=" + startNoti +
+                    ", hideUntil=" + hideUntil +
+                    ", hideUntilDate='" + hideUntilDate + '\'' +
+                    ", hideUntilTime='" + hideUntilTime + '\'' +
+                    ", priority='" + priority + '\'' +
+                    ", duration=" + duration +
+                    ", score=" + score +
+                    '}';
+        }
+
+
+    // Getters và Setters với @PropertyName để ánh xạ tên trường trên Firestore
+    @Exclude
+    public String getId() {
+        return id;
     }
 
-    public void setCompleted(boolean completed) {
-        this.isCompleted = completed;
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @PropertyName("userId")
+    public String getUserId() {
+        return userId;
+    }
+
+    @PropertyName("userId")
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    @PropertyName("noteId")
+    public String getNoteId() {
+        return noteId;
+    }
+
+    @PropertyName("noteId")
+    public void setNoteId(String noteId) {
+        this.noteId = noteId;
     }
 
     public String getTitle() {
@@ -66,36 +116,24 @@ public class Task {
         this.title = title;
     }
 
+    @PropertyName("createAt")
     public Date getCreateAt() {
         return createAt;
     }
 
+    @PropertyName("createAt")
     public void setCreateAt(Date createAt) {
         this.createAt = createAt != null ? createAt : new Date();
     }
-
-    public String getId() {
-        return id;
+  
+    @PropertyName("isCompleted")
+    public boolean isCompleted() {
+        return isCompleted;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getNoteId() {
-        return noteId;
-    }
-
-    public void setNoteId(String noteId) {
-        this.noteId = noteId;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
+    @PropertyName("isCompleted")
+    public void setCompleted(boolean completed) {
+        this.isCompleted = completed;
     }
 
     public String getRepeat() {
@@ -106,91 +144,122 @@ public class Task {
         this.repeat = repeat;
     }
 
+    @PropertyName("startAt")
+    public Date getStartAt() {
+        return startAt;
+    }
+
+    @PropertyName("startAt")
+    public void setStartAt(Date startAt) {
+        this.startAt = startAt;
+    }
+
+    @PropertyName("startAtDate")
     public String getStartAtDate() {
         return startAtDate;
     }
 
+    @PropertyName("startAtDate")
+
     public void setStartAtDate(String startAtDate) {
         this.startAtDate = startAtDate;
     }
+  
+    @PropertyName("startAtPeriod")
 
     public String getStartAtPeriod() {
         return startAtPeriod;
     }
 
+    @PropertyName("startAtPeriod")
+
     public void setStartAtPeriod(String startAtPeriod) {
         this.startAtPeriod = startAtPeriod;
     }
+
+    @PropertyName("startAtTime")
 
     public String getStartAtTime() {
         return startAtTime;
     }
 
+    @PropertyName("startAtTime")
+
     public void setStartAtTime(String startAtTime) {
         this.startAtTime = startAtTime;
     }
 
-    public Date getStartAt() {
-        return startAt;
-    }
-
-    public void setStartAt(Date startAt) {
-        this.startAt = startAt;
-    }
-
-    public String getStartNoti() {
+    @PropertyName("startNoti")
+    public int getStartNoti() {
         return startNoti;
     }
 
-    public void setStartNoti(String startNoti) {
+    @PropertyName("startNoti")
+    public void setStartNoti(int startNoti) {
         this.startNoti = startNoti;
     }
 
-    public String getPriority() {
-        return priority;
+    @PropertyName("hideUntil")
+    public Date getHideUntil() {
+        return hideUntil;
     }
 
-    public void setPriority(String priority) {
-        this.priority = priority;
+    @PropertyName("hideUntil")
+    public void setHideUntil(Date hideUntil) {
+        this.hideUntil = hideUntil;
     }
 
-    public int getDuration() {
-        return duration;
-    }
-
-    public void setDuration(int duration) {
-        this.duration = duration;
-    }
-
+    @PropertyName("hideUntilDate")
     public String getHideUntilDate() {
         return hideUntilDate;
     }
+
+    @PropertyName("hideUntilDate")
 
     public void setHideUntilDate(String hideUntilDate) {
         this.hideUntilDate = hideUntilDate;
     }
 
+    @PropertyName("hideUntilTime")
+
     public String getHideUntilTime() {
         return hideUntilTime;
     }
 
+    @PropertyName("hideUntilTime")
+
     public void setHideUntilTime(String hideUntilTime) {
         this.hideUntilTime = hideUntilTime;
     }
-
-    public Date getHideUntil() {
-        return hideUntil;
+  
+    @PropertyName("priority")
+    public String getPriority() {
+        return priority;
     }
 
-    public void setHideUntil(Date hideUntil) {
-        this.hideUntil = hideUntil;
+    @PropertyName("priority")
+    public void setPriority(String priority) {
+        this.priority = priority;
     }
 
+    @PropertyName("duration")
+    public int getDuration() {
+        return duration;
+    }
+
+    @PropertyName("duration")
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    @PropertyName("score")
     public float getScore() {
         return score;
     }
 
+    @PropertyName("score")
     public void setScore(float score) {
         this.score = score;
     }
 }
+
