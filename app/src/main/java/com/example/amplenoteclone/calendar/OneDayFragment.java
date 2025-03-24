@@ -1,5 +1,6 @@
 package com.example.amplenoteclone.calendar;
 
+import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
 
@@ -21,6 +22,7 @@ import android.widget.TextView;
 
 import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.models.Task;
+import com.example.amplenoteclone.note.ViewNoteActivity;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -402,6 +404,7 @@ public class OneDayFragment extends Fragment implements DateSelectable, TaskView
 
         FirebaseFirestore.getInstance()
                 .collection("tasks")
+                .whereEqualTo("userId", currentUser.getUid())
                 .whereGreaterThanOrEqualTo("startAt", startOfDay)
                 .whereLessThan("startAt", endOfDay)
                 .get()
@@ -416,6 +419,7 @@ public class OneDayFragment extends Fragment implements DateSelectable, TaskView
                         task.setUserId(document.getString("userId"));
                         task.setCompleted(document.getBoolean("isCompleted") != null ?
                                 document.getBoolean("isCompleted") : false);
+                        task.setNoteId(document.getString("noteId"));
                         addTaskToTimeline(task);
                     }
                 })

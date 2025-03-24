@@ -309,7 +309,7 @@ public class WeekFragment extends Fragment implements DateSelectable, TaskView {
                             task.setUserId(document.getString("userId"));
                             task.setCompleted(document.getBoolean("isCompleted") != null ?
                                     document.getBoolean("isCompleted") : false);
-
+                            task.setNoteId(document.getString("noteId"));
                             Object durationObj = document.get("duration");
                             if (durationObj instanceof Long) {
                                 task.setDuration(Integer.parseInt(String.valueOf(durationObj)));
