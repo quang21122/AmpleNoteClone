@@ -422,12 +422,18 @@ public class CalendarActivity extends DrawerActivity {
 
         // Get reference to existing duration spinner
         Spinner durationSpinner = bottomSheetView.findViewById(R.id.spinner_duration);
+        TextView notesCount = bottomSheetView.findViewById(R.id.notes_count);
+        TextView tagsCount = bottomSheetView.findViewById(R.id.tags_count);
+
+        notesCount.setText("0 notes");
+        tagsCount.setText("0 tags");
 
         // Setup RecyclerView with existing spinner
         RecyclerView tasksRecyclerView = bottomSheetView.findViewById(R.id.tasks_recycler_view);
         tasksRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         TaskCalendarAdapter adapter = new TaskCalendarAdapter(this, durationSpinner);
         adapter.setSelectedDate(currentSelectedDate);
+        adapter.setDialogView(bottomSheetView);
         tasksRecyclerView.setAdapter(adapter);
 
         // Load tasks from Firestore
@@ -443,23 +449,25 @@ public class CalendarActivity extends DrawerActivity {
                         for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
                             try {
                                 Task task = new Task(
-                                        document.getBoolean("isCompleted") != null ? document.getBoolean("isCompleted") : false,
+                                        document.getString("userId"),
+                                        document.getString("noteId"),
                                         document.getString("title"),
-                                        document.getDate("createdAt"),
-                                        document.getId(),
+                                        document.getDate("createAt"),
+                                        Boolean.TRUE.equals(document.getBoolean("isCompleted")),
                                         document.getString("repeat"),
+                                        document.getDate("startAt"),
                                         document.getString("startAtDate"),
                                         document.getString("startAtPeriod"),
                                         document.getString("startAtTime"),
-                                        document.getString("startNoti"),
-                                        document.getString("priority"),
-                                        document.get("duration") != null ? document.getLong("duration").intValue() : 0,
-                                        document.getDate("startAt"),
+                                        document.getLong("startNoti") != null ? document.getLong("startNoti").intValue() : 0,
+                                        document.getDate("hideUntil"),
                                         document.getString("hideUntilDate"),
-                                        document.getString("hideUntilTime")
+                                        document.getString("hideUntilTime"),
+                                        document.getString("priority"),
+                                        document.getLong("duration") != null ? document.getLong("duration").intValue() : 0,
+                                        document.getDouble("score") != null ? document.getDouble("score").floatValue() : 0
                                 );
                                 task.setUserId(document.getString("userId"));
-                                System.out.println("Task: " + task.getStartAt());
                                 tasks.add(task);
                             } catch (Exception e) {
                                 System.out.println("Error parsing document: " + document.getId());
