@@ -22,6 +22,7 @@ import com.example.amplenoteclone.calendar.CalendarActivity;
 import com.example.amplenoteclone.models.Tag;
 import com.example.amplenoteclone.note.NotesActivity;
 import com.example.amplenoteclone.tasks.TasksPageActivity;
+import com.example.amplenoteclone.utils.FirestoreCallback;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -33,9 +34,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 
 public abstract class DrawerActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-    public interface FirestoreCallback<T> {
-        void onCallback(ArrayList<T> data);
-    }
     protected DrawerLayout drawerLayout;
     protected NavigationView navigationView;
 

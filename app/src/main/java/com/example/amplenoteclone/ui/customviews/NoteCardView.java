@@ -10,8 +10,10 @@ import androidx.cardview.widget.CardView;
 
 import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.models.Note;
+import com.google.firebase.Timestamp;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class NoteCardView extends CardView {
 
@@ -72,8 +74,10 @@ public class NoteCardView extends CardView {
             }
 
             // Set date (typically you'd use the updated date)
-            String dateText = note.getUpdatedAt() != null ? note.getUpdatedAt() : note.getCreatedAt();
-            dateView.setText(dateText);
+            Timestamp updatedAt = new Timestamp(new Date(note.getUpdatedAt()));
+
+            // Use the updated date if available, otherwise use the created date
+            dateView.setText(updatedAt.toDate().toString());
 
             iconView.setImageResource(R.drawable.ic_note);
 

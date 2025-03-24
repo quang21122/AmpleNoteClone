@@ -4,15 +4,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class Note implements Serializable {
-
     private String id;
     private String title;
     private String content;
     private ArrayList<String> tags;
     private ArrayList<String> tasks;
-    private String createdAt;
+    private long createdAt;
     private String userId;
-    private String updatedAt;
+    private long updatedAt;
     Boolean isProtected;
 
     public Note() {
@@ -20,7 +19,7 @@ public class Note implements Serializable {
         this.tasks = new ArrayList<>();
     }
 
-    public Note(String id, String title, String content, ArrayList<String> tags, ArrayList<String> tasks, String createdAt) {
+    public Note(String id, String title, String content, ArrayList<String> tags, ArrayList<String> tasks, long createdAt) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -70,19 +69,19 @@ public class Note implements Serializable {
         this.tasks = tasks;
     }
 
-    public String getCreatedAt() {
+    public long getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(String createdAt) {
+    public void setCreatedAt(long createdAt) {
         this.createdAt = createdAt;
     }
 
-    public String getUpdatedAt() {
+    public long getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(String updatedAt) {
+    public void setUpdatedAt(long updatedAt) {
         this.updatedAt = updatedAt;
     }
 
