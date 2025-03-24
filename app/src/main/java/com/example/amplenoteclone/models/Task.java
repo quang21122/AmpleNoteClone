@@ -1,5 +1,5 @@
 package com.example.amplenoteclone.models;
-
+import com.example.amplenoteclone.R;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.PropertyName;
 
@@ -54,29 +54,28 @@ public class Task implements Serializable {
     }
 
     @Override
-        public String toString() {
-            return "Task{" +
-                    "id='" + id + '\'' +
-                    ", userId='" + userId + '\'' +
-                    ", noteId='" + noteId + '\'' +
-                    ", title='" + title + '\'' +
-                    ", createAt=" + createAt +
-                    ", isCompleted=" + isCompleted +
-                    ", repeat='" + repeat + '\'' +
-                    ", startAt=" + startAt +
-                    ", startAtDate='" + startAtDate + '\'' +
-                    ", startAtPeriod='" + startAtPeriod + '\'' +
-                    ", startAtTime='" + startAtTime + '\'' +
-                    ", startNoti=" + startNoti +
-                    ", hideUntil=" + hideUntil +
-                    ", hideUntilDate='" + hideUntilDate + '\'' +
-                    ", hideUntilTime='" + hideUntilTime + '\'' +
-                    ", priority='" + priority + '\'' +
-                    ", duration=" + duration +
-                    ", score=" + score +
-                    '}';
-        }
-
+    public String toString() {
+        return "Task{" +
+                "id='" + id + '\'' +
+                ", userId='" + userId + '\'' +
+                ", noteId='" + noteId + '\'' +
+                ", title='" + title + '\'' +
+                ", createAt=" + createAt +
+                ", isCompleted=" + isCompleted +
+                ", repeat='" + repeat + '\'' +
+                ", startAt=" + startAt +
+                ", startAtDate='" + startAtDate + '\'' +
+                ", startAtPeriod='" + startAtPeriod + '\'' +
+                ", startAtTime='" + startAtTime + '\'' +
+                ", startNoti=" + startNoti +
+                ", hideUntil=" + hideUntil +
+                ", hideUntilDate='" + hideUntilDate + '\'' +
+                ", hideUntilTime='" + hideUntilTime + '\'' +
+                ", priority='" + priority + '\'' +
+                ", duration=" + duration +
+                ", score=" + score +
+                '}';
+    }
 
     // Getters và Setters với @PropertyName để ánh xạ tên trường trên Firestore
     @Exclude
@@ -125,7 +124,7 @@ public class Task implements Serializable {
     public void setCreateAt(Date createAt) {
         this.createAt = createAt != null ? createAt : new Date();
     }
-  
+
     @PropertyName("isCompleted")
     public boolean isCompleted() {
         return isCompleted;
@@ -165,6 +164,8 @@ public class Task implements Serializable {
         this.startAtDate = startAtDate;
     }
   
+    @PropertyName("startAtPeriod")
+
     @PropertyName("startAtPeriod")
 
     public String getStartAtPeriod() {
@@ -238,10 +239,15 @@ public class Task implements Serializable {
     }
 
     @PropertyName("priority")
+    public String getPriority() {
+        return priority;
+    }
+
+    @PropertyName("priority")
     public void setPriority(String priority) {
         this.priority = priority;
     }
-
+  
     @PropertyName("duration")
     public int getDuration() {
         return duration;
@@ -260,6 +266,16 @@ public class Task implements Serializable {
     @PropertyName("score")
     public void setScore(float score) {
         this.score = score;
+    }
+
+    public int getBorderTypeByScore() {
+        if (score >= 5) {
+            return R.drawable.task_border_high;
+        } else if (score >= 1) {
+            return R.drawable.task_border_medium;
+        } else {
+            return R.drawable.task_border_low;
+        }
     }
 }
 

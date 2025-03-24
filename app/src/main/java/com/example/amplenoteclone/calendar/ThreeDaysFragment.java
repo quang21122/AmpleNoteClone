@@ -313,6 +313,7 @@ public class ThreeDaysFragment extends Fragment implements DateSelectable, TaskV
 
         FirebaseFirestore.getInstance()
                 .collection("tasks")
+                .whereEqualTo("userId", currentUser.getUid())
                 .whereGreaterThanOrEqualTo("startAt", startDate)
                 .whereLessThan("startAt", endDate)
                 .get()
@@ -326,7 +327,7 @@ public class ThreeDaysFragment extends Fragment implements DateSelectable, TaskV
                             task.setStartAt(document.getDate("startAt"));
                             task.setCompleted(document.getBoolean("isCompleted") != null ?
                                     document.getBoolean("isCompleted") : false);
-
+                            task.setNoteId(document.getString("noteId"));
                             Object durationObj = document.get("duration");
                             if (durationObj instanceof Long) {
                                 task.setDuration(Integer.parseInt(String.valueOf(durationObj)));

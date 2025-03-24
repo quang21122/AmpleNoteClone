@@ -134,6 +134,7 @@ public class MonthFragment extends Fragment implements DateSelectable, TaskView 
                                     document.getLong("duration").intValue() : 0);
                             task.setCompleted(document.getBoolean("isCompleted") != null ?
                                     document.getBoolean("isCompleted") : false);
+                            task.setNoteId(document.getString("noteId"));
                             addTaskToTimeline(task);
                         } catch (Exception e) {
                             e.printStackTrace();

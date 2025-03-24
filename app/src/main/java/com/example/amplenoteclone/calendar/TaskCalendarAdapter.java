@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.amplenoteclone.R;
@@ -22,15 +23,20 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 public class TaskCalendarAdapter extends RecyclerView.Adapter<TaskCalendarAdapter.ViewHolder> {
     private List<Task> tasks = new ArrayList<>();
+    private Set<String> uniqueNoteIds = new HashSet<>();
+    private Set<String> uniqueTags = new HashSet<>();
     private Context context;
     private FirebaseFirestore db;
     private Date selectedDate;
     private Spinner durationSpinner;
+    private View dialogView;
 
     public TaskCalendarAdapter(Context context, Spinner durationSpinner) {
         this.context = context;
@@ -54,10 +60,13 @@ public class TaskCalendarAdapter extends RecyclerView.Adapter<TaskCalendarAdapte
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Task task = tasks.get(position);
         holder.taskTitle.setText(task.getTitle());
+
+        holder.itemView.setBackgroundColor(ContextCompat.getColor(context, android.R.color.white));
+
+        holder.itemView.setForeground(ContextCompat.getDrawable(context, task.getBorderTypeByScore()));
+
         holder.taskCheckbox.setChecked(task.isCompleted());
-
         setupCheckboxListener(holder, task, durationSpinner);
-
         holder.addTaskButton.setOnClickListener(v -> showTimePickerDialog(task));
     }
 
@@ -273,7 +282,54 @@ public class TaskCalendarAdapter extends RecyclerView.Adapter<TaskCalendarAdapte
 
     public void setTasks(List<Task> tasks) {
         this.tasks = tasks;
+        updateNotesAndTagsCounts();
         notifyDataSetChanged();
+    }
+
+    private void updateNotesAndTagsCounts() {
+        uniqueNoteIds.clear();
+        uniqueTags.clear();
+
+        for (Task task : tasks) {
+            if (task.getNoteId() != null) {
+                uniqueNoteIds.add(task.getNoteId());
+            }
+        }
+
+        for (String noteId : uniqueNoteIds) {
+            FirebaseFirestore.getInstance()
+                    .collection("notes")
+                    .document(noteId)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            ArrayList<String> tags = (ArrayList<String>) documentSnapshot.get("tags");
+                            if (tags != null) {
+                                uniqueTags.addAll(tags);
+                                updateCountsInDialog();
+                            }
+                        }
+                    });
+        }
+    }
+
+    private void updateCountsInDialog() {
+        if (dialogView != null) {
+            TextView notesCount = dialogView.findViewById(R.id.notes_count);
+            TextView tagsCount = dialogView.findViewById(R.id.tags_count);
+
+            if (notesCount != null) {
+                notesCount.setText(uniqueNoteIds.size() + " notes");
+            }
+            if (tagsCount != null) {
+                tagsCount.setText(uniqueTags.size() + " tags");
+            }
+        }
+    }
+
+    public void setDialogView(View dialogView) {
+        this.dialogView = dialogView;
+        updateCountsInDialog();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
