@@ -2,28 +2,39 @@ package com.example.amplenoteclone.utils;
 
 import com.google.firebase.Timestamp;
 
-public class TimeConverter {
-    public static String convertToString(Timestamp timestamp) {
-        return timestamp.toDate().toString();
-    }
-    public static String convertToTimeAgo(long time) {
-        long currentTime = System.currentTimeMillis();
-        long timeDifference = currentTime - time;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
-        if (timeDifference < 60000) {
-            return "Just now";
-        } else if (timeDifference < 3600000) {
-            return timeDifference / 60000 + " minutes ago";
-        } else if (timeDifference < 86400000) {
-            return timeDifference / 3600000 + " hours ago";
-        } else if (timeDifference < 604800000) {
-            return timeDifference / 86400000 + " days ago";
-        } else if (timeDifference < 2592000000L) {
-            return timeDifference / 604800000 + " weeks ago";
-        } else if (timeDifference < 31536000000L) {
-            return timeDifference / 2592000000L + " months ago";
+public class TimeConverter {
+    public static String convertToTimeAgo(long time) {
+        Timestamp timestamp = new Timestamp(TimeUnit.MILLISECONDS.toSeconds(time), 0);
+
+        Date date = timestamp.toDate();
+        long timeDifferenceMillis = System.currentTimeMillis() - date.getTime();
+
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(timeDifferenceMillis);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(timeDifferenceMillis);
+        long hours = TimeUnit.MILLISECONDS.toHours(timeDifferenceMillis);
+        long days = TimeUnit.MILLISECONDS.toDays(timeDifferenceMillis);
+
+        if (seconds < 60) {
+            return seconds + " seconds ago";
+        } else if (minutes < 60) {
+            return minutes + " minutes ago";
+        } else if (hours < 24) {
+            return hours + " hours ago";
+        } else if (days < 7) {
+            return days + " days ago";
         } else {
-            return timeDifference / 31536000000L + " years ago";
+            // Format date if older than a week
+            SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
+            return sdf.format(date);
         }
+    }
+
+    public static String formatLastUpdated(long time) {
+        return "Last updated: " + convertToTimeAgo(time);
     }
 }

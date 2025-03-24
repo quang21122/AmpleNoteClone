@@ -13,9 +13,8 @@ import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.adapters.NotesAdapter;
 import com.example.amplenoteclone.models.Note;
 import com.example.amplenoteclone.ui.customviews.NoteCardView;
+import com.example.amplenoteclone.utils.FirestoreCallback;
 import com.google.firebase.Timestamp;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -24,10 +23,6 @@ import com.google.firebase.firestore.Source;
 import java.util.ArrayList;
 
 public class NotesActivity extends DrawerActivity {
-    public interface FirestoreCallback {
-        void onCallback(ArrayList<NoteCardView> notes);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,9 +34,8 @@ public class NotesActivity extends DrawerActivity {
         NotesAdapter adapter = new NotesAdapter(); // Empty list initially
         recyclerView.setAdapter(adapter);
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        String userId = user != null ? user.getUid() : null;
-        getNotesFromFirebase(userId, notes -> runOnUiThread(() -> {
+
+        getNotesFromFirebase(this.userId, notes -> runOnUiThread(() -> {
             adapter.setNotes(notes);
             adapter.notifyDataSetChanged();
         }));
@@ -63,6 +57,15 @@ public class NotesActivity extends DrawerActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.toolbar_notes, menu);
+
+        // Add a listener to the add note button
+        menu.findItem(R.id.action_add_note).setOnMenuItemClickListener(item -> {
+            Intent intent = new Intent(this, ViewNoteActivity.class);
+            startActivity(intent);
+            return true;
+        });
+
+
         return true;
     }
 
@@ -76,7 +79,7 @@ public class NotesActivity extends DrawerActivity {
         return "Notes";
     }
 
-    private void getNotesFromFirebase(String userId, FirestoreCallback firestoreCallback) {
+    private void getNotesFromFirebase(String userId, FirestoreCallback<NoteCardView> firestoreCallback) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference collectionRef = db.collection("notes");
 
@@ -91,6 +94,7 @@ public class NotesActivity extends DrawerActivity {
                             Note note = new Note();
 
                             // Directly get values from document
+                            note.setId(document.getId());
                             note.setTitle(document.getString("title"));
                             note.setContent(document.getString("content"));
                             note.setUserId(document.getString("userId"));
@@ -99,8 +103,12 @@ public class NotesActivity extends DrawerActivity {
                             // Handle possible null timestamps
                             Timestamp createdAt = document.getTimestamp("createdAt");
                             Timestamp updatedAt = document.getTimestamp("updatedAt");
-                            note.setCreatedAt(createdAt != null ? createdAt.toDate().toString() : null);
-                            note.setUpdatedAt(updatedAt != null ? updatedAt.toDate().toString() : null);
+                            if (createdAt != null)
+                                note.setCreatedAt(createdAt.toDate().getTime());
+
+                            if (updatedAt != null)
+                                note.setUpdatedAt(updatedAt.toDate().getTime());
+
 
                             // Get lists safely
                             note.setTags((ArrayList<String>) document.get("tag"));
