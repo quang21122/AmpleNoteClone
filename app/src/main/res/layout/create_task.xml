@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@android:color/white">
+
+    <!-- Phần giao diện Add a Task (ban đầu ẩn) -->
+    <LinearLayout
+        android:id="@+id/layout_add_task_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/dark_blue_gray"
+        android:padding="16dp">
+<!--        android:visibility="gone">-->
+        <!-- Tiêu đề "Add a Task" -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ADD A TASK"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:paddingBottom="20dp"/>
+
+        <!-- Tùy chọn chọn ghi chú (note) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingVertical="8dp"
+            android:gravity="center_vertical"
+            android:background="@color/white"
+            android:layout_marginBottom="12dp"
+            android:padding="8dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_note"
+                app:tint="@android:color/darker_gray" />
+
+            <TextView
+                android:id="@+id/text_select_note"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:text="untitled note"
+                android:background="@android:color/transparent"
+                android:textSize="16sp"
+                android:textColor="@android:color/darker_gray"
+                android:focusable="false"
+                android:clickable="true"/>
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_arrow_down"
+                app:tint="@android:color/darker_gray" />
+
+        </LinearLayout>
+
+        <!-- Tùy chọn lên lịch (schedule) -->
+        <LinearLayout
+            android:id="@+id/layout_select_start_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingVertical="8dp"
+            android:gravity="center_vertical"
+            android:background="@color/white"
+            android:padding="8dp"
+            android:focusable="false"
+            android:clickable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_calendar"
+                app:tint="@android:color/darker_gray" />
+
+            <TextView
+                android:id="@+id/text_view_select_start_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:text="Select a start time (optional)"
+                android:textSize="16sp"
+                android:textColor="@android:color/darker_gray" />
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_arrow_down"
+                app:tint="@android:color/darker_gray" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Quick to-do (luôn hiển thị) -->
+    <LinearLayout
+        android:id="@+id/layout_quick_to_do_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="16dp"
+        android:gravity="center_vertical"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginBottom="8dp">
+
+        <EditText
+            android:id="@+id/edit_text_quick_to_do"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Quick to-do..."
+            android:padding="12dp"
+            android:background="@android:color/transparent"
+            android:textSize="16sp"/>
+
+        <Button
+            android:id="@+id/button_add_quick"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Add"
+            android:backgroundTint="@android:color/darker_gray"
+            android:textColor="@android:color/white"/>
+
+    </LinearLayout>
+
+</LinearLayout>
