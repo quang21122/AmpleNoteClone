@@ -165,9 +165,6 @@ public class Task implements Serializable {
     }
   
     @PropertyName("startAtPeriod")
-
-    @PropertyName("startAtPeriod")
-
     public String getStartAtPeriod() {
         return startAtPeriod;
     }
@@ -231,11 +228,6 @@ public class Task implements Serializable {
 
     public void setHideUntilTime(String hideUntilTime) {
         this.hideUntilTime = hideUntilTime;
-    }
-  
-    @PropertyName("priority")
-    public String getPriority() {
-        return priority;
     }
 
     @PropertyName("priority")
