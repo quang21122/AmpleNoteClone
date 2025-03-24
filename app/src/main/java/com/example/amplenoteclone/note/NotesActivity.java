@@ -45,7 +45,7 @@ public class NotesActivity extends DrawerActivity {
             // Get the Note object from the NoteCardView
             Note note = noteCardView.getNote();
 
-            // Pass data as an Extra (Note must implement Serializable or Parcelable)
+            // Pass the note ID to the next activity
             intent.putExtra("noteId", note.getId());
 
             startActivity(intent);

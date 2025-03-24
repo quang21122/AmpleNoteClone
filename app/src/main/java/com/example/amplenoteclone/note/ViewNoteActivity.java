@@ -65,11 +65,11 @@ public class ViewNoteActivity extends DrawerActivity {
 
     private void initializeNote() {
         if (getIntent().hasExtra("noteId")) {
-            loadNote("noteId");
+            loadNote();
         } else {
             createNewNote();
+            updateUI();
         }
-        updateUI();
     }
 
     private void createNewNote() {
@@ -85,8 +85,8 @@ public class ViewNoteActivity extends DrawerActivity {
         updateUI();
     }
 
-    private void loadNote(String extra) {
-        final String noteId = (String) getIntent().getSerializableExtra(extra);
+    private void loadNote() {
+        final String noteId = getIntent().getStringExtra("noteId");
 
         // Load note from Firebase
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -94,6 +94,8 @@ public class ViewNoteActivity extends DrawerActivity {
         collectionRef.document(noteId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
+                        Log.d("Note", "Loaded note: " + documentSnapshot.getData());
+
                         currentNote = new Note(
                                 documentSnapshot.getId(),
                                 documentSnapshot.getString("title"),
@@ -105,6 +107,7 @@ public class ViewNoteActivity extends DrawerActivity {
                                 documentSnapshot.getBoolean("isProtected")
 
                         );
+
                         updateUI();
                     } else {
                         Toast.makeText(this, "Note not found", Toast.LENGTH_SHORT).show();
