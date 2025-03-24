@@ -86,7 +86,7 @@ public class SelectNoteForTaskBottomSheet extends BottomSheetDialogFragment {
                         note.setId(document.getId());
                         note.setTitle(document.getString("title"));
                         Timestamp createdAt = document.getTimestamp("createdAt");
-                        note.setCreatedAt(createdAt != null ? createdAt.toDate().toString() : null);
+                        note.setCreatedAt(createdAt != null ? createdAt.toDate().getTime() : 0L);
                         noteList.add(note);
                     }
                     notesAdapter.notifyDataSetChanged();

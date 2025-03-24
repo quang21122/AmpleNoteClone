@@ -443,22 +443,26 @@ public class CalendarActivity extends DrawerActivity {
                         for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
                             try {
                                 Task task = new Task(
-                                        document.getBoolean("isCompleted") != null ? document.getBoolean("isCompleted") : false,
+                                        document.getString("userId"),
+                                        document.getString("noteId"),
                                         document.getString("title"),
-                                        document.getDate("createdAt"),
-                                        document.getId(),
+                                        document.getDate("createAt"),
+                                        document.getBoolean("isCompleted"),
                                         document.getString("repeat"),
+                                        document.getDate("startAt"),
                                         document.getString("startAtDate"),
                                         document.getString("startAtPeriod"),
                                         document.getString("startAtTime"),
-                                        document.getString("startNoti"),
-                                        document.getString("priority"),
-                                        document.get("duration") != null ? document.getLong("duration").intValue() : 0,
-                                        document.getDate("startAt"),
+                                        document.getLong("startNoti").intValue(),
+                                        document.getDate("hideUntil"),
                                         document.getString("hideUntilDate"),
-                                        document.getString("hideUntilTime")
+                                        document.getString("hideUntilTime"),
+                                        document.getString("priority"),
+                                        document.getLong("duration").intValue(),
+                                        document.getDouble("score").floatValue()
                                 );
                                 task.setUserId(document.getString("userId"));
+                                task.setId(document.getId());
                                 System.out.println("Task: " + task.getStartAt());
                                 tasks.add(task);
                             } catch (Exception e) {

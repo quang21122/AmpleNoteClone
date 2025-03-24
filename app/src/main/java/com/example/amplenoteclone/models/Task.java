@@ -53,7 +53,7 @@ public class Task implements Serializable {
         this.score = score;
     }
 
-        @Override
+    @Override
         public String toString() {
             return "Task{" +
                     "id='" + id + '\'' +
