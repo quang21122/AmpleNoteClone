@@ -28,7 +28,7 @@
                     android:id="@+id/google_play_section"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Google play"
+                    android:text="Plan Confirmation"
                     android:textSize="18sp"
                     android:textColor="@android:color/black"
                     android:padding="16dp"
@@ -84,14 +84,14 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Ngày bắt đầu hôm nay"
+                        android:text="@string/trial_start"
                         android:textSize="14sp" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="14 ngày dùng thử miễn phí"
+                        android:text="@string/trial_period"
                         android:textSize="14sp"
                         android:gravity="end" />
                 </LinearLayout>
@@ -109,7 +109,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="@string/start_date_default"
+                        android:text=""
                         android:textSize="14sp" />
 
                     <TextView
@@ -126,51 +126,51 @@
 
 
             <!-- Terms and Conditions -->
-            <TextView
-                android:id="@+id/terms"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/terms"
-                android:textSize="16sp"
-                android:lineSpacingExtra="8dp"
-                android:layout_marginTop="8dp" />
+<!--            <TextView-->
+<!--                android:id="@+id/terms"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="@string/terms"-->
+<!--                android:textSize="16sp"-->
+<!--                android:lineSpacingExtra="8dp"-->
+<!--                android:layout_marginTop="8dp" />-->
 
-            <!-- Payment Method -->
-            <LinearLayout
-                android:id="@+id/payment_method"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:background="@android:drawable/list_selector_background">
+<!--            &lt;!&ndash; Payment Method &ndash;&gt;-->
+<!--            <LinearLayout-->
+<!--                android:id="@+id/payment_method"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:orientation="horizontal"-->
+<!--                android:padding="16dp"-->
+<!--                android:background="@android:drawable/list_selector_background">-->
 
-                <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@drawable/momo_logo" />
+<!--                <ImageView-->
+<!--                    android:layout_width="40dp"-->
+<!--                    android:layout_height="40dp"-->
+<!--                    android:src="@drawable/momo_logo" />-->
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/payment_method"
-                    android:textSize="14sp"
-                    android:layout_marginStart="8dp" />
+<!--                <TextView-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight="1"-->
+<!--                    android:text="@string/payment_method"-->
+<!--                    android:textSize="14sp"-->
+<!--                    android:layout_marginStart="8dp" />-->
 
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/ic_chevron_right" />
-            </LinearLayout>
+<!--                <ImageView-->
+<!--                    android:layout_width="20dp"-->
+<!--                    android:layout_height="20dp"-->
+<!--                    android:src="@drawable/ic_chevron_right" />-->
+<!--            </LinearLayout>-->
 
             <!-- Alternative Payment Options -->
-            <TextView
-                android:id="@+id/alternative_payment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/alternative_payment"
-                android:textSize="14sp"
-                android:layout_marginTop="8dp" />
+<!--            <TextView-->
+<!--                android:id="@+id/alternative_payment"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="@string/alternative_payment"-->
+<!--                android:textSize="14sp"-->
+<!--                android:layout_marginTop="8dp" />-->
 
             <!-- Subscribe Button -->
             <Button
@@ -182,5 +182,71 @@
                 android:background="@drawable/button_background"
                 android:layout_marginTop="16dp" />
 
+            <!-- TextView 2 -->
+            <TextView
+                android:id="@+id/tv_confirmation_upgraded"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="To start the process, press the button below to send a confirmation code to the email address associated with your account."
+                android:textSize="16sp"
+                android:visibility="gone"
+                android:layout_marginTop="12dp"
+                android:layout_marginLeft="14dp"/>
+
+            <!-- Button -->
+            <Button
+                android:id="@+id/btn_send_upgrade_confirmation_code"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Send confirmation code"
+                android:textSize="16sp"
+                android:visibility="gone"
+                android:textAllCaps="false"
+                android:backgroundTint="@color/lightBlue"
+                android:layout_marginTop="16dp"/>
+
+            <!-- EditText for confirmation code -->
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:id="@+id/textInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="20dp"
+                android:hint="Confirmation code"
+                app:boxStrokeColor="@color/lightBlue"
+                app:hintTextColor="@color/lightBlue">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_upgrade_confirmation_code"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:textColor="#333"
+                    android:textCursorDrawable="@null"
+                    android:textColorHighlight="#333"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Button
+                android:id="@+id/btn_confirm_account_upgrade"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Confirm upgrade"
+                android:textSize="16sp"
+                android:visibility="gone"
+                android:textAllCaps="false"
+                android:backgroundTint="@color/lightBlue"
+                android:layout_marginTop="16dp"/>
+
         </LinearLayout>
+        <ProgressBar
+            android:id="@+id/upgrade_progress_bar"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

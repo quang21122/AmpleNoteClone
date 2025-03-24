@@ -125,7 +125,7 @@ public class Task implements Serializable {
     public void setCreateAt(Date createAt) {
         this.createAt = createAt != null ? createAt : new Date();
     }
-
+  
     @PropertyName("isCompleted")
     public boolean isCompleted() {
         return isCompleted;
@@ -160,26 +160,31 @@ public class Task implements Serializable {
     }
 
     @PropertyName("startAtDate")
+
     public void setStartAtDate(String startAtDate) {
         this.startAtDate = startAtDate;
     }
-
+  
     @PropertyName("startAtPeriod")
+
     public String getStartAtPeriod() {
         return startAtPeriod;
     }
 
     @PropertyName("startAtPeriod")
+
     public void setStartAtPeriod(String startAtPeriod) {
         this.startAtPeriod = startAtPeriod;
     }
 
     @PropertyName("startAtTime")
+
     public String getStartAtTime() {
         return startAtTime;
     }
 
     @PropertyName("startAtTime")
+
     public void setStartAtTime(String startAtTime) {
         this.startAtTime = startAtTime;
     }
@@ -210,20 +215,23 @@ public class Task implements Serializable {
     }
 
     @PropertyName("hideUntilDate")
+
     public void setHideUntilDate(String hideUntilDate) {
         this.hideUntilDate = hideUntilDate;
     }
 
     @PropertyName("hideUntilTime")
+
     public String getHideUntilTime() {
         return hideUntilTime;
     }
 
     @PropertyName("hideUntilTime")
+
     public void setHideUntilTime(String hideUntilTime) {
         this.hideUntilTime = hideUntilTime;
     }
-
+  
     @PropertyName("priority")
     public String getPriority() {
         return priority;
@@ -254,3 +262,4 @@ public class Task implements Serializable {
         this.score = score;
     }
 }
+

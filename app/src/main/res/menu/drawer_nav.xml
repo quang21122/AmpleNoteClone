@@ -26,4 +26,13 @@
                 android:checkable="true"/>
         </menu>
     </item>
+
+    <!-- Container for dynamic tags -->
+    <item
+        android:id="@+id/drawer_tags"
+        android:title="TAGS">
+        <menu>
+
+        </menu>
+    </item>
 </menu>

@@ -1,9 +1,10 @@
 package com.example.amplenoteclone.note;
 
+import static com.example.amplenoteclone.utils.TimeConverter.formatLastUpdated;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.Menu;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -12,7 +13,13 @@ import android.widget.Toast;
 import com.example.amplenoteclone.DrawerActivity;
 import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.models.Note;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -67,7 +74,7 @@ public class ViewNoteActivity extends DrawerActivity {
         currentNote = new Note();
         currentNote.setTitle("");
         currentNote.setContent("");
-        currentNote.setUpdatedAt(String.valueOf(System.currentTimeMillis()));
+        currentNote.setUpdatedAt(Timestamp.now().toDate().getTime());
     }
 
     private void loadNote(String extra) {
@@ -78,17 +85,6 @@ public class ViewNoteActivity extends DrawerActivity {
         titleEditText.setText(currentNote.getTitle());
         contentEditText.setText(currentNote.getContent());
         lastUpdatedTextView.setText(formatLastUpdated(currentNote.getUpdatedAt()));
-    }
-
-    private String formatLastUpdated(String timestampString) {
-        try {
-            long timestamp = Long.parseLong(timestampString);
-            long timeDiff = System.currentTimeMillis() - timestamp;
-            return "Updated " + formatTimeAgo(timeDiff);
-        } catch (NumberFormatException e) {
-            Log.e("ViewNoteActivity", "Error parsing timestamp: " + timestampString, e);
-            return "Updated unknown time ago"; // Or some other default message
-        }
     }
 
     private String formatTimeAgo(long timeDiff) {
@@ -134,9 +130,42 @@ public class ViewNoteActivity extends DrawerActivity {
     private void saveNote() {
         currentNote.setTitle(titleEditText.getText().toString());
         currentNote.setContent(contentEditText.getText().toString());
-        currentNote.setUpdatedAt(String.valueOf(System.currentTimeMillis()));
-        Toast.makeText(this, "Note saved", Toast.LENGTH_SHORT).show();
+        currentNote.setUpdatedAt(Timestamp.now().toDate().getTime());
+        saveNoteToFirebase();
         updateUI();
+    }
+
+    private void saveNoteToFirebase() {
+        // Save note to Firebase
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference collectionRef = db.collection("notes");
+
+        // Create a map with the note data
+        Map<String, Object> noteData = createUploadData();
+
+        // Save the note to Firebase
+        collectionRef.document(currentNote.getId())
+                .set(noteData)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Note saved", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to save note", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private Map<String, Object> createUploadData() {
+        Map<String, Object> noteData = new HashMap<>();
+        noteData.put("title", currentNote.getTitle());
+        noteData.put("content", currentNote.getContent());
+        noteData.put("updatedAt", new Timestamp(new Date(currentNote.getUpdatedAt())));
+        noteData.put("userId", userId);
+        noteData.put("isProtected", currentNote.getProtected());
+        noteData.put("tag", currentNote.getTags());
+        noteData.put("tasks", currentNote.getTasks());
+        noteData.put("createdAt", new Timestamp(new Date(currentNote.getCreatedAt())));
+
+        return noteData;
     }
 
     @Override
