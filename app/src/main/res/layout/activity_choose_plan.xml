@@ -127,43 +127,9 @@
             android:lineSpacingExtra="6dp"
             android:paddingHorizontal="10dp"
             android:paddingBottom="12dp"
-            android:text="Plans start at 41.583 đ/month after trial"
+            android:text="Plans start at 59000 đ/month after trial"
             android:textColor="@android:color/white"
             android:textSize="14sp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingTop="8dp">
-
-            <RadioGroup
-                android:id="@+id/radio_group"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <RadioButton
-                    android:id="@+id/monthly_billing"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:checked="true"
-                    android:lineSpacingExtra="8dp"
-                    android:text="MONTHLY BILLING\n59.000 đ/month"
-                    android:textSize="14sp" />
-
-                <RadioButton
-                    android:id="@+id/annual_billing"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:lineSpacingExtra="8dp"
-                    android:text="ANNUAL BILLING\n499.000 đ/year\nSAVE 209.000 đ"
-                    android:textSize="14sp" />
-
-            </RadioGroup>
-        </LinearLayout>
 
 
         <!-- Continue Button -->
@@ -183,18 +149,9 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:paddingTop="8dp"
-            android:text="We'll charge 59.000 đ at the end of your free trial."
+            android:text="We'll charge 59000 đ at the end of your free trial."
             android:textSize="14sp" />
 
-        <TextView
-            android:id="@+id/restore_purchases"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:paddingTop="8dp"
-            android:text="Restore purchases"
-            android:textColor="@color/lightBlue"
-            android:textSize="14sp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -204,15 +161,6 @@
 After your 2 week free trial, payment will be charged to your Google Play account. The subscription automatically renews unless it is canceled at least 24 hours before the end of the current period. Your account will be charged for renewal within 24 hours prior to the end of the current period. You can manage and cancel your subscriptions by going to your Google Play account settings after purchase."
             android:textSize="14sp" />
 
-        <!-- Terms & Privacy -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:paddingTop="16dp"
-            android:text="Terms &amp; Conditions | Privacy Policy"
-            android:textColor="@color/lightBlue"
-            android:textSize="14sp" />
 
 
     </LinearLayout>
