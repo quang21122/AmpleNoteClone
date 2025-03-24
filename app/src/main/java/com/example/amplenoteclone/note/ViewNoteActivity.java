@@ -5,6 +5,7 @@ import static com.example.amplenoteclone.utils.TimeConverter.formatLastUpdated;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.Menu;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -17,7 +18,7 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -63,8 +64,9 @@ public class ViewNoteActivity extends DrawerActivity {
     }
 
     private void initializeNote() {
-        loadNote("note");
-        if (currentNote == null) {
+        if (getIntent().hasExtra("noteId")) {
+            loadNote("noteId");
+        } else {
             createNewNote();
         }
         updateUI();
@@ -74,24 +76,51 @@ public class ViewNoteActivity extends DrawerActivity {
         currentNote = new Note();
         currentNote.setTitle("");
         currentNote.setContent("");
-        currentNote.setUpdatedAt(Timestamp.now().toDate().getTime());
+        currentNote.setCreatedAt(Timestamp.now().toDate());
+        currentNote.setUpdatedAt(Timestamp.now().toDate());
+        currentNote.setUserId(userId);
+        currentNote.setProtected(false);
+        currentNote.setTags(new ArrayList<>());
+        currentNote.setTasks(new ArrayList<>());
+        updateUI();
     }
 
     private void loadNote(String extra) {
-        this.currentNote = (Note) getIntent().getSerializableExtra(extra);
+        final String noteId = (String) getIntent().getSerializableExtra(extra);
+
+        // Load note from Firebase
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference collectionRef = db.collection("notes");
+        collectionRef.document(noteId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        currentNote = new Note(
+                                documentSnapshot.getId(),
+                                documentSnapshot.getString("title"),
+                                documentSnapshot.getString("content"),
+                                (ArrayList<String>) documentSnapshot.get("tags"),
+                                (ArrayList<String>) documentSnapshot.get("tasks"),
+                                documentSnapshot.getTimestamp("createdAt").toDate(),
+                                documentSnapshot.getTimestamp("updatedAt").toDate(),
+                                documentSnapshot.getBoolean("isProtected")
+
+                        );
+                        updateUI();
+                    } else {
+                        Toast.makeText(this, "Note not found", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to load note", Toast.LENGTH_SHORT).show();
+                    finish();
+                });
     }
 
     private void updateUI() {
         titleEditText.setText(currentNote.getTitle());
         contentEditText.setText(currentNote.getContent());
         lastUpdatedTextView.setText(formatLastUpdated(currentNote.getUpdatedAt()));
-    }
-
-    private String formatTimeAgo(long timeDiff) {
-        if (timeDiff < 60000) return "just now";
-        if (timeDiff < 3600000) return (timeDiff / 60000) + " minutes ago";
-        if (timeDiff < 86400000) return (timeDiff / 3600000) + " hours ago";
-        return (timeDiff / 86400000) + " days ago";
     }
 
     private void setupListeners() {
@@ -130,7 +159,13 @@ public class ViewNoteActivity extends DrawerActivity {
     private void saveNote() {
         currentNote.setTitle(titleEditText.getText().toString());
         currentNote.setContent(contentEditText.getText().toString());
-        currentNote.setUpdatedAt(Timestamp.now().toDate().getTime());
+        currentNote.setUpdatedAt(Timestamp.now().toDate());
+
+        // Only save if the note has a title
+        if (currentNote.getTitle().isEmpty()) {
+            return;
+        }
+
         saveNoteToFirebase();
         updateUI();
     }
@@ -142,6 +177,19 @@ public class ViewNoteActivity extends DrawerActivity {
 
         // Create a map with the note data
         Map<String, Object> noteData = createUploadData();
+
+        if (currentNote.getId() == null) {
+            // Create a new note
+            collectionRef.add(noteData)
+                    .addOnSuccessListener(documentReference -> {
+                        currentNote.setId(documentReference.getId());
+                        Toast.makeText(this, "Note saved", Toast.LENGTH_SHORT).show();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Failed to save note", Toast.LENGTH_SHORT).show();
+                    });
+            return;
+        }
 
         // Save the note to Firebase
         collectionRef.document(currentNote.getId())
@@ -155,15 +203,17 @@ public class ViewNoteActivity extends DrawerActivity {
     }
 
     private Map<String, Object> createUploadData() {
+        Log.d("Note", "Saving note: " + currentNote.getUpdatedAt().toString() + " " + currentNote.getCreatedAt().toString());
+
         Map<String, Object> noteData = new HashMap<>();
         noteData.put("title", currentNote.getTitle());
         noteData.put("content", currentNote.getContent());
-        noteData.put("updatedAt", new Timestamp(new Date(currentNote.getUpdatedAt())));
+        noteData.put("updatedAt", new Timestamp(currentNote.getUpdatedAt()));
         noteData.put("userId", userId);
         noteData.put("isProtected", currentNote.getProtected());
-        noteData.put("tag", currentNote.getTags());
+        noteData.put("tags", currentNote.getTags());
         noteData.put("tasks", currentNote.getTasks());
-        noteData.put("createdAt", new Timestamp(new Date(currentNote.getCreatedAt())));
+        noteData.put("createdAt", new Timestamp(currentNote.getCreatedAt()));
 
         return noteData;
     }

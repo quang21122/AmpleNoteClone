@@ -34,7 +34,6 @@ public class NotesActivity extends DrawerActivity {
         NotesAdapter adapter = new NotesAdapter(); // Empty list initially
         recyclerView.setAdapter(adapter);
 
-
         getNotesFromFirebase(this.userId, notes -> runOnUiThread(() -> {
             adapter.setNotes(notes);
             adapter.notifyDataSetChanged();
@@ -47,11 +46,24 @@ public class NotesActivity extends DrawerActivity {
             Note note = noteCardView.getNote();
 
             // Pass data as an Extra (Note must implement Serializable or Parcelable)
-            intent.putExtra("note", note);
+            intent.putExtra("noteId", note.getId());
 
             startActivity(intent);
         });
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        invalidateOptionsMenu();
+
+        // Refresh notes when returning to the activity
+        NotesAdapter adapter = ((NotesAdapter) ((RecyclerView) findViewById(R.id.recyclerNotes)).getAdapter());
+
+        getNotesFromFirebase(this.userId, notes -> runOnUiThread(() -> {
+            adapter.setNotes(notes);
+            adapter.notifyDataSetChanged();
+        }));
     }
 
     @Override
@@ -104,14 +116,14 @@ public class NotesActivity extends DrawerActivity {
                             Timestamp createdAt = document.getTimestamp("createdAt");
                             Timestamp updatedAt = document.getTimestamp("updatedAt");
                             if (createdAt != null)
-                                note.setCreatedAt(createdAt.toDate().getTime());
+                                note.setCreatedAt(createdAt.toDate());
 
                             if (updatedAt != null)
-                                note.setUpdatedAt(updatedAt.toDate().getTime());
+                                note.setUpdatedAt(updatedAt.toDate());
 
 
                             // Get lists safely
-                            note.setTags((ArrayList<String>) document.get("tag"));
+                            note.setTags((ArrayList<String>) document.get("tags"));
                             note.setTasks((ArrayList<String>) document.get("tasks"));
 
                             // Only add note if title exists
