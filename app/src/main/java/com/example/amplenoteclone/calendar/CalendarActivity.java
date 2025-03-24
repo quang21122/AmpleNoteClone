@@ -468,6 +468,7 @@ public class CalendarActivity extends DrawerActivity {
                                         document.getDouble("score") != null ? document.getDouble("score").floatValue() : 0
                                 );
                                 task.setUserId(document.getString("userId"));
+                                task.setId(document.getId());
                                 tasks.add(task);
                             } catch (Exception e) {
                                 System.out.println("Error parsing document: " + document.getId());

@@ -1,5 +1,4 @@
 package com.example.amplenoteclone.models;
-
 import com.example.amplenoteclone.R;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.PropertyName;
@@ -77,7 +76,6 @@ public class Task implements Serializable {
                 ", score=" + score +
                 '}';
     }
-
 
     // Getters và Setters với @PropertyName để ánh xạ tên trường trên Firestore
     @Exclude
@@ -165,6 +163,8 @@ public class Task implements Serializable {
     public void setStartAtDate(String startAtDate) {
         this.startAtDate = startAtDate;
     }
+  
+    @PropertyName("startAtPeriod")
 
     @PropertyName("startAtPeriod")
 
@@ -232,6 +232,11 @@ public class Task implements Serializable {
     public void setHideUntilTime(String hideUntilTime) {
         this.hideUntilTime = hideUntilTime;
     }
+  
+    @PropertyName("priority")
+    public String getPriority() {
+        return priority;
+    }
 
     @PropertyName("priority")
     public String getPriority() {
@@ -242,7 +247,7 @@ public class Task implements Serializable {
     public void setPriority(String priority) {
         this.priority = priority;
     }
-
+  
     @PropertyName("duration")
     public int getDuration() {
         return duration;
@@ -273,3 +278,4 @@ public class Task implements Serializable {
         }
     }
 }
+

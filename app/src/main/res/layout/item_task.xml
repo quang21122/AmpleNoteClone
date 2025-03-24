@@ -43,7 +43,7 @@
 
         <!-- Task Date -->
         <TextView
-            android:id="@+id/task_date"
+            android:id="@+id/task_create_at_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/task_title"
@@ -54,12 +54,12 @@
             android:textColor="@color/textBlue"
             android:paddingVertical="4dp" />
 
-        <!-- Task Created Time -->
+        <!-- Task Created Time Ago-->
         <TextView
-            android:id="@+id/task_created_time"
+            android:id="@+id/task_created_at_time_ago"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/task_date"
+            android:layout_below="@id/task_create_at_date"
             android:layout_toEndOf="@id/check_task"
             android:layout_marginStart="8dp"
             android:text="Created 23 minutes ago"
@@ -84,9 +84,10 @@
             android:id="@+id/expandable_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/task_created_time"
+            android:layout_below="@id/task_created_at_time_ago"
             android:orientation="vertical"
-            android:background="@color/light_blue_gray">
+            android:background="@color/light_blue_gray"
+            android:visibility="gone">
 
             <!-- REPEAT Card -->
             <LinearLayout
@@ -630,26 +631,30 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Task Score -->
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_horizontal">
 
+                <!-- Task Score -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Task Score 13.4"
                     android:textColor="@color/textBlue"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:id="@+id/task_score"/>
 
+                <!-- Task created time ago -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text=" - Created almost 5 years ago"
                     android:textColor="@color/textGray"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:id="@+id/task_created_time_ago"/>
             </LinearLayout>
 
             <!-- Separator Line -->
@@ -669,6 +674,7 @@
 
                 <!-- DELETE Button -->
                 <TextView
+                    android:id="@+id/delete_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="DELETE"
@@ -693,10 +699,11 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="From Note's Name"
+                    android:text="Note's Name"
                     android:textColor="@color/textBlue"
                     android:textSize="14sp"
-                    android:padding="4dp" />
+                    android:padding="4dp"
+                    android:id="@+id/note_title"/>
 
                 <TextView
                     android:layout_width="wrap_content"
