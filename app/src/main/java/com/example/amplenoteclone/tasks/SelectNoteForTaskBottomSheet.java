@@ -24,6 +24,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class SelectNoteForTaskBottomSheet extends BottomSheetDialogFragment {
@@ -86,7 +87,7 @@ public class SelectNoteForTaskBottomSheet extends BottomSheetDialogFragment {
                         note.setId(document.getId());
                         note.setTitle(document.getString("title"));
                         Timestamp createdAt = document.getTimestamp("createdAt");
-                        note.setCreatedAt(createdAt != null ? createdAt.toDate().getTime() : 0L);
+                        note.setCreatedAt(createdAt != null ? createdAt.toDate() : new Date());
                         noteList.add(note);
                     }
                     notesAdapter.notifyDataSetChanged();
