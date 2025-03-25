@@ -24,6 +24,11 @@
                 android:icon="@drawable/ic_calendar_nav"
                 android:title="Calendar"
                 android:checkable="true"/>
+            <item
+                android:id="@+id/drawer_settings"
+                android:icon="@drawable/ic_settings"
+                android:title="Settings"
+                android:checkable="true"/>
         </menu>
     </item>
 

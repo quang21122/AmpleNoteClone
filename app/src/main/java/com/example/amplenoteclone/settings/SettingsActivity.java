@@ -11,9 +11,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.example.amplenoteclone.DrawerActivity;
 import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.authentication.Login;
 import com.google.firebase.auth.FirebaseAuth;
@@ -21,7 +21,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends DrawerActivity {
     private final String[] daysOfWeek = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
     private final String[] noteWidths = {"Standard width", "Full width"};
     private final String[] taskCompletionEffects = {"Minimal", "Normal", "Dazzle"};
@@ -29,7 +29,9 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+        setActivityContent(R.layout.activity_settings);
+
+        setBottomNavigationVisibility(false);
 
         ProgressBar progressBar = findViewById(R.id.progress_bar);
 
@@ -232,5 +234,15 @@ public class SettingsActivity extends AppCompatActivity {
         dayOfWeekLayout.setOnClickListener(v -> settingPicker.showPickerDialog());
         noteWidthLayout.setOnClickListener(v -> settingPicker2.showPickerDialog());
         taskCompletionEffectLayout.setOnClickListener(v -> settingPicker3.showPickerDialog());
+    }
+
+    @Override
+    protected String getToolbarTitle() {
+        return "Settings";
+    }
+
+    @Override
+    protected int getCurrentPageId() {
+        return -1;
     }
 }
