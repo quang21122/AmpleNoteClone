@@ -22,9 +22,12 @@ import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.models.Note;
 import com.example.amplenoteclone.models.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
@@ -41,12 +44,23 @@ public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
     private String selectedStartAtPeriod;
     private boolean isAddTaskVisible = false;
     private Note selectedNote; // Lưu note đã chọn
+    private boolean isStartNewNote = false;
+
+    private void initializeViews(View view) {
+        textViewSelectNote = view.findViewById(R.id.text_select_note);
+
+        // Set default selection to "Start a new note"
+        selectedNote = null; // No note selected
+        isStartNewNote = true; // Default to new note
+        textViewSelectNote.setText("Start a new note");
+        textViewSelectNote.setTextColor(ContextCompat.getColor(getContext(), R.color.black));
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.create_task, container, false);
-
+        initializeViews(view);
         // Khởi tạo các view
         layoutAddTaskContainer = view.findViewById(R.id.layout_add_task_container);
         textViewSelectNote = view.findViewById(R.id.text_select_note);
@@ -55,11 +69,6 @@ public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
         editTextQuickToDo = view.findViewById(R.id.edit_text_quick_to_do);
         buttonAddQuick = view.findViewById(R.id.button_add_quick);
 
-        // Kiểm tra xem editTextSelectNote có được khởi tạo không
-        if (textViewSelectNote == null) {
-            Toast.makeText(getContext(), "edit_text_select_note not found", Toast.LENGTH_SHORT).show();
-            return view;
-        }
 
         // Lắng nghe sự kiện nhập liệu trong Quick to-do
         editTextQuickToDo.addTextChangedListener(new TextWatcher() {
@@ -92,14 +101,25 @@ public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
 
         // Xử lý sự kiện nhấn vào ô chọn note
         textViewSelectNote.setOnClickListener(v -> {
-            SelectNoteForTaskBottomSheet selectNoteForTaskBottomSheet = new SelectNoteForTaskBottomSheet(note -> {
-                selectedNote = note;
-                textViewSelectNote.setText(note.getTitle()); // Cập nhật giao diện với tiêu đề note đã chọn
-                textViewSelectNote.setTextColor(ContextCompat.getColor(getContext(), R.color.black));
+            SelectNoteForTaskBottomSheet selectNoteForTaskBottomSheet = new SelectNoteForTaskBottomSheet(new SelectNoteForTaskBottomSheet.OnNoteSelectionListener() {
+                @Override
+                public void onNoteSelected(Note note) {
+                    selectedNote = note;
+                    isStartNewNote = false; // No longer using new note
+                    textViewSelectNote.setText(note.getTitle());
+                    textViewSelectNote.setTextColor(ContextCompat.getColor(getContext(), R.color.black));
+                }
+
+                @Override
+                public void onStartNewNoteSelected() {
+                    selectedNote = null;
+                    isStartNewNote = true;
+                    textViewSelectNote.setText("Start a new note");
+                    textViewSelectNote.setTextColor(ContextCompat.getColor(getContext(), R.color.black));
+                }
             });
             selectNoteForTaskBottomSheet.show(requireActivity().getSupportFragmentManager(), selectNoteForTaskBottomSheet.getTag());
         });
-
         // Xử lý sự kiện nhấn vào "Select a start time"
         layoutSelectStartTime.setOnClickListener(v -> {
             ScheduleTaskBottomSheet scheduleTaskBottomSheet = new ScheduleTaskBottomSheet((date, time, period) -> {
@@ -120,24 +140,13 @@ public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
                 return;
             }
 
-            // Tạo task mới
-            Task newTask = new Task();
-            newTask.setTitle(title);
-            newTask.setUserId(FirebaseAuth.getInstance().getCurrentUser().getUid());
-            newTask.setNoteId(selectedNote != null ? selectedNote.getId() : "default_note_id"); // Sử dụng noteId của note đã chọn
-            newTask.setCreateAt(new Date());
-            newTask.setCompleted(false);
-            newTask.setRepeat("Doesn't repeat");
-            newTask.setStartAtDate(selectedStartAtDate != null ? selectedStartAtDate : "");
-            newTask.setStartAtTime(selectedStartAtTime != null ? selectedStartAtTime : "");
-            newTask.setStartAtPeriod(selectedStartAtPeriod != null ? selectedStartAtPeriod : "");
-            newTask.setStartNoti(0);
-            newTask.setPriority("");
-            newTask.setDuration(0);
-            newTask.setScore(1.0f);
-
-            // Lưu task vào Firestore
-            saveNewTaskToFirestore(newTask);
+            if (isStartNewNote) {
+                // Nếu người dùng chọn "Start a new note", tạo note mới trước
+                createNewNoteAndTask(title);
+            } else {
+                // Nếu không, tạo task như cũ
+                createTaskWithExistingNote(title);
+            }
         });
 
         return view;
@@ -166,25 +175,95 @@ public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
         layoutAddTaskContainer.startAnimation(slideDown);
     }
 
+    private void createNewNoteAndTask(String taskTitle) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String noteId = db.collection("notes").document().getId();
+        String taskId = db.collection("tasks").document().getId();
+
+        // Create new note
+        Note newNote = new Note();
+        newNote.setTitle("Untitled note");
+        newNote.setUserId(userId);
+        newNote.setCreatedAt(Timestamp.now().toDate());
+        newNote.setContent("");
+        newNote.setUpdatedAt(Timestamp.now().toDate());
+        newNote.setProtected(false);
+        newNote.setTags(new ArrayList<>());
+
+        // Add task ID to note's tasks array
+        ArrayList<String> tasks = new ArrayList<>();
+        tasks.add(taskId);
+        newNote.setTasks(tasks);
+        newNote.setId(noteId);
+
+        // Save note to Firestore
+        db.collection("notes")
+                .document(noteId)
+                .set(newNote)
+                .addOnSuccessListener(aVoid -> {
+                    Task newTask = createTask(taskTitle, noteId);
+                    newTask.setId(taskId); // Set generated task ID
+                    saveNewTaskToFirestore(newTask);
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Error creating note: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void createTaskWithExistingNote(String taskTitle) {
+        if (selectedNote != null) {
+            String noteId = selectedNote.getId();
+            String taskId = FirebaseFirestore.getInstance().collection("tasks").document().getId();
+
+            // Create and save task
+            Task newTask = createTask(taskTitle, noteId);
+            newTask.setId(taskId);
+
+            // Update note's tasks array
+            FirebaseFirestore.getInstance().collection("notes").document(noteId)
+                    .update("tasks", FieldValue.arrayUnion(taskId))
+                    .addOnSuccessListener(aVoid -> saveNewTaskToFirestore(newTask))
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(getContext(), "Error updating note: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+        }
+    }
+
+    private Task createTask(String title, String noteId) {
+        Task newTask = new Task();
+        newTask.setTitle(title);
+        newTask.setUserId(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        newTask.setNoteId(noteId);
+        newTask.setCreateAt(new Date());
+        newTask.setCompleted(false);
+        newTask.setRepeat("Doesn't repeat");
+        newTask.setStartAtDate(selectedStartAtDate != null ? selectedStartAtDate : "");
+        newTask.setStartAtTime(selectedStartAtTime != null ? selectedStartAtTime : "");
+        newTask.setStartAtPeriod(selectedStartAtPeriod != null ? selectedStartAtPeriod : "");
+        newTask.setStartNoti(0);
+        newTask.setPriority("");
+        newTask.setDuration(0);
+        newTask.setScore(1.0f);
+        return newTask;
+    }
+
     private void saveNewTaskToFirestore(Task task) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String generatedId = db.collection("tasks").document().getId();
-        task.setId(generatedId);
 
-        // Cập nhật logic xử lý ngày giờ bắt đầu
+        // Task ID is now set earlier when creating the task
         if (selectedStartAtDate != null && selectedStartAtTime != null) {
             task.setStartAtDate(selectedStartAtDate);
             task.setStartAtTime(selectedStartAtTime);
             task.setStartAtPeriod(selectedStartAtPeriod != null ? selectedStartAtPeriod : "");
         } else {
-            // Nếu không chọn ngày giờ, đặt các giá trị mặc định là rỗng
             task.setStartAtDate("");
             task.setStartAtTime("");
             task.setStartAtPeriod("");
         }
 
         db.collection("tasks")
-                .document(generatedId)
+                .document(task.getId()) // Use the ID set earlier
                 .set(task)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(getContext(), "Task added successfully", Toast.LENGTH_SHORT).show();
@@ -194,4 +273,6 @@ public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
                     Toast.makeText(getContext(), "Error adding task: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
+
+
 }

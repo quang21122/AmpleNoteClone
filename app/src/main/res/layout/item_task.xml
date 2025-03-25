@@ -620,12 +620,15 @@
 
                 <!-- DONE Button -->
                 <TextView
+                    android:id="@+id/text_done_undone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="DONE"
                     android:textColor="@color/textBlue"
                     android:textSize="14sp"
-                    android:padding="4dp" />
+                    android:padding="4dp"
+                    android:clickable="true"
+                    android:focusable="true"/>
             </LinearLayout>
 
             <!-- Shadow line -->

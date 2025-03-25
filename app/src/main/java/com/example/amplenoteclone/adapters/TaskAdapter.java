@@ -74,6 +74,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         Task task = taskList.get(position);
 
         holder.checkTask.setChecked(task.isCompleted());
+        updateDoneUndoneText(holder.textDoneUndone, task.isCompleted());
         holder.taskTitle.setText(task.getTitle());
         if (task.isCompleted()) {
             holder.taskTitle.setPaintFlags(holder.taskTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
@@ -333,13 +334,22 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         // Update checkbox listener
         holder.checkTask.setOnCheckedChangeListener((buttonView, isChecked) -> {
             task.setCompleted(isChecked);
+            updateDoneUndoneText(holder.textDoneUndone, isChecked);
 
-            // Update strikethrough effect
-            if (isChecked) {
-                holder.taskTitle.setPaintFlags(holder.taskTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            if (task.getId() != null && !task.getId().isEmpty()) {
+                ((TasksPageActivity) holder.itemView.getContext()).updateTaskInFirestore(task);
             } else {
-                holder.taskTitle.setPaintFlags(holder.taskTitle.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+                Log.e("TaskAdapter", "Task ID is null or empty. Cannot update Firestore.");
             }
+        });
+
+        // Handle click on DONE/UNDONE text
+        holder.textDoneUndone.setOnClickListener(v -> {
+            task.setCompleted(!task.isCompleted());
+            updateDoneUndoneText(holder.textDoneUndone, task.isCompleted());
+
+            // Update checkbox state
+            holder.checkTask.setChecked(task.isCompleted());
 
             // Update task in Firestore
             if (task.getId() != null && !task.getId().isEmpty()) {
@@ -348,6 +358,25 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
                 Log.e("TaskAdapter", "Task ID is null or empty. Cannot update Firestore.");
             }
         });
+
+        // Handle click on note title
+        if (task.getNoteId() != null && !task.getNoteId().isEmpty()) {
+            holder.noteTitle.setOnClickListener(v -> {
+                Intent intent = new Intent(v.getContext(), ViewNoteActivity.class);
+                intent.putExtra("noteId", task.getNoteId());
+                v.getContext().startActivity(intent);
+            });
+        }
+    }
+
+    private void updateDoneUndoneText(TextView textView, boolean isCompleted) {
+        if (isCompleted) {
+            textView.setText("UNDONE");
+            textView.setTextColor(ContextCompat.getColor(textView.getContext(), R.color.textGray));
+        } else {
+            textView.setText("DONE");
+            textView.setTextColor(ContextCompat.getColor(textView.getContext(), R.color.textBlue));
+        }
     }
 
     // Hàm cập nhật trạng thái giao diện của các nút trong Duration Card
@@ -1061,6 +1090,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         return taskList.size();
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+
     public static class TaskViewHolder extends RecyclerView.ViewHolder {
         CheckBox checkTask;
         EditText taskTitle;
@@ -1098,6 +1132,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         MaterialButton durationCustomButton;
         TextView deleteButton;
         View priorityBar;
+        TextView textDoneUndone;
 
         public TaskViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -1136,6 +1171,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             durationCustomButton = itemView.findViewById(R.id.duration_custom);
             deleteButton = itemView.findViewById(R.id.delete_button);
             priorityBar = itemView.findViewById(R.id.task_priority_bar);
+            textDoneUndone = itemView.findViewById(R.id.text_done_undone);
         }
     }
 }
