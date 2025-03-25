@@ -63,7 +63,7 @@ public class TaskCalendarAdapter extends RecyclerView.Adapter<TaskCalendarAdapte
 
         holder.itemView.setBackgroundColor(ContextCompat.getColor(context, android.R.color.white));
 
-        holder.itemView.setForeground(ContextCompat.getDrawable(context, task.getBorderTypeByScore()));
+        holder.itemView.setForeground(ContextCompat.getDrawable(context, task.calculateBorderTypeByScore()));
 
         holder.taskCheckbox.setChecked(task.isCompleted());
         setupCheckboxListener(holder, task, durationSpinner);

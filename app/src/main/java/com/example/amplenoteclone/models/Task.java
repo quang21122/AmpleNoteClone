@@ -1,10 +1,16 @@
 package com.example.amplenoteclone.models;
+import android.util.Log;
+
 import com.example.amplenoteclone.R;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.PropertyName;
 
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class Task implements Serializable {
     private String id;
@@ -162,6 +168,7 @@ public class Task implements Serializable {
 
     public void setStartAtDate(String startAtDate) {
         this.startAtDate = startAtDate;
+        updateStartAt();
     }
   
     @PropertyName("startAtPeriod")
@@ -185,6 +192,7 @@ public class Task implements Serializable {
 
     public void setStartAtTime(String startAtTime) {
         this.startAtTime = startAtTime;
+        updateStartAt();
     }
 
     @PropertyName("startNoti")
@@ -238,6 +246,7 @@ public class Task implements Serializable {
     @PropertyName("priority")
     public void setPriority(String priority) {
         this.priority = priority;
+        calculateScore();
     }
   
     @PropertyName("duration")
@@ -248,6 +257,7 @@ public class Task implements Serializable {
     @PropertyName("duration")
     public void setDuration(int duration) {
         this.duration = duration;
+        calculateScore();
     }
 
     @PropertyName("score")
@@ -260,14 +270,67 @@ public class Task implements Serializable {
         this.score = score;
     }
 
-    public int getBorderTypeByScore() {
-        if (score >= 5) {
+    public int calculateBorderTypeByScore() {
+        if (score >= 4) {
             return R.drawable.task_border_high;
-        } else if (score >= 1) {
+        } else if (score >= 2) {
             return R.drawable.task_border_medium;
         } else {
             return R.drawable.task_border_low;
         }
     }
+
+    private void calculateScore() {
+        float baseScore = 1;
+
+        // Calculate score based on priority
+        if (priority != null) {
+            switch (priority) {
+                case "Important":
+                    baseScore += 0.6;
+                    break;
+                case "Urgent":
+                    baseScore += 3;
+                    break;
+            }
+        }
+
+        // Calculate score based on duration
+        if (duration > 0) {
+            if (duration <= 15) {
+                baseScore += 2;
+            } else if (duration <= 30) {
+                baseScore += 1;
+            } else {
+                baseScore += 0.5;
+            }
+        }
+
+        this.score = baseScore;
+    }
+
+    private void updateStartAt() {
+        if (startAtDate != null && !startAtDate.isEmpty() &&
+                startAtTime != null && !startAtTime.isEmpty()) {
+            try {
+                SimpleDateFormat dateTimeFormat = new SimpleDateFormat("EEEE, MMM d h:mm a", Locale.getDefault());
+                String dateTimeString = startAtDate + " " + startAtTime;
+                Date parsedDate = dateTimeFormat.parse(dateTimeString);
+
+                if (parsedDate != null) {
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(parsedDate);
+                    calendar.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR));
+                    this.startAt = calendar.getTime();
+                }
+            } catch (ParseException e) {
+                Log.e("Task", "Error parsing date/time", e);
+            }
+        } else {
+            // Nếu ngày hoặc giờ rỗng, đặt startAt là null
+            this.startAt = null;
+        }
+    }
+
 }
 

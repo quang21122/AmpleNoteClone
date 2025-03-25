@@ -13,8 +13,9 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="@color/dark_blue_gray"
-        android:padding="16dp">
-<!--        android:visibility="gone">-->
+        android:padding="16dp"
+        android:visibility="gone">
+
         <!-- Tiêu đề "Add a Task" -->
         <TextView
             android:layout_width="match_parent"

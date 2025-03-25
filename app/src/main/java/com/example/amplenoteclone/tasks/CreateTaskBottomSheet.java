@@ -128,17 +128,16 @@ public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
             newTask.setCreateAt(new Date());
             newTask.setCompleted(false);
             newTask.setRepeat("Doesn't repeat");
-            newTask.setStartAt(new Date());
-            newTask.setStartAtDate(selectedStartAtDate);
-            newTask.setStartAtTime(selectedStartAtTime);
-            newTask.setStartAtPeriod(selectedStartAtPeriod);
+            newTask.setStartAtDate(selectedStartAtDate != null ? selectedStartAtDate : "");
+            newTask.setStartAtTime(selectedStartAtTime != null ? selectedStartAtTime : "");
+            newTask.setStartAtPeriod(selectedStartAtPeriod != null ? selectedStartAtPeriod : "");
             newTask.setStartNoti(0);
             newTask.setHideUntil(new Date());
             newTask.setHideUntilDate("");
             newTask.setHideUntilTime("");
-            newTask.setPriority(null);
+            newTask.setPriority("");
             newTask.setDuration(0);
-            newTask.setScore(0.0f);
+            newTask.setScore(1.0f);
 
             // Lưu task vào Firestore
             saveNewTaskToFirestore(newTask);
@@ -174,6 +173,19 @@ public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String generatedId = db.collection("tasks").document().getId();
         task.setId(generatedId);
+
+        // Cập nhật logic xử lý ngày giờ bắt đầu
+        if (selectedStartAtDate != null && selectedStartAtTime != null) {
+            task.setStartAtDate(selectedStartAtDate);
+            task.setStartAtTime(selectedStartAtTime);
+            task.setStartAtPeriod(selectedStartAtPeriod != null ? selectedStartAtPeriod : "");
+        } else {
+            // Nếu không chọn ngày giờ, đặt các giá trị mặc định là rỗng
+            task.setStartAtDate("");
+            task.setStartAtTime("");
+            task.setStartAtPeriod("");
+        }
+
         db.collection("tasks")
                 .document(generatedId)
                 .set(task)

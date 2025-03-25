@@ -68,7 +68,6 @@ public class TasksPageActivity extends DrawerActivity {
         CollectionReference collectionRef = db.collection("tasks");
         taskListener = collectionRef
                 .whereEqualTo("userId", userId)
-                .whereEqualTo("isCompleted", false) // Chỉ lấy các task chưa hoàn thành
                 .orderBy("createAt", Query.Direction.ASCENDING) // Sắp xếp theo createAt (tăng dần)
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
