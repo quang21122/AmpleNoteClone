@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
         userNameTextView = findViewById(R.id.user_name);
         signOutButton = findViewById(R.id.sign_out_button);
         user = mAuth.getCurrentUser();
+
         if (user != null) {
             userNameTextView.setText(user.getEmail());
         } else {
@@ -69,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         initializeViews();
-        loadUserProfile();
+        User.loadUserProfile(this, userNameTextView, profileImage, defaultAvatarText);
     }
 
     private void initializeViews() {
@@ -84,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         notesButton = findViewById(R.id.notes);
         tasksButton = findViewById(R.id.tasks);
 
-        signOutButton.setOnClickListener(v -> signOut());
+        signOutButton.setOnClickListener(v -> User.signOut(this));
         settingsButton.setOnClickListener(v -> {
             Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
             startActivity(intent);
@@ -105,57 +106,4 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
     }
-
-    private void loadUserProfile() {
-        FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        if (firebaseUser != null) {
-            db.collection("users").document(firebaseUser.getUid())
-                    .get()
-                    .addOnSuccessListener(document -> {
-                        if (document.exists()) {
-                            User user = document.toObject(User.class);
-                            if (user != null) {
-                                userNameTextView.setText(user.getName().isEmpty() ? user.getEmail() : user.getName());
-
-                                if (user.isHasCustomAvatar() && user.getAvatarBase64() != null && !user.getAvatarBase64().isEmpty()) {
-                                    byte[] decodedString = Base64.decode(user.getAvatarBase64(), Base64.DEFAULT);
-                                    Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-
-                                    profileImage.setImageBitmap(bitmap);
-                                    profileImage.setVisibility(View.VISIBLE);
-                                    defaultAvatarText.setVisibility(View.GONE);
-                                } else {
-                                    String firstLetter = user.getName().isEmpty() ?
-                                            user.getEmail().substring(0, 1).toUpperCase() :
-                                            user.getName().substring(0, 1).toUpperCase();
-                                    defaultAvatarText.setText(firstLetter);
-                                    profileImage.setVisibility(View.GONE);
-                                    defaultAvatarText.setVisibility(View.VISIBLE);
-                                }
-                            }
-                        }
-                    })
-                    .addOnFailureListener(e ->
-                            Toast.makeText(MainActivity.this, "Error loading profile", Toast.LENGTH_SHORT).show()
-                    );
-        } else {
-            startActivity(new Intent(this, Login.class));
-            finish();
-        }
-    }
-
-    private void signOut() {
-        mAuth.signOut();
-        mGoogleSignInClient.signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                Intent intent = new Intent(getApplicationContext(), Login.class);
-                startActivity(intent);
-                finish();
-            }
-        });
-    }
-
-
-
 }

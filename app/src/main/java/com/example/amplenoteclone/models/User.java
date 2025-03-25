@@ -1,6 +1,22 @@
 package com.example.amplenoteclone.models;
 
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.example.amplenoteclone.authentication.Login;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class User {
     private String id;
@@ -78,5 +94,59 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public static void loadUserProfile(Context context, TextView nameView, ImageView profileImage, TextView defaultAvatarText) {
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+
+        if (firebaseUser != null) {
+            db.collection("users").document(firebaseUser.getUid())
+                    .get()
+                    .addOnSuccessListener(document -> {
+                        if (document.exists()) {
+                            User user = document.toObject(User.class);
+                            if (user != null) {
+                                nameView.setText(user.getName().isEmpty() ? user.getEmail() : user.getName());
+
+                                if (user.isHasCustomAvatar() && user.getAvatarBase64() != null && !user.getAvatarBase64().isEmpty()) {
+                                    byte[] decodedString = Base64.decode(user.getAvatarBase64(), Base64.DEFAULT);
+                                    Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+
+                                    profileImage.setImageBitmap(bitmap);
+                                    profileImage.setVisibility(android.view.View.VISIBLE);
+                                    defaultAvatarText.setVisibility(android.view.View.GONE);
+                                } else {
+                                    String firstLetter = user.getName().isEmpty() ?
+                                            user.getEmail().substring(0, 1).toUpperCase() :
+                                            user.getName().substring(0, 1).toUpperCase();
+                                    defaultAvatarText.setText(firstLetter);
+                                    profileImage.setVisibility(android.view.View.GONE);
+                                    defaultAvatarText.setVisibility(android.view.View.VISIBLE);
+                                }
+                            }
+                        }
+                    })
+                    .addOnFailureListener(e ->
+                            Toast.makeText(context, "Error loading profile", Toast.LENGTH_SHORT).show()
+                    );
+        }
+    }
+
+    public static void signOut(Context context) {
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(context.getString(com.example.amplenoteclone.R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(context, gso);
+
+        mAuth.signOut();
+        mGoogleSignInClient.signOut().addOnCompleteListener(task -> {
+            Intent intent = new Intent(context, Login.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            context.startActivity(intent);
+        });
     }
 }
