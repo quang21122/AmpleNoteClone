@@ -1,6 +1,7 @@
 package com.example.amplenoteclone.calendar;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
 
@@ -22,6 +23,7 @@ import android.widget.Toast;
 
 import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.models.Task;
+import com.example.amplenoteclone.note.ViewNoteActivity;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -323,7 +325,9 @@ public class MonthFragment extends Fragment implements DateSelectable, TaskView 
         });
 
         view.findViewById(R.id.btn_view_notes).setOnClickListener(v -> {
-            // view notes
+            Intent intent = new Intent(requireContext(), ViewNoteActivity.class);
+            intent.putExtra("noteId", task.getNoteId());
+            startActivity(intent);
             dialog.dismiss();
         });
 

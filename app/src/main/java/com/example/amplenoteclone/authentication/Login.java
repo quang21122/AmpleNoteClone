@@ -32,8 +32,12 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class Login extends AppCompatActivity {
     private FirebaseAuth mAuth;
@@ -201,15 +205,39 @@ public class Login extends AppCompatActivity {
     private void firebaseAuthWithGoogle(String idToken) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
         mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
-                        } else {
-                            Toast.makeText(Login.this, "Failed to login! Please check your credentials", Toast.LENGTH_LONG).show();
-                        }
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        FirebaseFirestore.getInstance()
+                                .collection("users")
+                                .document(user.getUid())
+                                .get()
+                                .addOnSuccessListener(documentSnapshot -> {
+                                    if (!documentSnapshot.exists()) {
+                                        // New Google user - create profile
+                                        Map<String, Object> userData = new HashMap<>();
+                                        userData.put("email", user.getEmail());
+                                        userData.put("createdAt", com.google.firebase.Timestamp.now());
+                                        userData.put("name", user.getDisplayName() != null ? user.getDisplayName() : "");
+                                        userData.put("hasCustomAvatar", false);
+                                        userData.put("avatarBase64", "");
+                                        userData.put("isPremium", false);
+
+                                        FirebaseFirestore.getInstance()
+                                                .collection("users")
+                                                .document(user.getUid())
+                                                .set(userData)
+                                                .addOnSuccessListener(aVoid -> updateUI(user))
+                                                .addOnFailureListener(e -> {
+                                                    Toast.makeText(Login.this, "Database Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                    mAuth.signOut();
+                                                });
+                                    } else {
+                                        updateUI(user);
+                                    }
+                                });
+                    } else {
+                        Toast.makeText(Login.this, "Failed to login! Please check your credentials", Toast.LENGTH_LONG).show();
                     }
                 });
     }
