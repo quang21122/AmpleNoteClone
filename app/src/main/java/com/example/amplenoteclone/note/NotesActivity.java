@@ -12,10 +12,15 @@ import com.example.amplenoteclone.DrawerActivity;
 import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.adapters.NotesAdapter;
 import com.example.amplenoteclone.models.Note;
+import com.example.amplenoteclone.ocr.ScanImageToNoteActivity;
+import com.example.amplenoteclone.settings.ChoosePlanActivity;
 import com.example.amplenoteclone.ui.customviews.NoteCardView;
 import com.example.amplenoteclone.utils.FirestoreCallback;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.Source;
@@ -54,6 +59,51 @@ public class NotesActivity extends DrawerActivity {
 
     }
 
+    private void checkPremiumAndOpenScan() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) return;
+
+        // Get reference to the user document
+        DocumentReference userRef = FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(currentUser.getUid());
+
+        // Get cached data with Source.CACHE, fallback to server if not available
+        userRef.get(Source.CACHE).addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                Boolean isPremium = task.getResult().getBoolean("isPremium");
+                if (isPremium != null && isPremium) {
+                    Intent intent = new Intent(this, ScanImageToNoteActivity.class);
+                    startActivity(intent);
+                } else {
+                    showPremiumRequiredDialog();
+                }
+            } else {
+                userRef.get(Source.SERVER).addOnSuccessListener(documentSnapshot -> {
+                    Boolean isPremium = documentSnapshot.getBoolean("isPremium");
+                    if (isPremium != null && isPremium) {
+                        Intent intent = new Intent(this, ScanImageToNoteActivity.class);
+                        startActivity(intent);
+                    } else {
+                        showPremiumRequiredDialog();
+                    }
+                });
+            }
+        });
+    }
+
+    private void showPremiumRequiredDialog() {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Premium Feature")
+                .setMessage("OCR scanning is only available for premium users. Please upgrade to premium to use this feature.")
+                .setPositiveButton("Upgrade", (dialog, which) -> {
+                    Intent intent = new Intent(this, ChoosePlanActivity.class);
+                    startActivity(intent);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.toolbar_notes, menu);
@@ -65,6 +115,11 @@ public class NotesActivity extends DrawerActivity {
             return true;
         });
 
+        // Add listener for camera icon
+        menu.findItem(R.id.action_ocr).setOnMenuItemClickListener(item -> {
+            checkPremiumAndOpenScan();
+            return true;
+        });
 
         return true;
     }
