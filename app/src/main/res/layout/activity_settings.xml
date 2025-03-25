@@ -16,40 +16,6 @@
             android:gravity="start"
             android:orientation="vertical">
 
-            <!-- Header -->
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingVertical="16dp"
-                android:background="@color/primary"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp">
-
-                <!-- Menu Icon (Hamburger) -->
-                <ImageView
-                    android:id="@+id/menu_icon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_menu"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"
-                    app:tint="#FFFFFF" />
-
-                <!-- Settings Title -->
-                <TextView
-                    android:id="@+id/title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Settings"
-                    android:textSize="20sp"
-                    android:textColor="#FFFFFF"
-                    android:layout_centerVertical="true"
-                    android:layout_toEndOf="@id/menu_icon"
-                    android:layout_marginStart="16dp"/>
-            </RelativeLayout>
-
-
-
             <!-- Subscription Section -->
             <TextView
                 android:layout_width="match_parent"

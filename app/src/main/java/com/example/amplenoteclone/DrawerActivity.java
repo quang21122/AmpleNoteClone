@@ -21,6 +21,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.example.amplenoteclone.calendar.CalendarActivity;
 import com.example.amplenoteclone.models.Tag;
 import com.example.amplenoteclone.note.NotesActivity;
+import com.example.amplenoteclone.settings.SettingsActivity;
 import com.example.amplenoteclone.tasks.CreateTaskBottomSheet;
 import com.example.amplenoteclone.tasks.TasksPageActivity;
 import com.example.amplenoteclone.utils.FirestoreCallback;
@@ -37,6 +38,8 @@ import java.util.ArrayList;
 public abstract class DrawerActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     protected DrawerLayout drawerLayout;
     protected NavigationView navigationView;
+
+    BottomNavigationView bottomNavigationView;
 
     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     protected final String userId = user != null ? user.getUid() : null;
@@ -85,6 +88,7 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
         setupToolbar(); // Keep title setup
 
         // Setup Bottom Navigation
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
         setupBottomNavigation();
 
         // Change Drawer item title color
@@ -165,6 +169,11 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
             startActivity(new Intent(this, NotesActivity.class));
         } else if (id == R.id.drawer_tasks) {
             startActivity(new Intent(this, TasksPageActivity.class));
+        } else if (id == R.id.drawer_tags) {
+            // Handle tags click
+            // You can open a new activity or fragment here
+        } else if (id == R.id.drawer_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
         }
 
         drawerLayout.closeDrawers(); // Close drawer only when selecting a new item
@@ -172,9 +181,14 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
     }
 
     private void setupBottomNavigation() {
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(getCurrentPageId());
         bottomNavigationView.setOnItemSelectedListener(this::onBottomNavItemSelected);
+    }
+
+    protected void setBottomNavigationVisibility(boolean isVisible) {
+        if (bottomNavigationView != null) {
+            bottomNavigationView.setVisibility(isVisible ? View.VISIBLE : View.GONE);
+        }
     }
 
     /**
