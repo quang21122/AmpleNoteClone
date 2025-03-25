@@ -85,8 +85,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         holder.startAtPeriodText.setText(task.getStartAtPeriod());
         holder.startAtTimeText.setText(task.getStartAtTime());
         holder.startAtDateText.setText(task.getStartAtDate());
-        holder.hideUntilTimeText.setText(task.getHideUntilTime());
-        holder.hideUntilDateText.setText(task.getHideUntilDate());
         holder.taskScore.setText("Task Score " + task.getScore());
 
         // Set task creation date
@@ -101,9 +99,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         String curDateSample = getCurDateSample();
         if (holder.startAtDateText.getText() == null || holder.startAtDateText.getText().toString().isEmpty()) {
             holder.startAtDateText.setText(curDateSample);
-        }
-        if (holder.hideUntilDateText.getText() == null || holder.hideUntilDateText.getText().toString().isEmpty()) {
-            holder.hideUntilDateText.setText(curDateSample);
         }
 
         // Cập nhật màu sắc cho các thành phần thời gian
@@ -195,12 +190,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             @Override
             public void onClick(View v) {
                 showPopup(v, R.layout.popup_start_noti_info);
-            }
-        });
-        holder.hideUntilIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showPopup(v, R.layout.popup_hide_until_info);
             }
         });
         holder.priorityIcon.setOnClickListener(new View.OnClickListener() {
@@ -300,28 +289,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             }
         });
 
-        // Xử lý sự kiện nhấn vào phần HIDE UNTIL để chọn ngày
-        holder.hideUntilDateContainer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String defaultDate = getCurDateSample();
-                if (task.getHideUntilDate().equals(defaultDate) || task.getHideUntilDate().isEmpty()) {
-                    showHideUntilDatePickerDialog(holder.hideUntilDateText, task, position, holder.hideUntilTimeText);
-                } else {
-                    showHideUntilDateOptionsMenu(v.getContext(), holder.hideUntilDateContainer, holder.hideUntilDateText,
-                            task, position, holder.hideUntilTimeText);
-                }
-            }
-        });
-
-        // Xử lý sự kiện nhấn vào HIDE UNTIL "9:00 am"
-        holder.hideUntilTimeContainer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showHideUntilTimeOptionsMenu(v.getContext(), holder.hideUntilTimeContainer, holder.hideUntilTimeText,
-                        task, position, holder.hideUntilDateText);
-            }
-        });
 
         // Xử lý sự kiện nhấn vào các nút trong Start Noti Card
         holder.startNoti5MinButton.setOnClickListener(v -> toggleNotificationButton(task, "5 min", holder));
@@ -659,197 +626,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         } else {
             Log.e("TaskAdapter", "Task ID is null or empty. Cannot update Firestore.");
         }
-    }
-
-    private void showHideUntilTimeOptionsMenu(Context context, View anchorView, TextView timeTextView,
-                                              Task task, int position, TextView dateTextView) {
-        Context themeContext = new ContextThemeWrapper(context, R.style.AppTheme);
-        PopupMenu popupMenu = new PopupMenu(themeContext, anchorView);
-        String[] times;
-        times = new String[]{"8:00 am", "9:00 am", "10:00 am"};
-
-        for (int i = 0; i < times.length; i++) {
-            popupMenu.getMenu().add(0, i, i, times[i]);
-        }
-
-        popupMenu.setOnMenuItemClickListener(item -> {
-            String selectedTime = item.getTitle().toString();
-            timeTextView.setText(selectedTime);
-            task.setHideUntilTime(selectedTime);
-
-            Calendar calendar = Calendar.getInstance();
-            String defaultDate = getCurDateSample();
-            if (task.getHideUntilDate().equals(defaultDate) || task.getHideUntilDate().isEmpty()) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, MMM d", Locale.getDefault());
-                String formattedDate = dateFormat.format(calendar.getTime());
-                dateTextView.setText(formattedDate);
-                task.setHideUntilDate(formattedDate);
-            }
-
-            if (task.getId() != null && !task.getId().isEmpty()) {
-                ((TasksPageActivity) context).updateTaskInFirestore(task);
-            } else {
-                Log.e("TaskAdapter", "Task ID is null or empty. Cannot update Firestore.");
-            }
-//            notifyItemChanged(position);
-            return true;
-        });
-
-        popupMenu.show();
-    }
-
-    private void showHideUntilDateOptionsMenu(Context context, View anchorView, TextView dateTextView, Task task,
-                                              int position, TextView timeTextView) {
-        Context themeContext = new ContextThemeWrapper(context, R.style.AppTheme);
-        PopupMenu popupMenu = new PopupMenu(themeContext, anchorView);
-        popupMenu.getMenuInflater().inflate(R.menu.hide_date_options_menu, popupMenu.getMenu());
-
-        Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat dateTimeFormat = new SimpleDateFormat("EEE, MMM dd 'at' h:mm a", Locale.getDefault());
-
-        // Định dạng ngày và giờ cho "This afternoon" (giả sử 2pm)
-        Calendar thisAfternoon = (Calendar) calendar.clone();
-        thisAfternoon.set(Calendar.HOUR_OF_DAY, 14); // 2pm
-        thisAfternoon.set(Calendar.MINUTE, 0);
-        thisAfternoon.set(Calendar.SECOND, 0);
-        String thisAfternoonDateTime = dateTimeFormat.format(thisAfternoon.getTime());
-        MenuItem thisAfternoonItem = popupMenu.getMenu().findItem(R.id.option_hide_this_afternoon);
-        thisAfternoonItem.setTitle("This afternoon (" + thisAfternoonDateTime + ")");
-
-        // Định dạng ngày và giờ cho "Tomorrow" (giả sử 9:00 am)
-        Calendar tomorrow = (Calendar) calendar.clone();
-        tomorrow.add(Calendar.DAY_OF_MONTH, 1);
-        tomorrow.set(Calendar.HOUR_OF_DAY, 9); // 9am
-        tomorrow.set(Calendar.MINUTE, 0);
-        tomorrow.set(Calendar.SECOND, 0);
-        String tomorrowDateTime = dateTimeFormat.format(tomorrow.getTime());
-        MenuItem tomorrowItem = popupMenu.getMenu().findItem(R.id.option_hide_tomorrow);
-        tomorrowItem.setTitle("Tomorrow (" + tomorrowDateTime + ")");
-
-        // Định dạng ngày và giờ cho "This weekend" (thứ Bảy, giả sử 9:00 am)
-        Calendar thisWeekend = (Calendar) calendar.clone();
-        int dayOfWeek = thisWeekend.get(Calendar.DAY_OF_WEEK);
-        if (dayOfWeek >= Calendar.SATURDAY) {
-            thisWeekend.add(Calendar.WEEK_OF_YEAR, 1); // Chuyển sang cuối tuần tiếp theo nếu đã qua thứ Bảy
-        }
-        thisWeekend.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY); // Đặt sang thứ Bảy
-        thisWeekend.set(Calendar.HOUR_OF_DAY, 9); // 9am
-        thisWeekend.set(Calendar.MINUTE, 0);
-        thisWeekend.set(Calendar.SECOND, 0);
-        String weekendDateTime = dateTimeFormat.format(thisWeekend.getTime());
-        MenuItem weekendItem = popupMenu.getMenu().findItem(R.id.option_hide_this_weekend);
-        weekendItem.setTitle("This weekend (" + weekendDateTime + ")");
-
-        // Định dạng ngày và giờ cho "One week" (giả sử 9:00 am)
-        Calendar oneWeek = (Calendar) calendar.clone();
-        oneWeek.add(Calendar.WEEK_OF_YEAR, 1);
-        oneWeek.set(Calendar.HOUR_OF_DAY, 9); // 9am
-        oneWeek.set(Calendar.MINUTE, 0);
-        oneWeek.set(Calendar.SECOND, 0);
-        String oneWeekDateTime = dateTimeFormat.format(oneWeek.getTime());
-        MenuItem oneWeekItem = popupMenu.getMenu().findItem(R.id.option_hide_one_week);
-        oneWeekItem.setTitle("One week (" + oneWeekDateTime + ")");
-
-        // Định dạng ngày và giờ cho "Three weeks" (giả sử 9:00 am)
-        Calendar threeWeeks = (Calendar) calendar.clone();
-        threeWeeks.add(Calendar.WEEK_OF_YEAR, 3);
-        threeWeeks.set(Calendar.HOUR_OF_DAY, 9); // 9am
-        threeWeeks.set(Calendar.MINUTE, 0);
-        threeWeeks.set(Calendar.SECOND, 0);
-        String threeWeeksDateTime = dateTimeFormat.format(threeWeeks.getTime());
-        MenuItem threeWeeksItem = popupMenu.getMenu().findItem(R.id.option_hide_three_weeks);
-        threeWeeksItem.setTitle("Three weeks (" + threeWeeksDateTime + ")");
-
-        popupMenu.setOnMenuItemClickListener(item -> {
-            int itemId = item.getItemId();
-            Calendar newDate = (Calendar) calendar.clone(); // Sao chép ngày hiện tại để tính toán
-            if (itemId == R.id.option_hide_this_afternoon) {
-                newDate.set(Calendar.HOUR_OF_DAY, 14); // 2pm
-                newDate.set(Calendar.MINUTE, 0);
-                newDate.set(Calendar.SECOND, 0);
-            } else if (itemId == R.id.option_hide_tomorrow) {
-                newDate.add(Calendar.DAY_OF_MONTH, 1);
-                newDate.set(Calendar.HOUR_OF_DAY, 9); // 9am
-                newDate.set(Calendar.MINUTE, 0);
-                newDate.set(Calendar.SECOND, 0);
-            } else if (itemId == R.id.option_hide_this_weekend) {
-                int currentDayOfWeek = newDate.get(Calendar.DAY_OF_WEEK);
-                if (currentDayOfWeek >= Calendar.SATURDAY) {
-                    newDate.add(Calendar.WEEK_OF_YEAR, 1); // Chuyển sang cuối tuần tiếp theo
-                }
-                newDate.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY); // Đặt sang thứ Bảy
-                newDate.set(Calendar.HOUR_OF_DAY, 9); // 9am
-                newDate.set(Calendar.MINUTE, 0);
-                newDate.set(Calendar.SECOND, 0);
-            } else if (itemId == R.id.option_hide_one_week) {
-                newDate.add(Calendar.WEEK_OF_YEAR, 1);
-                newDate.set(Calendar.HOUR_OF_DAY, 9); // 9am
-                newDate.set(Calendar.MINUTE, 0);
-                newDate.set(Calendar.SECOND, 0);
-            } else if (itemId == R.id.option_hide_three_weeks) {
-                newDate.add(Calendar.WEEK_OF_YEAR, 3);
-                newDate.set(Calendar.HOUR_OF_DAY, 9); // 9am
-                newDate.set(Calendar.MINUTE, 0);
-                newDate.set(Calendar.SECOND, 0);
-            } else if (itemId == R.id.option_hide_choose_date) {
-                showHideUntilDatePickerDialog(dateTextView, task, position, timeTextView);
-                return true;
-            }
-            String formattedDateTime = dateTimeFormat.format(newDate.getTime());
-            // Tách ngày và giờ để gán riêng
-            String[] parts = formattedDateTime.split(" at ");
-            if (parts.length == 2) {
-                dateTextView.setText(parts[0]); // "Wed, Mar 19"
-                task.setHideUntilDate(parts[0]);
-                task.setHideUntilTime(parts[1]); // "2pm"
-                timeTextView.setText(parts[1]);
-            }
-
-            if (task.getId() != null && !task.getId().isEmpty()) {
-                ((TasksPageActivity) context).updateTaskInFirestore(task);
-            } else {
-                Log.e("TaskAdapter", "Task ID is null or empty. Cannot update Firestore.");
-            }
-//            notifyItemChanged(position);
-            return true;
-        });
-
-        popupMenu.show();
-    }
-
-    private void showHideUntilDatePickerDialog(TextView dateTextView, Task task, int position,
-                                               TextView timeTextView) {
-        Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-        DatePickerDialog datePickerDialog = new DatePickerDialog(
-                dateTextView.getContext(),
-                (view, year1, month1, dayOfMonth) -> {
-                    Calendar selectedDate = Calendar.getInstance();
-                    selectedDate.set(year1, month1, dayOfMonth);
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, MMM d", Locale.getDefault());
-                    String formattedDate = dateFormat.format(selectedDate.getTime());
-
-                    dateTextView.setText(formattedDate);
-                    task.setHideUntilDate(formattedDate);
-
-                    if (task.getHideUntilTime() == null || task.getHideUntilTime().isEmpty()) {
-                        task.setHideUntilTime("9:00 am");
-                        timeTextView.setText("9:00 am");
-                    }
-
-                    if (task.getId() != null && !task.getId().isEmpty()) {
-                        ((TasksPageActivity) dateTextView.getContext()).updateTaskInFirestore(task);
-                    } else {
-                        Log.e("TaskAdapter", "Task ID is null or empty. Cannot update Firestore.");
-                    }
-//                    notifyItemChanged(position);
-                },
-                year, month, day
-        );
-        datePickerDialog.show();
     }
 
     // START AT
@@ -1299,7 +1075,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         ImageView startAtIcon;
         ImageView startAtClockIcon;
         ImageView startNotiIcon;
-        ImageView hideUntilIcon;
         ImageView priorityIcon;
         ImageView durationIcon;
         LinearLayout repeatCard;
@@ -1321,10 +1096,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         MaterialButton duration30MinButton;
         MaterialButton duration60MinButton;
         MaterialButton durationCustomButton;
-        LinearLayout hideUntilDateContainer;
-        TextView hideUntilDateText;
-        LinearLayout hideUntilTimeContainer;
-        TextView hideUntilTimeText;
         TextView deleteButton;
         View priorityBar;
 
@@ -1342,7 +1113,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             startAtIcon = itemView.findViewById(R.id.start_at_icon);
             startAtClockIcon = itemView.findViewById(R.id.start_at_clock_icon);
             startNotiIcon = itemView.findViewById(R.id.start_noti_icon);
-            hideUntilIcon = itemView.findViewById(R.id.hide_until_icon);
             priorityIcon = itemView.findViewById(R.id.priority_icon);
             durationIcon = itemView.findViewById(R.id.duration_icon);
             repeatCard = itemView.findViewById(R.id.repeat_card);
@@ -1364,10 +1134,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             duration30MinButton = itemView.findViewById(R.id.duration_30min);
             duration60MinButton = itemView.findViewById(R.id.duration_60min);
             durationCustomButton = itemView.findViewById(R.id.duration_custom);
-            hideUntilDateContainer = itemView.findViewById(R.id.hide_until_date_container);
-            hideUntilDateText = itemView.findViewById(R.id.hide_until_date_text);
-            hideUntilTimeContainer = itemView.findViewById(R.id.hide_until_time_container);
-            hideUntilTimeText = itemView.findViewById(R.id.hide_until_time_text);
             deleteButton = itemView.findViewById(R.id.delete_button);
             priorityBar = itemView.findViewById(R.id.task_priority_bar);
         }
