@@ -43,6 +43,7 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -258,24 +259,52 @@ public class ScanImageToNoteActivity extends AppCompatActivity {
 
     private void showCreateNoteDialog(String content) {
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
-        builder.setTitle("Create Note");
 
-        // Add an EditText
-        final android.widget.EditText input = new android.widget.EditText(this);
-        input.setHint("Enter note title");
-        builder.setView(input);
+        android.widget.LinearLayout layout = new android.widget.LinearLayout(this);
+        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        layout.setPadding(60, 30, 60, 30);
 
-        builder.setPositiveButton("Create", (dialog, which) -> {
-            String title = input.getText().toString().trim();
-            if (!title.isEmpty()) {
-                saveNoteToFirestore(title, content);
-            } else {
-                Toast.makeText(this, "Title cannot be empty", Toast.LENGTH_SHORT).show();
-            }
-        });
+        android.widget.TextView titleText = new android.widget.TextView(this);
+        titleText.setText("Enter note title");
+        titleText.setTextSize(20);
+        titleText.setPadding(0, 0, 0, 20);
+        layout.addView(titleText);
+
+        android.widget.EditText input = new android.widget.EditText(this);
+        input.setHint("Title");
+        input.setBackgroundResource(android.R.drawable.edit_text);
+        input.setPadding(40, 30, 40, 30);
+        input.setSingleLine(true);
+
+        input.setBackground(getEditTextBackground());
+
+        layout.addView(input);
+
+        builder.setView(layout);
+
+        builder.setPositiveButton("Create", null); // We'll override this below
         builder.setNegativeButton("Cancel", null);
 
-        builder.show();
+        android.app.AlertDialog dialog = builder.create();
+        dialog.show();
+
+        dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String title = input.getText().toString().trim();
+            if (title.isEmpty()) {
+                input.setError("Title cannot be empty");
+            } else {
+                dialog.dismiss();
+                saveNoteToFirestore(title, content);
+            }
+        });
+    }
+
+    private android.graphics.drawable.GradientDrawable getEditTextBackground() {
+        android.graphics.drawable.GradientDrawable drawable = new android.graphics.drawable.GradientDrawable();
+        drawable.setColor(android.graphics.Color.TRANSPARENT);
+        drawable.setStroke(2, getResources().getColor(android.R.color.darker_gray));
+        drawable.setCornerRadius(8);
+        return drawable;
     }
 
     private void saveNoteToFirestore(String title, String content) {
@@ -286,8 +315,8 @@ public class ScanImageToNoteActivity extends AppCompatActivity {
         note.setTitle(title);
         note.setContent(content);
         note.setUserId(userId);
-        note.setCreatedAt(System.currentTimeMillis());
-        note.setUpdatedAt(System.currentTimeMillis());
+        note.setCreatedAt(new Date());
+        note.setUpdatedAt(new Date());
         note.setProtected(false);
         note.setTags(new ArrayList<>());
         note.setTasks(new ArrayList<>());
@@ -295,7 +324,6 @@ public class ScanImageToNoteActivity extends AppCompatActivity {
         db.collection("notes")
                 .add(note)
                 .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(this, "Note created successfully", Toast.LENGTH_SHORT).show();
                     finish();
                 })
                 .addOnFailureListener(e -> {

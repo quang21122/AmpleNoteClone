@@ -16,6 +16,7 @@ import com.example.amplenoteclone.ocr.ScanImageToNoteActivity;
 import com.example.amplenoteclone.settings.ChoosePlanActivity;
 import com.example.amplenoteclone.ui.customviews.NoteCardView;
 import com.example.amplenoteclone.utils.FirestoreCallback;
+import com.example.amplenoteclone.utils.PremiumChecker;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -72,48 +73,20 @@ public class NotesActivity extends DrawerActivity {
     }
 
     private void checkPremiumAndOpenScan() {
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser == null) return;
+        if (userId == null) return;
 
-        // Get reference to the user document
-        DocumentReference userRef = FirebaseFirestore.getInstance()
-                .collection("users")
-                .document(currentUser.getUid());
+        PremiumChecker.checkPremium(this, userId, new PremiumChecker.PremiumCheckCallback() {
+            @Override
+            public void onIsPremium() {
+                Intent intent = new Intent(NotesActivity.this, ScanImageToNoteActivity.class);
+                startActivity(intent);
+            }
 
-        // Get cached data with Source.CACHE, fallback to server if not available
-        userRef.get(Source.CACHE).addOnCompleteListener(task -> {
-            if (task.isSuccessful() && task.getResult() != null) {
-                Boolean isPremium = task.getResult().getBoolean("isPremium");
-                if (isPremium != null && isPremium) {
-                    Intent intent = new Intent(this, ScanImageToNoteActivity.class);
-                    startActivity(intent);
-                } else {
-                    showPremiumRequiredDialog();
-                }
-            } else {
-                userRef.get(Source.SERVER).addOnSuccessListener(documentSnapshot -> {
-                    Boolean isPremium = documentSnapshot.getBoolean("isPremium");
-                    if (isPremium != null && isPremium) {
-                        Intent intent = new Intent(this, ScanImageToNoteActivity.class);
-                        startActivity(intent);
-                    } else {
-                        showPremiumRequiredDialog();
-                    }
-                });
+            @Override
+            public void onNotPremium() {
+
             }
         });
-    }
-
-    private void showPremiumRequiredDialog() {
-        new androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("Premium Feature")
-                .setMessage("OCR scanning is only available for premium users. Please upgrade to premium to use this feature.")
-                .setPositiveButton("Upgrade", (dialog, which) -> {
-                    Intent intent = new Intent(this, ChoosePlanActivity.class);
-                    startActivity(intent);
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
     }
 
     @Override
