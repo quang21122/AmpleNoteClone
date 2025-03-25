@@ -3,6 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/action_ocr"
+        android:icon="@drawable/ic_camera"
+        android:title="OCR"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/action_search"
         android:icon="@drawable/ic_search_nav"
         android:title="Search"
