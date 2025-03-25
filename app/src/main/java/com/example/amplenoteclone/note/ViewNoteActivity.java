@@ -121,8 +121,6 @@ public class ViewNoteActivity extends DrawerActivity {
     }
 
     private void updateUI() {
-        titleEditText.setText(currentNote.getTitle());
-        contentEditText.setText(currentNote.getContent());
         lastUpdatedTextView.setText(formatLastUpdated(currentNote.getUpdatedAt()));
     }
 
