@@ -84,8 +84,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         holder.createdDate.setText(formattedDate);
 
         // Set task creation time ago
-        long createTime = task.getCreateAt().getTime();
-        String timeAgo = TimeConverter.convertToTimeAgo(createTime);
+        String timeAgo = TimeConverter.convertToTimeAgo(task.getCreateAt());
         holder.createdTimeAgo1.setText("Created " + timeAgo);
         holder.createdTimeAgo2.setText(" - Created " + timeAgo);
 

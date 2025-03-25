@@ -1,17 +1,20 @@
 package com.example.amplenoteclone.models;
 
-import java.io.Serializable;
-import java.util.ArrayList;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
-public class Note implements Serializable {
+import java.util.ArrayList;
+import java.util.Date;
+
+public class Note {
     private String id;
     private String title;
     private String content;
     private ArrayList<String> tags;
     private ArrayList<String> tasks;
-    private long createdAt;
+    private Date createdAt;
     private String userId;
-    private long updatedAt;
+    private Date updatedAt;
     Boolean isProtected;
 
     public Note() {
@@ -19,14 +22,21 @@ public class Note implements Serializable {
         this.tasks = new ArrayList<>();
     }
 
-    public Note(String id, String title, String content, ArrayList<String> tags, ArrayList<String> tasks, long createdAt) {
+    public Note(String id, String title, String content, ArrayList<String> tags, ArrayList<String> tasks, Date createdAt, Date updatedAt, Boolean isProtected) {
         this.id = id;
         this.title = title;
         this.content = content;
         this.tags = tags != null ? tags : new ArrayList<>();
         this.tasks = tasks != null ? tasks : new ArrayList<>();
         this.createdAt = createdAt;
-        this.updatedAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.isProtected = isProtected;
+
+        // Get the current user ID
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            this.userId = user.getUid();
+        }
     }
 
     public String getId() {
@@ -69,19 +79,19 @@ public class Note implements Serializable {
         this.tasks = tasks;
     }
 
-    public long getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(long createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 
-    public long getUpdatedAt() {
+    public Date getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(long updatedAt) {
+    public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
 

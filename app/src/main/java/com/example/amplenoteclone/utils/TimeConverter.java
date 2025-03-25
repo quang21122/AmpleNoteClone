@@ -1,17 +1,12 @@
 package com.example.amplenoteclone.utils;
 
-import com.google.firebase.Timestamp;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class TimeConverter {
-    public static String convertToTimeAgo(long time) {
-        Timestamp timestamp = new Timestamp(TimeUnit.MILLISECONDS.toSeconds(time), 0);
-
-        Date date = timestamp.toDate();
+    public static String convertToTimeAgo(Date date) {
         long timeDifferenceMillis = System.currentTimeMillis() - date.getTime();
 
         long seconds = TimeUnit.MILLISECONDS.toSeconds(timeDifferenceMillis);
@@ -34,7 +29,7 @@ public class TimeConverter {
         }
     }
 
-    public static String formatLastUpdated(long time) {
-        return "Last updated: " + convertToTimeAgo(time);
+    public static String formatLastUpdated(Date date) {
+        return "Last updated: " + convertToTimeAgo(date);
     }
 }
