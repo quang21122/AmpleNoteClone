@@ -1,5 +1,8 @@
 package com.example.amplenoteclone.models;
+import android.content.Context;
 import android.util.Log;
+
+import androidx.core.content.ContextCompat;
 
 import com.example.amplenoteclone.R;
 import com.google.firebase.firestore.Exclude;
@@ -277,6 +280,16 @@ public class Task implements Serializable {
             return R.drawable.task_border_medium;
         } else {
             return R.drawable.task_border_low;
+        }
+    }
+
+    public int calculatePriorityBarColor(Context context) {
+        if (score >= 4) {
+            return ContextCompat.getColor(context, R.color.textRed);
+        } else if (score >= 2) {
+            return ContextCompat.getColor(context, R.color.textBlue);
+        } else {
+            return ContextCompat.getColor(context, R.color.light_gray);
         }
     }
 

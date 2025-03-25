@@ -80,7 +80,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         } else {
             holder.taskTitle.setPaintFlags(holder.taskTitle.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
         }
-
+        holder.priorityBar.setBackgroundColor(task.calculatePriorityBarColor(holder.itemView.getContext()));
         holder.repeatOptionText.setText(task.getRepeat());
         holder.startAtPeriodText.setText(task.getStartAtPeriod());
         holder.startAtTimeText.setText(task.getStartAtTime());
@@ -1326,6 +1326,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         LinearLayout hideUntilTimeContainer;
         TextView hideUntilTimeText;
         TextView deleteButton;
+        View priorityBar;
 
         public TaskViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -1368,6 +1369,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             hideUntilTimeContainer = itemView.findViewById(R.id.hide_until_time_container);
             hideUntilTimeText = itemView.findViewById(R.id.hide_until_time_text);
             deleteButton = itemView.findViewById(R.id.delete_button);
+            priorityBar = itemView.findViewById(R.id.task_priority_bar);
         }
     }
 }
