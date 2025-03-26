@@ -11,6 +11,8 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -20,11 +22,12 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.amplenoteclone.calendar.CalendarActivity;
 import com.example.amplenoteclone.models.Tag;
+import com.example.amplenoteclone.models.User;
 import com.example.amplenoteclone.note.NotesActivity;
 import com.example.amplenoteclone.settings.SettingsActivity;
 import com.example.amplenoteclone.tasks.CreateTaskBottomSheet;
 import com.example.amplenoteclone.tasks.TasksPageActivity;
-import com.example.amplenoteclone.utils.FirestoreCallback;
+import com.example.amplenoteclone.utils.FirestoreListCallback;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -38,8 +41,9 @@ import java.util.ArrayList;
 public abstract class DrawerActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     protected DrawerLayout drawerLayout;
     protected NavigationView navigationView;
-
     BottomNavigationView bottomNavigationView;
+    ImageView profileImage;
+    TextView profileName;
 
     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     protected final String userId = user != null ? user.getUid() : null;
@@ -91,12 +95,7 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         setupBottomNavigation();
 
-        // Change Drawer item title color
-        Menu menu = navigationView.getMenu();
-        MenuItem header = menu.findItem(R.id.main_item);
-        SpannableString s = new SpannableString(header.getTitle());
-        s.setSpan(new ForegroundColorSpan(Color.WHITE), 0, s.length(), 0);
-        header.setTitle(s);
+        setupDrawerHeader();
     }
 
     @Override
@@ -221,6 +220,35 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
         return true;
     }
 
+    protected void setupDrawerHeader() {
+        Menu menu = navigationView.getMenu();
+        MenuItem header = menu.findItem(R.id.main_item);
+
+        // Find header elements inside the navigation drawer
+        View headerView = navigationView.getHeaderView(0);
+        profileImage = headerView.findViewById(R.id.profile_image);
+        profileName = headerView.findViewById(R.id.profile_name);
+
+        User.getCurrentUser(user -> {
+            if (user == null) {
+                Log.d("User", "No user found");
+                return;
+            }
+
+            String title = "NAVIGATION";
+
+            // Set User Name in Menu Item
+            header.setTitle(title);
+
+            SpannableString s = new SpannableString(header.getTitle());
+            s.setSpan(new ForegroundColorSpan(Color.WHITE), 0, s.length(), 0);
+            header.setTitle(s);
+
+            // Load Profile Image
+            User.loadUserProfile(DrawerActivity.this, null, profileImage, profileName);
+        });
+    }
+
     protected void setActivityContent(int layoutResID) {
         // Get the content frame that exists in the drawer layout
         FrameLayout contentFrame = findViewById(R.id.content_frame);
@@ -288,7 +316,7 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
         }
     }
 
-    private void getUserTagsFromFirebase(String userId, FirestoreCallback<Tag> firestoreCallback) {
+    private void getUserTagsFromFirebase(String userId, FirestoreListCallback<Tag> firestoreListCallback) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference tagsRef = db.collection("tags");
 
@@ -306,7 +334,7 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
                             currentTags.add(tag);
 
                             // First, call the callback with tags (counts will update later)
-                            firestoreCallback.onCallback(currentTags);
+                            firestoreListCallback.onCallback(currentTags);
 
                             // If there are no tags, we're done
                             if (currentTags.isEmpty()) {
@@ -330,10 +358,10 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
                         }
 
                         // Initial callback with tags (counts will update later)
-                        firestoreCallback.onCallback(currentTags);
+                        firestoreListCallback.onCallback(currentTags);
                     } else {
                         Log.e("ERROR", "Firestore query failed: ", task.getException());
-                        firestoreCallback.onCallback(new ArrayList<>());
+                        firestoreListCallback.onCallback(new ArrayList<>());
                     }
                 });
     }
