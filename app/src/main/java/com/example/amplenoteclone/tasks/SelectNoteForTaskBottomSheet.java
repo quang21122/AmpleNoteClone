@@ -33,14 +33,15 @@ public class SelectNoteForTaskBottomSheet extends BottomSheetDialogFragment {
     private LinearLayout layoutStartNewNote;
     private NotesAdapterForCreateTask notesAdapter;
     private List<Note> noteList;
-    private OnNoteSelectedListener onNoteSelectedListener;
+    private OnNoteSelectionListener onNoteSelectionListener;
 
-    public interface OnNoteSelectedListener {
-        void onNoteSelected(Note note);
+    public interface OnNoteSelectionListener {
+        void onNoteSelected(Note note); // Khi chọn một note có sẵn
+        void onStartNewNoteSelected();  // Khi chọn "Start a new note"
     }
 
-    public SelectNoteForTaskBottomSheet(OnNoteSelectedListener listener) {
-        this.onNoteSelectedListener = listener;
+    public SelectNoteForTaskBottomSheet(OnNoteSelectionListener listener) {
+        this.onNoteSelectionListener = listener;
     }
 
     @Nullable
@@ -63,7 +64,9 @@ public class SelectNoteForTaskBottomSheet extends BottomSheetDialogFragment {
 
         // Xử lý sự kiện nhấn "Start a new note"
         layoutStartNewNote.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Create new note", Toast.LENGTH_SHORT).show();
+            if (onNoteSelectionListener != null) {
+                onNoteSelectionListener.onStartNewNoteSelected(); // Thông báo rằng người dùng chọn "Start a new note"
+            }
             dismiss();
         });
 
@@ -98,8 +101,8 @@ public class SelectNoteForTaskBottomSheet extends BottomSheetDialogFragment {
     }
 
     private void onNoteSelected(Note note) {
-        if (onNoteSelectedListener != null) {
-            onNoteSelectedListener.onNoteSelected(note);
+        if (onNoteSelectionListener != null) {
+            onNoteSelectionListener.onNoteSelected(note); // Thông báo rằng người dùng chọn một note có sẵn
         }
         dismiss();
     }
