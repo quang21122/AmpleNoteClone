@@ -114,7 +114,7 @@ public class ScheduleTaskBottomSheet extends BottomSheetDialogFragment {
     private String getDateString(int daysToAdd) {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DAY_OF_YEAR, daysToAdd);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d", Locale.getDefault());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, MMM d", Locale.getDefault());
         return dateFormat.format(calendar.getTime());
     }
 
