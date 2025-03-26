@@ -460,6 +460,9 @@ public class CalendarActivity extends DrawerActivity {
                                         document.getString("startAtPeriod"),
                                         document.getString("startAtTime"),
                                         document.getLong("startNoti") != null ? document.getLong("startNoti").intValue() : 0,
+                                        document.getDate("hideUntil"),
+                                        document.getString("hideUntilDate"),
+                                        document.getString("hideUntilTime"),
                                         document.getString("priority"),
                                         document.getLong("duration") != null ? document.getLong("duration").intValue() : 0,
                                         document.getDouble("score") != null ? document.getDouble("score").floatValue() : 0

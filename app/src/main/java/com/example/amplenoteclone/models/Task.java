@@ -28,6 +28,9 @@ public class Task implements Serializable {
     private String startAtPeriod;
     private String startAtTime;
     private int startNoti;
+    private Date hideUntil;
+    private String hideUntilDate;
+    private String hideUntilTime;
     private String priority;
     private int duration;
     private float score;
@@ -39,7 +42,7 @@ public class Task implements Serializable {
     // Constructor đầy đủ
     public Task(String userId, String noteId, String title, Date createAt, boolean isCompleted, String repeat,
                 Date startAt, String startAtDate, String startAtPeriod, String startAtTime, int startNoti,
-                String priority, int duration, float score) {
+                Date hideUntil, String hideUntilDate, String hideUntilTime, String priority, int duration, float score) {
         this.userId = userId;
         this.noteId = noteId;
         this.title = title;
@@ -51,6 +54,9 @@ public class Task implements Serializable {
         this.startAtPeriod = startAtPeriod;
         this.startAtTime = startAtTime;
         this.startNoti = startNoti;
+        this.hideUntil = hideUntil;
+        this.hideUntilDate = hideUntilDate;
+        this.hideUntilTime = hideUntilTime;
         this.priority = priority;
         this.duration = duration;
         this.score = score;
@@ -71,6 +77,9 @@ public class Task implements Serializable {
                 ", startAtPeriod='" + startAtPeriod + '\'' +
                 ", startAtTime='" + startAtTime + '\'' +
                 ", startNoti=" + startNoti +
+                ", hideUntil=" + hideUntil +
+                ", hideUntilDate='" + hideUntilDate + '\'' +
+                ", hideUntilTime='" + hideUntilTime + '\'' +
                 ", priority='" + priority + '\'' +
                 ", duration=" + duration +
                 ", score=" + score +
@@ -197,6 +206,39 @@ public class Task implements Serializable {
     @PropertyName("startNoti")
     public void setStartNoti(int startNoti) {
         this.startNoti = startNoti;
+    }
+
+    @PropertyName("hideUntil")
+    public Date getHideUntil() {
+        return hideUntil;
+    }
+
+    @PropertyName("hideUntil")
+    public void setHideUntil(Date hideUntil) {
+        this.hideUntil = hideUntil;
+    }
+
+    @PropertyName("hideUntilDate")
+    public String getHideUntilDate() {
+        return hideUntilDate;
+    }
+
+    @PropertyName("hideUntilDate")
+
+    public void setHideUntilDate(String hideUntilDate) {
+        this.hideUntilDate = hideUntilDate;
+    }
+
+    @PropertyName("hideUntilTime")
+
+    public String getHideUntilTime() {
+        return hideUntilTime;
+    }
+
+    @PropertyName("hideUntilTime")
+
+    public void setHideUntilTime(String hideUntilTime) {
+        this.hideUntilTime = hideUntilTime;
     }
 
     @PropertyName("priority")

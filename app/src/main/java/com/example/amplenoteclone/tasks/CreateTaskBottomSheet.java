@@ -242,6 +242,8 @@ public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
         newTask.setStartAtTime(selectedStartAtTime != null ? selectedStartAtTime : "");
         newTask.setStartAtPeriod(selectedStartAtPeriod != null ? selectedStartAtPeriod : "");
         newTask.setStartNoti(0);
+        newTask.setHideUntilDate("");
+        newTask.setHideUntilTime("");
         newTask.setPriority("");
         newTask.setDuration(0);
         newTask.setScore(1.0f);
