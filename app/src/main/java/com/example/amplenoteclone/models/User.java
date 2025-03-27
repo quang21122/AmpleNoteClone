@@ -5,11 +5,13 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.amplenoteclone.authentication.Login;
+import com.example.amplenoteclone.utils.FirestoreCallback;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -17,6 +19,8 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 public class User {
     private String id;
@@ -108,7 +112,8 @@ public class User {
                         if (document.exists()) {
                             User user = document.toObject(User.class);
                             if (user != null) {
-                                nameView.setText(user.getName().isEmpty() ? user.getEmail() : user.getName());
+                                if (nameView != null)
+                                    nameView.setText(user.getName().isEmpty() ? user.getEmail() : user.getName());
 
                                 if (user.isHasCustomAvatar() && user.getAvatarBase64() != null && !user.getAvatarBase64().isEmpty()) {
                                     byte[] decodedString = Base64.decode(user.getAvatarBase64(), Base64.DEFAULT);
@@ -131,6 +136,31 @@ public class User {
                     .addOnFailureListener(e ->
                             Toast.makeText(context, "Error loading profile", Toast.LENGTH_SHORT).show()
                     );
+        }
+    }
+
+    public static void getCurrentUser(FirestoreCallback<User> callback) {
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        AtomicReference<User> user = new AtomicReference<>(new User());
+
+        if (firebaseUser != null) {
+            db.collection("users").document(firebaseUser.getUid())
+                    .get()
+                    .addOnSuccessListener(document -> {
+                        if (document.exists()) {
+                            callback.onCallback(document.toObject(User.class)); // Return the user object
+                        } else {
+                            callback.onCallback(null); // No user found
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e("User", "Error loading user", e);
+                        callback.onCallback(null); // Return null on error
+                    });
+        } else {
+            callback.onCallback(null); // No authenticated user
         }
     }
 

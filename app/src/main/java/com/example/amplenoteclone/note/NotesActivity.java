@@ -13,15 +13,11 @@ import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.adapters.NotesAdapter;
 import com.example.amplenoteclone.models.Note;
 import com.example.amplenoteclone.ocr.ScanImageToNoteActivity;
-import com.example.amplenoteclone.settings.ChoosePlanActivity;
 import com.example.amplenoteclone.ui.customviews.NoteCardView;
-import com.example.amplenoteclone.utils.FirestoreCallback;
+import com.example.amplenoteclone.utils.FirestoreListCallback;
 import com.example.amplenoteclone.utils.PremiumChecker;
 import com.google.firebase.Timestamp;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.Source;
@@ -119,7 +115,7 @@ public class NotesActivity extends DrawerActivity {
         return "Notes";
     }
 
-    private void getNotesFromFirebase(String userId, FirestoreCallback<NoteCardView> firestoreCallback) {
+    private void getNotesFromFirebase(String userId, FirestoreListCallback<NoteCardView> firestoreListCallback) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference collectionRef = db.collection("notes");
 
@@ -165,7 +161,7 @@ public class NotesActivity extends DrawerActivity {
                         Log.e("ERROR", "Firestore query failed: ", task.getException());
                     }
 
-                    firestoreCallback.onCallback(notes);
+                    firestoreListCallback.onCallback(notes);
                 });
     }
 }
