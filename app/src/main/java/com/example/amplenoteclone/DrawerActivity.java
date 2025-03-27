@@ -105,6 +105,17 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
         loadUserTags();
     }
 
+    protected void setActivityContent(int layoutResID) {
+        // Get the content frame that exists in the drawer layout
+        FrameLayout contentFrame = findViewById(R.id.content_frame);
+        if (contentFrame != null) {
+            // Clear existing views
+            contentFrame.removeAllViews();
+            // Inflate the child activity's layout into the content frame
+            getLayoutInflater().inflate(layoutResID, contentFrame);
+        }
+    }
+
     @NonNull
     private ActionBarDrawerToggle getActionBarDrawerToggle(Toolbar toolbar) {
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -221,15 +232,8 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
         return true;
     }
 
-    protected void setActivityContent(int layoutResID) {
-        // Get the content frame that exists in the drawer layout
-        FrameLayout contentFrame = findViewById(R.id.content_frame);
-        if (contentFrame != null) {
-            // Clear existing views
-            contentFrame.removeAllViews();
-            // Inflate the child activity's layout into the content frame
-            getLayoutInflater().inflate(layoutResID, contentFrame);
-        }
+    protected void setupDrawerPopup() {
+
     }
 
     protected void loadUserTags() {
