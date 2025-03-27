@@ -3,31 +3,51 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
     android:padding="16dp"
     android:background="@color/darkBackground">
 
-    <ImageView
-        android:id="@+id/profile_image"
+    <FrameLayout
         android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@drawable/main_logo"
-        android:contentDescription="Profile icon" />
+        android:layout_height="40dp">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profile_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            app:civ_border_color="#FF000000"
+            app:civ_border_width="2dp"/>
+
+        <TextView
+            android:id="@+id/default_avatar_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/circle_background"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:visibility="visible"/>
+    </FrameLayout>
 
     <TextView
-        android:id="@+id/profile_name"
+        android:id="@+id/user_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=""
-        android:textColor="#FFFFFF"
-        android:textSize="18sp"
         android:layout_marginStart="16dp"
-        android:layout_gravity="center_vertical"/>
+        android:layout_gravity="center_vertical"
+        android:text="User Name"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"/>
 
-    <ImageView
+    <ImageButton
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:src="@drawable/ic_dropdown"
-        android:layout_marginStart="8dp"
-        android:layout_gravity="center_vertical"/>
+        android:layout_gravity="center_vertical"
+        android:background="@color/darkBackground"
+        app:tint="@color/white" />
 </LinearLayout>

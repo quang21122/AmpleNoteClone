@@ -27,6 +27,7 @@ import com.example.amplenoteclone.note.NotesActivity;
 import com.example.amplenoteclone.settings.SettingsActivity;
 import com.example.amplenoteclone.tasks.CreateTaskBottomSheet;
 import com.example.amplenoteclone.tasks.TasksPageActivity;
+import com.example.amplenoteclone.utils.FirestoreCallback;
 import com.example.amplenoteclone.utils.FirestoreListCallback;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
@@ -227,9 +228,14 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
         // Find header elements inside the navigation drawer
         View headerView = navigationView.getHeaderView(0);
         profileImage = headerView.findViewById(R.id.profile_image);
-        profileName = headerView.findViewById(R.id.profile_name);
+        profileName = headerView.findViewById(R.id.default_avatar_text);
 
-        User.getCurrentUser(user -> {
+        User.getCurrentUser(getUserFirestoreCallback(header, headerView));
+    }
+
+    @NonNull
+    private FirestoreCallback<User> getUserFirestoreCallback(MenuItem header, View headerView) {
+        return user -> {
             if (user == null) {
                 Log.d("User", "No user found");
                 return;
@@ -246,7 +252,11 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
 
             // Load Profile Image
             User.loadUserProfile(DrawerActivity.this, null, profileImage, profileName);
-        });
+
+            // Set User Name in Drawer Header
+            TextView headerName = headerView.findViewById(R.id.user_name);
+            headerName.setText(user.getName());
+        };
     }
 
     protected void setActivityContent(int layoutResID) {
@@ -283,37 +293,42 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
             s.setSpan(new ForegroundColorSpan(Color.WHITE), 0, s.length(), 0);
             tagsItem.setTitle(s);
 
-            getUserTagsFromFirebase(userId, tags -> {
-                for (Tag tag : tags) {
-                    // Create menu item with tag name
-                    MenuItem tagItem = tagsSubMenu.add(Menu.NONE,
-                            View.generateViewId(), // Generate unique ID
-                            Menu.NONE,
-                            tag.getName());
-
-                    // Set tag icon
-                    tagItem.setIcon(R.drawable.ic_tag); // Use appropriate icon
-
-                    // If you want to show count like in the screenshot
-                    if (tag.getCount() > 0) {
-                        SpannableString tagText = new SpannableString(
-                                tag.getName() + "   " + tag.getCount());
-
-                        // Style the count part differently
-                        tagText.setSpan(
-                                new ForegroundColorSpan(Color.GRAY),
-                                tag.getName().length(),
-                                tagText.length(),
-                                0);
-
-                        tagItem.setTitle(tagText);
-                    }
-
-                    // Make it checkable
-                    tagItem.setCheckable(true);
-                }
-            });
+            getUserTagsFromFirebase(userId, getTagFirestoreListCallback(tagsSubMenu));
         }
+    }
+
+    @NonNull
+    private static FirestoreListCallback<Tag> getTagFirestoreListCallback(SubMenu tagsSubMenu) {
+        return tags -> {
+            for (Tag tag : tags) {
+                // Create menu item with tag name
+                MenuItem tagItem = tagsSubMenu.add(Menu.NONE,
+                        View.generateViewId(), // Generate unique ID
+                        Menu.NONE,
+                        tag.getName());
+
+                // Set tag icon
+                tagItem.setIcon(R.drawable.ic_tag); // Use appropriate icon
+
+                // If you want to show count like in the screenshot
+                if (tag.getCount() > 0) {
+                    SpannableString tagText = new SpannableString(
+                            tag.getName() + "   " + tag.getCount());
+
+                    // Style the count part differently
+                    tagText.setSpan(
+                            new ForegroundColorSpan(Color.GRAY),
+                            tag.getName().length(),
+                            tagText.length(),
+                            0);
+
+                    tagItem.setTitle(tagText);
+                }
+
+                // Make it checkable
+                tagItem.setCheckable(true);
+            }
+        };
     }
 
     private void getUserTagsFromFirebase(String userId, FirestoreListCallback<Tag> firestoreListCallback) {
@@ -323,7 +338,6 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
         tagsRef.whereEqualTo("userId", userId)
                 .get()
                 .addOnCompleteListener(task -> {
-
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             String name = document.getString("name");
