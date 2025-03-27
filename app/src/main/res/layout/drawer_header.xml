@@ -43,12 +43,4 @@
         android:textStyle="bold"
         android:textColor="@color/white"/>
 
-    <ImageButton
-        android:id="@+id/dropdown_button"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:src="@drawable/ic_dropdown"
-        android:layout_gravity="center_vertical"
-        android:background="@color/darkBackground"
-        app:tint="@color/white" />
 </LinearLayout>
