@@ -2,6 +2,7 @@ package com.example.amplenoteclone.models;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.Exclude;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,6 +40,7 @@ public class Note {
         }
     }
 
+    @Exclude
     public String getId() {
         return id;
     }

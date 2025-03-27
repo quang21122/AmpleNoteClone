@@ -3,25 +3,29 @@ package com.example.amplenoteclone.adapters;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-
+import android.widget.PopupMenu;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.widget.PopupMenu;
+import android.graphics.Paint;
 
 import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.models.Note;
@@ -40,7 +44,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder> {
-
+    private int expandedPosition = -1;
     private List<Task> taskList;
     private OnItemClickListener listener;
 
@@ -70,7 +74,14 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         Task task = taskList.get(position);
 
         holder.checkTask.setChecked(task.isCompleted());
+        updateDoneUndoneText(holder.textDoneUndone, task.isCompleted());
         holder.taskTitle.setText(task.getTitle());
+        if (task.isCompleted()) {
+            holder.taskTitle.setPaintFlags(holder.taskTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        } else {
+            holder.taskTitle.setPaintFlags(holder.taskTitle.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+        }
+        holder.priorityBar.setBackgroundColor(task.calculatePriorityBarColor(holder.itemView.getContext()));
         holder.repeatOptionText.setText(task.getRepeat());
         holder.startAtPeriodText.setText(task.getStartAtPeriod());
         holder.startAtTimeText.setText(task.getStartAtTime());
@@ -97,14 +108,10 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         }
 
         // Cập nhật màu sắc cho các thành phần thời gian
-        // Ensure startAtDate is not null before calling equals
         String startAtDate = task.getStartAtDate();
-        System.out.println("StartAtDate: " + startAtDate);
-
-        if (startAtDate != null) {
-            updateStartAtComponentsColor(task, holder.startAtDateText, holder.startAtPeriodText,
+        updateStartAtComponentsColor(task, holder.startAtDateText, holder.startAtPeriodText,
                     holder.startAtTimeText, holder.startAtClockIcon, holder.itemView.getContext());
-        }
+
         // Ẩn/hiện icon đồng hồ dựa trên giá trị của startAtTimeText
         if (task.getStartAtTime() == null || task.getStartAtTime().isEmpty()) {
             holder.startAtClockIcon.setVisibility(View.GONE);
@@ -131,6 +138,10 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         updatePriorityButtonStates(task, holder);
         updateDurationButtonStates(task, holder);
 
+        holder.expandableLayout.setVisibility(position == expandedPosition ? View.VISIBLE : View.GONE);
+        holder.expandButton.setImageResource(position == expandedPosition ?
+                R.drawable.ic_arrow_collapsed : R.drawable.ic_arrow_expanded);
+
         // Fetch and set note title
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("notes").document(task.getNoteId()).get().addOnSuccessListener(document -> {
@@ -146,18 +157,18 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
 
         // Xử lý sự kiện nhấn vào expand button
+        // Cập nhật xử lý sự kiện click cho expandButton
         holder.expandButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (holder.expandableLayout.getVisibility() == View.GONE) {
-                    holder.expandableLayout.setVisibility(View.VISIBLE);
-                    holder.expandButton.setImageResource(R.drawable.ic_arrow_collapsed);
-                } else {
-                    holder.expandableLayout.setVisibility(View.GONE);
-                    holder.expandButton.setImageResource(R.drawable.ic_arrow_expanded);
+                int previousExpandedPosition = expandedPosition;
+                expandedPosition = holder.expandableLayout.getVisibility() == View.VISIBLE ? -1 : holder.getAdapterPosition();
+                if (previousExpandedPosition >= 0) {
+                    notifyItemChanged(previousExpandedPosition);
                 }
+                notifyItemChanged(holder.getAdapterPosition());
                 if (listener != null) {
-                    listener.onExpandClick(position);
+                    listener.onExpandClick(holder.getAdapterPosition());
                 }
             }
         });
@@ -339,37 +350,66 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             }
         });
 
-        // Xử lý sự kiện khi thay đổi tiêu đề task
-        holder.taskTitle.setOnFocusChangeListener((v, hasFocus) -> {
-            if (!hasFocus) {
-                String newTitle = holder.taskTitle.getText().toString().trim();
-                if (!newTitle.equals(task.getTitle())) {
-                    task.setTitle(newTitle);
-                    if (task.getId() != null && !task.getId().isEmpty()) {
-                        ((TasksPageActivity) holder.itemView.getContext()).updateTaskInFirestore(task);
-                    } else {
-                        Log.e("TaskAdapter", "Task ID is null or empty. Cannot update Firestore.");
-                    }
-                }
-            }
-        });
-
-        // Set OnClickListener for taskTitle
-//        holder.taskTitle.setOnClickListener(v -> {
-//            Intent intent = new Intent(holder.itemView.getContext(), ViewNoteActivity.class);
-//            Note note = getNoteById(task.getNoteId()); // Implement this method to get the Note object by its ID
-//            intent.putExtra("note", note);
-//            holder.itemView.getContext().startActivity(intent);
-//        });
 
         // Set OnClickListener for the delete button
         holder.deleteButton.setOnClickListener(v -> {
             if (task.getId() != null && !task.getId().isEmpty()) {
                 ((TasksPageActivity) holder.itemView.getContext()).deleteTaskFromFirestore(task);
+                expandedPosition = -1;
             } else {
                 Log.e("TaskAdapter", "Task ID is null or empty. Cannot delete from Firestore.");
             }
         });
+
+        // Set OnClickListener for the note title
+        setupTaskTitleEditing(holder.taskTitle, task);
+
+        // Update checkbox listener
+        holder.checkTask.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            task.setCompleted(isChecked);
+            updateDoneUndoneText(holder.textDoneUndone, isChecked);
+
+            if (task.getId() != null && !task.getId().isEmpty()) {
+                ((TasksPageActivity) holder.itemView.getContext()).updateTaskInFirestore(task);
+            } else {
+                Log.e("TaskAdapter", "Task ID is null or empty. Cannot update Firestore.");
+            }
+        });
+
+        // Handle click on DONE/UNDONE text
+        holder.textDoneUndone.setOnClickListener(v -> {
+            task.setCompleted(!task.isCompleted());
+            updateDoneUndoneText(holder.textDoneUndone, task.isCompleted());
+
+            // Update checkbox state
+            holder.checkTask.setChecked(task.isCompleted());
+
+            // Update task in Firestore
+            if (task.getId() != null && !task.getId().isEmpty()) {
+                ((TasksPageActivity) holder.itemView.getContext()).updateTaskInFirestore(task);
+            } else {
+                Log.e("TaskAdapter", "Task ID is null or empty. Cannot update Firestore.");
+            }
+        });
+
+        // Handle click on note title
+        if (task.getNoteId() != null && !task.getNoteId().isEmpty()) {
+            holder.noteTitle.setOnClickListener(v -> {
+                Intent intent = new Intent(v.getContext(), ViewNoteActivity.class);
+                intent.putExtra("noteId", task.getNoteId());
+                v.getContext().startActivity(intent);
+            });
+        }
+    }
+
+    private void updateDoneUndoneText(TextView textView, boolean isCompleted) {
+        if (isCompleted) {
+            textView.setText("UNDONE");
+            textView.setTextColor(ContextCompat.getColor(textView.getContext(), R.color.textGray));
+        } else {
+            textView.setText("DONE");
+            textView.setTextColor(ContextCompat.getColor(textView.getContext(), R.color.textBlue));
+        }
     }
 
     // Hàm cập nhật trạng thái giao diện của các nút trong Duration Card
@@ -1104,7 +1144,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
                     } else {
                         Log.e("TaskAdapter", "Task ID is null or empty. Cannot update Firestore.");
                     }
-//                    notifyItemChanged(position);
                 },
                 year, month, day
         );
@@ -1178,6 +1217,69 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         return defaultDate;
     }
 
+    private void setupTaskTitleEditing(EditText taskTitle, Task task) {
+        taskTitle.setText(task.getTitle()); // Hiển thị tiêu đề ban đầu
+
+        // Xử lý nút Done hoặc Enter
+        taskTitle.setOnEditorActionListener((v, actionId, event) -> {
+            Log.d("TaskAdapter", "Editor Action: " + actionId + ", Event: " + (event != null ? event.getKeyCode() : "null"));
+            if (actionId == EditorInfo.IME_ACTION_DONE ||
+                    (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN)) {
+                Log.d("TaskAdapter", "Saving title on Done/Enter");
+                saveTaskTitle(taskTitle, task);
+                taskTitle.clearFocus();
+                hideKeyboard(taskTitle);
+                return true;
+            }
+            return false;
+        });
+
+        // Xử lý mất focus
+        taskTitle.setOnFocusChangeListener((v, hasFocus) -> {
+            Log.d("TaskAdapter", "Focus changed, hasFocus: " + hasFocus);
+            if (!hasFocus) {
+                Log.d("TaskAdapter", "Saving title on focus lost");
+                saveTaskTitle(taskTitle, task);
+                hideKeyboard(taskTitle);
+            }
+        });
+
+        // Chỉ log thay đổi văn bản, không cập nhật task ngay lập tức
+        taskTitle.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override
+            public void afterTextChanged(Editable s) {
+                Log.d("TaskAdapter", "Text changed to: " + s.toString());
+                // Không gọi task.setTitle() ở đây
+            }
+        });
+    }
+
+    private void saveTaskTitle(EditText taskTitle, Task task) {
+        String newTitle = taskTitle.getText().toString().trim();
+        Log.d("TaskAdapter", "Saving title - Current: " + task.getTitle() + ", New: " + newTitle + ", Task ID: " + task.getId());
+        if (!newTitle.equals(task.getTitle())) {
+            task.setTitle(newTitle);
+            if (task.getId() != null && !task.getId().isEmpty()) {
+                Log.d("TaskAdapter", "Updating Firestore with Task ID: " + task.getId());
+                ((TasksPageActivity) taskTitle.getContext()).updateTaskInFirestore(task);
+            } else {
+                Log.e("TaskAdapter", "Task ID is null or empty.");
+            }
+        } else {
+            Log.d("TaskAdapter", "No change in title, skipping save.");
+        }
+    }
+    private void hideKeyboard(View view) {
+        InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+
     //popup icon
     private void showPopup(View anchorView, int layoutResId) {
         View popupView = LayoutInflater.from(anchorView.getContext()).inflate(layoutResId, null);
@@ -1210,6 +1312,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     @Override
     public int getItemCount() {
         return taskList.size();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
     }
 
     public static class TaskViewHolder extends RecyclerView.ViewHolder {
@@ -1253,6 +1360,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         LinearLayout hideUntilTimeContainer;
         TextView hideUntilTimeText;
         TextView deleteButton;
+        View priorityBar;
+        TextView textDoneUndone;
 
         public TaskViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -1295,6 +1404,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             hideUntilTimeContainer = itemView.findViewById(R.id.hide_until_time_container);
             hideUntilTimeText = itemView.findViewById(R.id.hide_until_time_text);
             deleteButton = itemView.findViewById(R.id.delete_button);
+            priorityBar = itemView.findViewById(R.id.task_priority_bar);
+            textDoneUndone = itemView.findViewById(R.id.text_done_undone);
         }
     }
 }

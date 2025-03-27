@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -45,6 +46,8 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
     BottomNavigationView bottomNavigationView;
     ImageView profileImage;
     TextView profileName;
+
+    protected boolean isSubMenuExpanded = false;
 
     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     protected final String userId = user != null ? user.getUid() : null;
@@ -97,12 +100,25 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
         setupBottomNavigation();
 
         setupDrawerHeader();
+
+        setupDrawerPopup();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         loadUserTags();
+    }
+
+    protected void setActivityContent(int layoutResID) {
+        // Get the content frame that exists in the drawer layout
+        FrameLayout contentFrame = findViewById(R.id.content_frame);
+        if (contentFrame != null) {
+            // Clear existing views
+            contentFrame.removeAllViews();
+            // Inflate the child activity's layout into the content frame
+            getLayoutInflater().inflate(layoutResID, contentFrame);
+        }
     }
 
     @NonNull
@@ -197,12 +213,10 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
     private boolean onBottomNavItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
-        // Xử lý khi nhấn vào action_new_task
         if (id == R.id.action_new_task) {
-            // Hiển thị BottomSheet để tạo task mới
             CreateTaskBottomSheet bottomSheet = new CreateTaskBottomSheet();
             bottomSheet.show(getSupportFragmentManager(), bottomSheet.getTag());
-            return true; // Trả về true để không thay đổi mục được chọn trong BottomNavigationView
+            return true;
         }
 
         // If the selected item is already the current page, do nothing
@@ -233,6 +247,31 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
         User.getCurrentUser(getUserFirestoreCallback(header, headerView));
     }
 
+    protected void setupDrawerPopup() {
+        View headerView = navigationView.getHeaderView(0);
+        ImageButton dropdownButton = headerView.findViewById(R.id.dropdown_button);
+
+        Menu menu = navigationView.getMenu();
+        Menu subMenu = menu.findItem(R.id.drawer_popup).getSubMenu();
+
+        // Initially hide submenu items
+        subMenu.findItem(R.id.drawer_popup_settings).setVisible(false);
+        subMenu.findItem(R.id.drawer_popup_logout).setVisible(false);
+
+        for (int i = 0; i < subMenu.size(); i++) {
+            subMenu.getItem(i).setVisible(false);
+        }
+
+        dropdownButton.setOnClickListener(v -> {
+            toggleSubMenu(subMenu);
+        });
+    }
+    private void toggleSubMenu(Menu subMenu) {
+        isSubMenuExpanded = !isSubMenuExpanded;
+        subMenu.findItem(R.id.drawer_popup_settings).setVisible(isSubMenuExpanded);
+        subMenu.findItem(R.id.drawer_popup_logout).setVisible(isSubMenuExpanded);
+    }
+
     @NonNull
     private FirestoreCallback<User> getUserFirestoreCallback(MenuItem header, View headerView) {
         return user -> {
@@ -257,17 +296,6 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
             TextView headerName = headerView.findViewById(R.id.user_name);
             headerName.setText(user.getName());
         };
-    }
-
-    protected void setActivityContent(int layoutResID) {
-        // Get the content frame that exists in the drawer layout
-        FrameLayout contentFrame = findViewById(R.id.content_frame);
-        if (contentFrame != null) {
-            // Clear existing views
-            contentFrame.removeAllViews();
-            // Inflate the child activity's layout into the content frame
-            getLayoutInflater().inflate(layoutResID, contentFrame);
-        }
     }
 
     protected void loadUserTags() {
