@@ -11,7 +11,6 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -100,8 +99,6 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
         setupBottomNavigation();
 
         setupDrawerHeader();
-
-        setupDrawerPopup();
     }
 
     @Override
@@ -190,6 +187,10 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
             // You can open a new activity or fragment here
         } else if (id == R.id.drawer_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
+        } else if (id == R.id.drawer_logout) {
+            FirebaseAuth.getInstance().signOut();
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
         }
 
         drawerLayout.closeDrawers(); // Close drawer only when selecting a new item
@@ -245,31 +246,6 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
         profileName = headerView.findViewById(R.id.default_avatar_text);
 
         User.getCurrentUser(getUserFirestoreCallback(header, headerView));
-    }
-
-    protected void setupDrawerPopup() {
-        View headerView = navigationView.getHeaderView(0);
-        ImageButton dropdownButton = headerView.findViewById(R.id.dropdown_button);
-
-        Menu menu = navigationView.getMenu();
-        Menu subMenu = menu.findItem(R.id.drawer_popup).getSubMenu();
-
-        // Initially hide submenu items
-        subMenu.findItem(R.id.drawer_popup_settings).setVisible(false);
-        subMenu.findItem(R.id.drawer_popup_logout).setVisible(false);
-
-        for (int i = 0; i < subMenu.size(); i++) {
-            subMenu.getItem(i).setVisible(false);
-        }
-
-        dropdownButton.setOnClickListener(v -> {
-            toggleSubMenu(subMenu);
-        });
-    }
-    private void toggleSubMenu(Menu subMenu) {
-        isSubMenuExpanded = !isSubMenuExpanded;
-        subMenu.findItem(R.id.drawer_popup_settings).setVisible(isSubMenuExpanded);
-        subMenu.findItem(R.id.drawer_popup_logout).setVisible(isSubMenuExpanded);
     }
 
     @NonNull
