@@ -68,7 +68,7 @@ public class ViewNoteActivity extends DrawerActivity {
             loadNote();
         } else {
             createNewNote();
-            updateUI();
+            updateLastUpdated();
         }
     }
 
@@ -82,7 +82,7 @@ public class ViewNoteActivity extends DrawerActivity {
         currentNote.setProtected(false);
         currentNote.setTags(new ArrayList<>());
         currentNote.setTasks(new ArrayList<>());
-        updateUI();
+        updateLastUpdated();
     }
 
     private void loadNote() {
@@ -108,7 +108,9 @@ public class ViewNoteActivity extends DrawerActivity {
 
                         );
 
-                        updateUI();
+                        updateLastUpdated();
+                        titleEditText.setText(currentNote.getTitle());
+                        contentEditText.setText(currentNote.getContent());
                     } else {
                         Toast.makeText(this, "Note not found", Toast.LENGTH_SHORT).show();
                         finish();
@@ -120,19 +122,19 @@ public class ViewNoteActivity extends DrawerActivity {
                 });
     }
 
-    private void updateUI() {
+    private void updateLastUpdated() {
         lastUpdatedTextView.setText(formatLastUpdated(currentNote.getUpdatedAt()));
     }
 
     private void setupListeners() {
         hiddenTabTextView.setOnClickListener(v -> {
             saveNote();
-            updateUI();
+            updateLastUpdated();
         });
 
         completedTabTextView.setOnClickListener(v -> {
             saveNote();
-            updateUI();
+            updateLastUpdated();
         });
 
         backlinksTabTextView.setOnClickListener(v -> Toast.makeText(this, "Backlinks feature coming soon", Toast.LENGTH_SHORT).show());
@@ -168,7 +170,7 @@ public class ViewNoteActivity extends DrawerActivity {
         }
 
         saveNoteToFirebase();
-        updateUI();
+        updateLastUpdated();
     }
 
     private void saveNoteToFirebase() {
