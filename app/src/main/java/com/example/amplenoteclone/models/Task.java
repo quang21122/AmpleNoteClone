@@ -227,6 +227,7 @@ public class Task implements Serializable {
 
     public void setHideUntilDate(String hideUntilDate) {
         this.hideUntilDate = hideUntilDate;
+        updateHideUntil();
     }
 
     @PropertyName("hideUntilTime")
@@ -239,6 +240,7 @@ public class Task implements Serializable {
 
     public void setHideUntilTime(String hideUntilTime) {
         this.hideUntilTime = hideUntilTime;
+        updateHideUntil();
     }
 
     @PropertyName("priority")
@@ -344,6 +346,27 @@ public class Task implements Serializable {
             this.startAt = null;
         }
     }
+    private void updateHideUntil() {
+        if (hideUntilDate != null && !hideUntilDate.isEmpty() &&
+                hideUntilTime != null && !hideUntilTime.isEmpty()) {
+            try {
+                SimpleDateFormat dateTimeFormat = new SimpleDateFormat("EEEE, MMM d h:mm a", Locale.getDefault());
+                String dateTimeString = hideUntilDate + " " + hideUntilTime;
+                Date parsedDate = dateTimeFormat.parse(dateTimeString);
 
+                if (parsedDate != null) {
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(parsedDate);
+                    calendar.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR));
+                    this.hideUntil = calendar.getTime();
+                }
+            } catch (ParseException e) {
+                Log.e("Task", "Error parsing date/time", e);
+            }
+        } else {
+            // Nếu ngày hoặc giờ rỗng, đặt startAt là null
+            this.hideUntil = null;
+        }
+    }
 }
 
