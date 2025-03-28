@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.amplenoteclone.MainActivity;
 import com.example.amplenoteclone.R;
+import com.example.amplenoteclone.note.NotesActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -216,7 +217,7 @@ public class AddProfile extends AppCompatActivity {
         progressBar.setVisibility(View.GONE);
         saveButton.setEnabled(true);
         Toast.makeText(this, "Profile saved successfully", Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, NotesActivity.class);
         startActivity(intent);
         finish();
     }
