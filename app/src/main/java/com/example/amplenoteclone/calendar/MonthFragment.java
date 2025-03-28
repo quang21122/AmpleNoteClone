@@ -359,7 +359,7 @@ public class MonthFragment extends Fragment implements DateSelectable, TaskView 
         if (!isToday(task.getStartAt())) {
             todayButton.setVisibility(View.VISIBLE);
             todayButton.setOnClickListener(v -> {
-                rescheduleTask(task, 0, hour, minute);
+                rescheduleTaskFromCurrent(task, hour, minute);
                 dialog.dismiss();
             });
         } else {
@@ -367,22 +367,34 @@ public class MonthFragment extends Fragment implements DateSelectable, TaskView 
         }
 
         view.findViewById(R.id.btn_tomorrow).setOnClickListener(v -> {
-            rescheduleTask(task, 1, hour, minute);
+            Calendar taskCal = Calendar.getInstance();
+            taskCal.setTime(task.getStartAt());
+            taskCal.add(Calendar.DAY_OF_MONTH, 1);
+            rescheduleTaskToDate(task, taskCal.getTime());
             dialog.dismiss();
         });
 
         view.findViewById(R.id.btn_two_days).setOnClickListener(v -> {
-            rescheduleTask(task, 2, hour, minute);
+            Calendar taskCal = Calendar.getInstance();
+            taskCal.setTime(task.getStartAt());
+            taskCal.add(Calendar.DAY_OF_MONTH, 2);
+            rescheduleTaskToDate(task, taskCal.getTime());
             dialog.dismiss();
         });
 
         view.findViewById(R.id.btn_one_week).setOnClickListener(v -> {
-            rescheduleTask(task, 7, hour, minute);
+            Calendar taskCal = Calendar.getInstance();
+            taskCal.setTime(task.getStartAt());
+            taskCal.add(Calendar.DAY_OF_MONTH, 7);
+            rescheduleTaskToDate(task, taskCal.getTime());
             dialog.dismiss();
         });
 
         view.findViewById(R.id.btn_three_weeks).setOnClickListener(v -> {
-            rescheduleTask(task, 21, hour, minute);
+            Calendar taskCal = Calendar.getInstance();
+            taskCal.setTime(task.getStartAt());
+            taskCal.add(Calendar.DAY_OF_MONTH, 21);
+            rescheduleTaskToDate(task, taskCal.getTime());
             dialog.dismiss();
         });
 
@@ -391,22 +403,25 @@ public class MonthFragment extends Fragment implements DateSelectable, TaskView 
         });
     }
 
-    private int getDaysBetween(Date date1, Date date2) {
-        Calendar cal1 = Calendar.getInstance();
-        cal1.setTime(date1);
-        cal1.set(Calendar.HOUR_OF_DAY, 0);
-        cal1.set(Calendar.MINUTE, 0);
-        cal1.set(Calendar.SECOND, 0);
-        cal1.set(Calendar.MILLISECOND, 0);
+    private void rescheduleTaskFromCurrent(Task task, int hour, int minute) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, hour);
+        cal.set(Calendar.MINUTE, minute);
+        rescheduleTaskToDate(task, cal.getTime());
+    }
 
-        Calendar cal2 = Calendar.getInstance();
-        cal2.setTime(date2);
-        cal2.set(Calendar.HOUR_OF_DAY, 0);
-        cal2.set(Calendar.MINUTE, 0);
-        cal2.set(Calendar.SECOND, 0);
-        cal2.set(Calendar.MILLISECOND, 0);
-
-        return (int) ((cal2.getTimeInMillis() - cal1.getTimeInMillis()) / (24 * 60 * 60 * 1000));
+    private void rescheduleTaskToDate(Task task, Date newDate) {
+        FirebaseFirestore.getInstance()
+                .collection("tasks")
+                .document(task.getId())
+                .update("startAt", newDate)
+                .addOnSuccessListener(aVoid -> {
+                    if (requireActivity() instanceof CalendarActivity) {
+                        ((CalendarActivity) requireActivity()).selectDate(newDate);
+                    }
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(requireContext(), "Failed to reschedule task", Toast.LENGTH_SHORT).show());
     }
 
     private void showDatePicker(Task task, int hour, int minute, BottomSheetDialog currentDialog) {
@@ -448,8 +463,12 @@ public class MonthFragment extends Fragment implements DateSelectable, TaskView 
         calendarGrid.setOnItemClickListener((parent, view, position, id) -> {
             Date selectedDate = (Date) calendarGrid.getItemAtPosition(position);
             if (selectedDate != null) {
-                int daysToAdd = getDaysBetween(Calendar.getInstance().getTime(), selectedDate);
-                rescheduleTask(task, daysToAdd, hour, minute);
+                Calendar newDate = Calendar.getInstance();
+                newDate.setTime(selectedDate);
+                newDate.set(Calendar.HOUR_OF_DAY, hour);
+                newDate.set(Calendar.MINUTE, minute);
+
+                rescheduleTaskToDate(task, newDate.getTime());
                 datePickerDialog.dismiss();
                 currentDialog.dismiss();
             }
@@ -495,26 +514,6 @@ public class MonthFragment extends Fragment implements DateSelectable, TaskView 
         calendar.setTime(current.getTime());
 
         return dates;
-    }
-
-    private void rescheduleTask(Task task, int daysToAdd, int hour, int minute) {
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DAY_OF_MONTH, daysToAdd);
-        cal.set(Calendar.HOUR_OF_DAY, hour);
-        cal.set(Calendar.MINUTE, minute);
-
-        FirebaseFirestore.getInstance()
-                .collection("tasks")
-                .document(task.getId())
-                .update("startAt", cal.getTime())
-                .addOnSuccessListener(aVoid -> {
-                    clearAllTasks();
-                    if (requireActivity() instanceof CalendarActivity) {
-                        ((CalendarActivity) requireActivity()).selectDate(cal.getTime());
-                    }
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(requireContext(), "Failed to reschedule task", Toast.LENGTH_SHORT).show());
     }
 
     private void removeSchedule(Task task) {
