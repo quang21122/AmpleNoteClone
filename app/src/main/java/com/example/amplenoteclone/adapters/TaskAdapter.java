@@ -1,5 +1,6 @@
 package com.example.amplenoteclone.adapters;
 
+import android.util.Log;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -8,12 +9,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.amplenoteclone.ui.customviews.TaskCardView;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder> {
 
     private List<TaskCardView> taskList;
     private int expandedPosition = -1;
+    private int lastKnownSize = 0;
 
     public TaskAdapter() {
         this.taskList = new ArrayList<>();
@@ -24,13 +28,22 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     }
 
     public void setTasks(List<TaskCardView> tasks) {
-        // Lưu lại task đang expand trước khi cập nhật danh sách
+        Log.d("TaskAdapter", "setTasks called - Last known size: " + lastKnownSize + ", New size: " + tasks.size() + ", expandedPosition: " + expandedPosition);
+
+        // Lưu task đang expand
         TaskCardView expandedTask = expandedPosition != -1 && expandedPosition < taskList.size() ? taskList.get(expandedPosition) : null;
+
+        // Cập nhật danh sách mới
         this.taskList.clear();
         this.taskList.addAll(tasks);
 
-        // Khôi phục expandedPosition nếu task vẫn tồn tại trong danh sách mới
-        if (expandedTask != null) {
+        // Kiểm tra thay đổi
+        if (lastKnownSize != tasks.size()) {
+            // Nếu kích thước thay đổi (thêm hoặc xóa), reset expandedPosition
+            expandedPosition = -1;
+        } else if (expandedTask != null) {
+            // Nếu kích thước không đổi, kiểm tra task cũ có còn không
+            expandedPosition = -1; // Reset mặc định
             for (int i = 0; i < taskList.size(); i++) {
                 if (taskList.get(i).getTask().getId().equals(expandedTask.getTask().getId())) {
                     expandedPosition = i;
@@ -38,6 +51,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
                 }
             }
         }
+
+        // Cập nhật lastKnownSize
+        lastKnownSize = tasks.size();
+
+        Log.d("TaskAdapter", "After update - expandedPosition: " + expandedPosition + ", taskList size: " + taskList.size());
         notifyDataSetChanged();
     }
 
@@ -63,7 +81,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             } else {
                 expandedPosition = position;
             }
-            // Chỉ cập nhật item thay đổi
             if (previousExpandedPosition != -1) {
                 notifyItemChanged(previousExpandedPosition);
             }

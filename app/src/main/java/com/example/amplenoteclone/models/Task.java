@@ -6,7 +6,10 @@ import androidx.core.content.ContextCompat;
 
 import com.example.amplenoteclone.R;
 import com.google.firebase.firestore.Exclude;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.PropertyName;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.io.Serializable;
 import java.text.ParseException;
@@ -14,6 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.function.Consumer;
 
 public class Task implements Serializable {
     private String id;
@@ -273,6 +277,34 @@ public class Task implements Serializable {
     @PropertyName("score")
     public void setScore(float score) {
         this.score = score;
+    }
+
+    public void updateInFirestore(Runnable onSuccess, Consumer<Exception> onFailure) {
+        if (id == null || id.isEmpty()) {
+            onFailure.accept(new Exception("Task ID is null or empty"));
+            return;
+        }
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("tasks").document(id)
+                .set(this)
+                .addOnSuccessListener(aVoid -> onSuccess.run())
+                .addOnFailureListener(onFailure::accept);
+    }
+
+    public void deleteFromFirestore(Runnable onSuccess, Consumer<Exception> onFailure) {
+        if (id == null || id.isEmpty()) {
+            onFailure.accept(new Exception("Task ID is null or empty"));
+            return;
+        }
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        WriteBatch batch = db.batch();
+        batch.delete(db.collection("tasks").document(id));
+        if (noteId != null && !noteId.isEmpty()) {
+            batch.update(db.collection("notes").document(noteId), "tasks", FieldValue.arrayRemove(id));
+        }
+        batch.commit()
+                .addOnSuccessListener(aVoid -> onSuccess.run())
+                .addOnFailureListener(onFailure::accept);
     }
 
     public int calculateBorderTypeByScore() {
