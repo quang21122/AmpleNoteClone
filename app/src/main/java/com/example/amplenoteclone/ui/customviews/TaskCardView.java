@@ -22,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
@@ -351,28 +352,20 @@ public class TaskCardView extends CardView {
     }
 
     private void updateTaskInFirestore() {
-        if (task.getId() != null && !task.getId().isEmpty()) {
-            Context context = getContext();
-            if (context instanceof TaskHandler) {
-                ((TaskHandler) context).updateTaskInFirestore(task);
-            } else {
-                Log.e("TaskCardView", "Context does not implement TaskHandler");
-            }
-        } else {
-            Log.e("TaskCardView", "Task ID is null or empty. Cannot update Firestore.");
+        if (task != null) {
+            task.updateInFirestore(
+                    () -> Log.d("TaskCardView", "Update success"),
+                    e -> Toast.makeText(getContext(), "Error updating task: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+            );
         }
     }
 
     private void deleteTaskFromFirestore() {
-        if (task.getId() != null && !task.getId().isEmpty()) {
-            Context context = getContext();
-            if (context instanceof TaskHandler) {
-                ((TaskHandler) context).deleteTaskFromFirestore(task);
-            } else {
-                Log.e("TaskCardView", "Context does not implement TaskHandler");
-            }
-        } else {
-            Log.e("TaskCardView", "Task ID is null or empty. Cannot delete from Firestore.");
+        if (task != null) {
+            task.deleteFromFirestore(
+                    () -> Log.d("TaskCardView", "Delete success"),
+                    e -> Toast.makeText(getContext(), "Error deleting task: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+            );
         }
     }
 

@@ -16,18 +16,15 @@ import com.example.amplenoteclone.ui.customviews.TaskCardView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TasksPageActivity extends DrawerActivity implements TaskHandler {
+public class TasksPageActivity extends DrawerActivity {
 
     private RecyclerView recyclerView;
     private TaskAdapter taskAdapter;
@@ -108,50 +105,6 @@ public class TasksPageActivity extends DrawerActivity implements TaskHandler {
                         taskAdapter.setTasks(new ArrayList<>(taskCardList));
                         taskAdapter.notifyDataSetChanged(); // Đảm bảo gọi notify để cập nhật giao diện
                     }
-                });
-    }
-
-    @Override
-    public void updateTaskInFirestore(Task task) {
-        CollectionReference collectionRef = db.collection("tasks");
-        collectionRef.document(task.getId())
-                .set(task)
-                .addOnSuccessListener(aVoid -> Log.d("Firestore", "Task successfully updated!"))
-                .addOnFailureListener(e -> {
-                    Log.e("Firestore", "Error updating task", e);
-                    Toast.makeText(this, "Error updating task: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
-    }
-
-    @Override
-    public void deleteTaskFromFirestore(Task task) {
-        // Get references to both collections
-        CollectionReference tasksRef = db.collection("tasks");
-        CollectionReference notesRef = db.collection("notes");
-
-        // Start a batch write
-        WriteBatch batch = db.batch();
-
-        // Delete the task document
-        DocumentReference taskDocRef = tasksRef.document(task.getId());
-        batch.delete(taskDocRef);
-
-        // If task has an associated note, update the note's tasks array
-        if (task.getNoteId() != null && !task.getNoteId().isEmpty()) {
-            DocumentReference noteDocRef = notesRef.document(task.getNoteId());
-            batch.update(noteDocRef, "tasks", FieldValue.arrayRemove(task.getId()));
-        }
-
-        // Commit the batch
-        batch.commit()
-                .addOnSuccessListener(aVoid -> {
-                    Log.d("Firestore", "Task and note reference successfully deleted!");
-                    taskAdapter.resetExpand();
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("Firestore", "Error deleting task and note reference", e);
-                    Toast.makeText(this, "Error deleting task: " + e.getMessage(),
-                            Toast.LENGTH_SHORT).show();
                 });
     }
 
