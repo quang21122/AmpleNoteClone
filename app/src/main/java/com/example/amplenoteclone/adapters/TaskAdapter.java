@@ -9,9 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.amplenoteclone.ui.customviews.TaskCardView;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder> {
 

@@ -1,7 +1,8 @@
 package com.example.amplenoteclone.ui.customviews;
 
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.util.AttributeSet;
@@ -10,7 +11,6 @@ import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -30,8 +30,7 @@ import androidx.core.content.ContextCompat;
 import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.models.Task;
 import com.example.amplenoteclone.note.ViewNoteActivity;
-import com.example.amplenoteclone.tasks.TaskHandler;
-import com.example.amplenoteclone.tasks.TasksPageActivity;
+import com.example.amplenoteclone.tasks.TaskNotificationReceiver;
 import com.example.amplenoteclone.utils.TimeConverter;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.FirebaseFirestore;

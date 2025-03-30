@@ -134,18 +134,17 @@ public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
 
         // Xử lý sự kiện nhấn nút Add
         buttonAddQuick.setOnClickListener(v -> {
-            String title = editTextQuickToDo.getText().toString().trim(); // Sử dụng trực tiếp nội dung từ Quick to-do
+            String title = editTextQuickToDo.getText().toString().trim();
             if (title.isEmpty()) {
                 Toast.makeText(getContext(), "Please enter a task title", Toast.LENGTH_SHORT).show();
                 return;
             }
 
+            String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
             if (isStartNewNote) {
-                // Nếu người dùng chọn "Start a new note", tạo note mới trước
-                createNewNoteAndTask(title);
+                createNewNoteAndTask(userId, title);
             } else {
-                // Nếu không, tạo task như cũ
-                createTaskWithExistingNote(title);
+                createTaskWithExistingNote(userId, title);
             }
         });
 
@@ -175,13 +174,11 @@ public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
         layoutAddTaskContainer.startAnimation(slideDown);
     }
 
-    private void createNewNoteAndTask(String taskTitle) {
+    private void createNewNoteAndTask(String userId, String taskTitle) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         String noteId = db.collection("notes").document().getId();
-        String taskId = db.collection("tasks").document().getId();
 
-        // Create new note
+        // Tạo note mới
         Note newNote = new Note();
         newNote.setTitle("Untitled note");
         newNote.setUserId(userId);
@@ -190,91 +187,60 @@ public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
         newNote.setUpdatedAt(Timestamp.now().toDate());
         newNote.setProtected(false);
         newNote.setTags(new ArrayList<>());
-
-        // Add task ID to note's tasks array
-        ArrayList<String> tasks = new ArrayList<>();
-        tasks.add(taskId);
-        newNote.setTasks(tasks);
         newNote.setId(noteId);
 
-        // Save note to Firestore
+        // Tạo task mới
+        Task newTask = new Task(userId, noteId, taskTitle);
+        setTaskStartTime(newTask); // Cập nhật thời gian nếu có
+
+        // Lưu note và thêm task ID
+        ArrayList<String> tasks = new ArrayList<>();
+        tasks.add(newTask.getId());
+        newNote.setTasks(tasks);
+
         db.collection("notes")
                 .document(noteId)
                 .set(newNote)
                 .addOnSuccessListener(aVoid -> {
-                    Task newTask = createTask(taskTitle, noteId);
-                    newTask.setId(taskId); // Set generated task ID
-                    saveNewTaskToFirestore(newTask);
+                    newTask.createInFirestore(getContext().getApplicationContext(),
+                            () -> {
+                                dismiss();
+                            },
+                            e -> Toast.makeText(getContext(), "Error adding task: " + e.getMessage(), Toast.LENGTH_SHORT).show());
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(getContext(), "Error creating note: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
-    private void createTaskWithExistingNote(String taskTitle) {
+    private void createTaskWithExistingNote(String userId, String taskTitle) {
         if (selectedNote != null) {
             String noteId = selectedNote.getId();
-            String taskId = FirebaseFirestore.getInstance().collection("tasks").document().getId();
+            Task newTask = new Task(userId, noteId, taskTitle);
+            setTaskStartTime(newTask); // Cập nhật thời gian nếu có
 
-            // Create and save task
-            Task newTask = createTask(taskTitle, noteId);
-            newTask.setId(taskId);
-
-            // Update note's tasks array
-            FirebaseFirestore.getInstance().collection("notes").document(noteId)
-                    .update("tasks", FieldValue.arrayUnion(taskId))
-                    .addOnSuccessListener(aVoid -> saveNewTaskToFirestore(newTask))
+            // Cập nhật note với task ID
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("notes").document(noteId)
+                    .update("tasks", FieldValue.arrayUnion(newTask.getId()))
+                    .addOnSuccessListener(aVoid -> {
+                        newTask.createInFirestore(getContext().getApplicationContext(),
+                                () -> {
+                                    dismiss();
+                                },
+                                e -> Toast.makeText(getContext(), "Error adding task: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    })
                     .addOnFailureListener(e -> {
                         Toast.makeText(getContext(), "Error updating note: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     });
         }
     }
 
-    private Task createTask(String title, String noteId) {
-        Task newTask = new Task();
-        newTask.setTitle(title);
-        newTask.setUserId(FirebaseAuth.getInstance().getCurrentUser().getUid());
-        newTask.setNoteId(noteId);
-        newTask.setCreateAt(new Date());
-        newTask.setCompleted(false);
-        newTask.setRepeat("Doesn't repeat");
-        newTask.setStartAtDate(selectedStartAtDate != null ? selectedStartAtDate : "");
-        newTask.setStartAtTime(selectedStartAtTime != null ? selectedStartAtTime : "");
-        newTask.setStartAtPeriod(selectedStartAtPeriod != null ? selectedStartAtPeriod : "");
-        newTask.setStartNoti(0);
-        newTask.setHideUntilDate("");
-        newTask.setHideUntilTime("");
-        newTask.setPriority("");
-        newTask.setDuration(0);
-        newTask.setScore(1.0f);
-        return newTask;
-    }
-
-    private void saveNewTaskToFirestore(Task task) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        // Task ID is now set earlier when creating the task
+    private void setTaskStartTime(Task task) {
         if (selectedStartAtDate != null && selectedStartAtTime != null) {
             task.setStartAtDate(selectedStartAtDate);
             task.setStartAtTime(selectedStartAtTime);
             task.setStartAtPeriod(selectedStartAtPeriod != null ? selectedStartAtPeriod : "");
-        } else {
-            task.setStartAtDate("");
-            task.setStartAtTime("");
-            task.setStartAtPeriod("");
         }
-
-        db.collection("tasks")
-                .document(task.getId()) // Use the ID set earlier
-                .set(task)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(getContext(), "Task added successfully", Toast.LENGTH_SHORT).show();
-                    dismiss();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Error adding task: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
     }
-
-
 }

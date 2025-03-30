@@ -36,7 +36,7 @@ public class TasksPageActivity extends DrawerActivity {
     private List<TaskCardView> allTaskCardList; // Lưu danh sách đầy đủ
     private FirebaseFirestore db;
     private ListenerRegistration taskListener;
-    private TextView tasksTitle;
+    private TextView tasksFilter;
     private CheckBox filterCheckbox;
 
     @Override
@@ -49,7 +49,7 @@ public class TasksPageActivity extends DrawerActivity {
         recyclerView = findViewById(R.id.recycler_view_tasks);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        tasksTitle = findViewById(R.id.tasks_title);
+        tasksFilter = findViewById(R.id.tasks_filter);
         filterCheckbox = findViewById(R.id.filter_checkbox);
 
         taskCardList = new ArrayList<>();
@@ -69,7 +69,7 @@ public class TasksPageActivity extends DrawerActivity {
 
         // Xử lý khi checkbox thay đổi trạng thái
         filterCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            tasksTitle.setText(isChecked ? "All tasks" : "Available tasks");
+            tasksFilter.setText(isChecked ? "All tasks" : "Available tasks");
             updateTaskList(isChecked);
         });
     }
@@ -86,11 +86,9 @@ public class TasksPageActivity extends DrawerActivity {
                         return;
                     }
 
-                    Log.d("Firestore", "Snapshot received, size: " + (value != null ? value.size() : 0));
                     allTaskCardList.clear();
                     if (value != null) {
                         for (QueryDocumentSnapshot document : value) {
-                            Log.d("Firestore", "Task ID: " + document.getId() + ", Data: " + document.getData());
                             Task taskItem = new Task(
                                     document.getString("userId"),
                                     document.getString("noteId"),
@@ -115,8 +113,6 @@ public class TasksPageActivity extends DrawerActivity {
                                 TaskCardView taskCard = new TaskCardView(this);
                                 taskCard.setTask(taskItem);
                                 allTaskCardList.add(taskCard);
-                            } else {
-                                Log.w("TasksPageActivity", "Task with null title ignored: " + document.getId());
                             }
                         }
                         // Cập nhật danh sách hiển thị dựa trên trạng thái checkbox
