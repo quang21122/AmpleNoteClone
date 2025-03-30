@@ -188,6 +188,7 @@ public class Task implements Serializable {
     @PropertyName("startAt")
     public void setStartAt(Date startAt) {
         this.startAt = startAt;
+        updateStartAtComponent();
     }
 
     @PropertyName("startAtDate")
@@ -476,7 +477,6 @@ public class Task implements Serializable {
                 Log.e("Task", "Error parsing date/time", e);
             }
         } else {
-            // Nếu ngày hoặc giờ rỗng, đặt startAt là null
             this.startAt = null;
         }
     }
@@ -498,9 +498,43 @@ public class Task implements Serializable {
                 Log.e("Task", "Error parsing date/time", e);
             }
         } else {
-            // Nếu ngày hoặc giờ rỗng, đặt startAt là null
             this.hideUntil = null;
         }
     }
+
+    private void updateStartAtComponent(){
+        if (startAt != null) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, MMM d", Locale.getDefault());
+            SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
+            SimpleDateFormat hourFormat = new SimpleDateFormat("HH", Locale.getDefault());
+
+            this.startAtDate = dateFormat.format(startAt);
+            this.startAtTime = timeFormat.format(startAt);
+            int hour = Integer.parseInt(hourFormat.format(startAt));
+            this.startAtPeriod = getPeriodFromHour(hour);
+
+        } else {
+            this.startAtDate = "";
+            this.startAtTime = "";
+            this.startAtPeriod = "";
+        }
+    }
+
+    private String getPeriodFromHour(int hour) {
+        if (hour >= 3 && hour < 7) {
+            return "Early morning";
+        } else if (hour >= 8 && hour < 11) {
+            return "Morning";
+        } else if (hour >= 12 && hour < 16) {
+            return "Afternoon";
+        } else if (hour >= 16 && hour < 19) {
+            return "Evening";
+        } else if (hour >= 20 && hour < 23) {
+            return "Latenight";
+        } else {
+            return "Anytime";
+        }
+    }
+
 }
 

@@ -68,6 +68,9 @@
         <activity android:name=".settings.ChoosePlanActivity" />
         <activity android:name=".tasks.TasksPageActivity" />
         <activity android:name=".note.ViewNoteActivity" />
+        <activity
+            android:name=".tasks.TaskDetailsActivity"
+            android:exported="false" />
 
         <receiver
             android:name=".tasks.TaskNotificationReceiver"

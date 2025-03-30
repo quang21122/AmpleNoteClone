@@ -85,6 +85,7 @@ public class TaskCardView extends CardView {
     private TextView deleteButton;
     private View priorityBar;
     private TextView textDoneUndone;
+    private boolean showDeleteButton = true;
 
     public TaskCardView(Context context) {
         super(context);
@@ -339,6 +340,7 @@ public class TaskCardView extends CardView {
         });
         // Delete
         deleteButton.setOnClickListener(v -> deleteTaskFromFirestore());
+        updateDeleteButtonVisibility();
 
         // Note Title
         noteTitle.setOnClickListener(v -> {
@@ -365,6 +367,17 @@ public class TaskCardView extends CardView {
                     () -> Log.d("TaskCardView", "Delete success"),
                     e -> Toast.makeText(getContext(), "Error deleting task: " + e.getMessage(), Toast.LENGTH_SHORT).show()
             );
+        }
+    }
+
+    public void setShowDeleteButton(boolean show) {
+        this.showDeleteButton = show;
+        updateDeleteButtonVisibility();
+    }
+
+    private void updateDeleteButtonVisibility() {
+        if (deleteButton != null) {
+            deleteButton.setVisibility(showDeleteButton ? View.VISIBLE : View.GONE);
         }
     }
 
