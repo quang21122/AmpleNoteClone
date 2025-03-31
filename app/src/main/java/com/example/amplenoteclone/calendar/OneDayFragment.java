@@ -421,6 +421,19 @@ public class OneDayFragment extends Fragment implements DateSelectable, TaskView
                         task.setCompleted(document.getBoolean("isCompleted") != null ?
                                 document.getBoolean("isCompleted") : false);
                         task.setNoteId(document.getString("noteId"));
+                        task.setCreateAt(document.getDate("createAt"));
+                        task.setRepeat(document.getString("repeat"));
+                        task.setStartAtDate(document.getString("startAtDate"));
+                        task.setStartAtPeriod(document.getString("startAtPeriod"));
+                        task.setStartAtTime(document.getString("startAtTime"));
+                        task.setStartNoti(document.getLong("startNoti") != null ?
+                                document.getLong("startNoti").intValue() : 0);
+                        task.setHideUntil(document.getDate("hideUntil"));
+                        task.setHideUntilDate(document.getString("hideUntilDate"));
+                        task.setHideUntilTime(document.getString("hideUntilTime"));
+                        task.setPriority(document.getString("priority"));
+                        task.setScore(document.getDouble("score") != null ?
+                                document.getDouble("score").floatValue() : 0.0f);
                         addTaskToTimeline(task);
                     }
                 })
@@ -483,7 +496,10 @@ public class OneDayFragment extends Fragment implements DateSelectable, TaskView
         });
 
         view.findViewById(R.id.btn_view_details).setOnClickListener(v -> {
-            // view details
+            Intent intent = new Intent(requireContext(), TaskDetailsActivity.class);
+            intent.putExtra("task", task);
+            intent.putExtra("editable", false);
+            startActivity(intent);
             dialog.dismiss();
         });
 

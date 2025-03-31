@@ -86,6 +86,7 @@ public class TaskCardView extends CardView {
     private View priorityBar;
     private TextView textDoneUndone;
     private boolean showDeleteButton = true;
+    private boolean isEditable = true;
 
     public TaskCardView(Context context) {
         super(context);
@@ -162,6 +163,103 @@ public class TaskCardView extends CardView {
         return task;
     }
 
+    public void setEditable(boolean editable) {
+        this.isEditable = editable;
+        updateEditableState();
+    }
+
+    private void updateEditableState() {
+        // Cập nhật TextView và EditText cho tiêu đề
+        if (taskTitle != null) {
+            taskTitle.setClickable(isEditable);
+        }
+
+        if (checkTask != null) {
+            checkTask.setClickable(isEditable);
+        }
+        if (textDoneUndone != null) {
+            textDoneUndone.setClickable(isEditable);
+        }
+        if (expandButton != null) {
+            expandButton.setEnabled(isEditable);
+        }
+        if (repeatCard != null) {
+            repeatCard.setClickable(isEditable);
+        }
+        if (repeatIcon != null) {
+            repeatIcon.setClickable(isEditable);
+        }
+        if (startAtDateContainer != null) {
+            startAtDateContainer.setClickable(isEditable);
+        }
+        if (startAtPeriodContainer != null) {
+            startAtPeriodContainer.setClickable(isEditable);
+        }
+        if (startAtTimeContainer != null) {
+            startAtTimeContainer.setClickable(isEditable);
+        }
+        if (startAtIcon != null) {
+            startAtIcon.setClickable(isEditable);
+        }
+        if (startAtClockIcon != null) {
+            startAtClockIcon.setClickable(isEditable);
+        }
+        if (startNotiIcon != null) {
+            startNotiIcon.setClickable(isEditable);
+        }
+        if (startNoti5MinButton != null) {
+            startNoti5MinButton.setClickable(isEditable);
+        }
+        if (startNoti15MinButton != null) {
+            startNoti15MinButton.setClickable(isEditable);
+        }
+        if (startNoti60MinButton != null) {
+            startNoti60MinButton.setClickable(isEditable);
+        }
+        if (startNoti1DayButton != null) {
+            startNoti1DayButton.setClickable(isEditable);
+        }
+        if (hideUntilDateContainer != null) {
+            hideUntilDateContainer.setClickable(isEditable);
+        }
+        if (hideUntilTimeContainer != null) {
+            hideUntilTimeContainer.setClickable(isEditable);
+        }
+        if (hideUntilIcon != null) {
+            hideUntilIcon.setClickable(isEditable);
+        }
+        if (priorityIcon != null) {
+            priorityIcon.setClickable(isEditable);
+        }
+        if (priorityImportantButton != null) {
+            priorityImportantButton.setClickable(isEditable);
+        }
+        if (priorityUrgentButton != null) {
+            priorityUrgentButton.setClickable(isEditable);
+        }
+        if (durationIcon != null) {
+            durationIcon.setClickable(isEditable);
+        }
+        if (duration15MinButton != null) {
+            duration15MinButton.setClickable(isEditable);
+        }
+        if (duration30MinButton != null) {
+            duration30MinButton.setClickable(isEditable);
+        }
+        if (duration60MinButton != null) {
+            duration60MinButton.setClickable(isEditable);
+        }
+        if (durationCustomButton != null) {
+            durationCustomButton.setClickable(isEditable);
+        }
+        if (deleteButton != null) {
+            deleteButton.setClickable(isEditable);
+        }
+        if (noteTitle != null) {
+            noteTitle.setClickable(isEditable);
+        }
+    }
+
     public ImageView getExpandButton() {
         return expandButton;
     }
@@ -234,6 +332,7 @@ public class TaskCardView extends CardView {
     }
 
     private void setupListeners() {
+        updateEditableState();
         checkTask.setOnCheckedChangeListener((buttonView, isChecked) -> {
             task.setCompleted(isChecked);
             updateDoneUndoneText(isChecked);
