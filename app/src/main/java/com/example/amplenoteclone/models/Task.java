@@ -304,6 +304,29 @@ public class Task implements Serializable {
         this.score = score;
     }
 
+    public static Task loadTaskById(String taskId) {
+        if (taskId == null || taskId.isEmpty()) {
+            return null;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("tasks")
+                .document(taskId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Task task = documentSnapshot.toObject(Task.class);
+                        task.setId(documentSnapshot.getId());
+                        return task;
+                    }
+                    return null;
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Task", "Error loading task: " + e.getMessage());
+                    return null;
+                });
+        return null;
+    }
     public void createInFirestore(Context context, Runnable onSuccess, Consumer<Exception> onFailure) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String taskId = db.collection("tasks").document().getId(); // Tạo ID mới
