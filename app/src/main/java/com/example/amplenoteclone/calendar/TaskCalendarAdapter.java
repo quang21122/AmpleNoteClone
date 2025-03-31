@@ -2,6 +2,7 @@ package com.example.amplenoteclone.calendar;
 
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.models.Task;
+import com.example.amplenoteclone.tasks.TaskDetailsActivity;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -239,7 +241,10 @@ public class TaskCalendarAdapter extends RecyclerView.Adapter<TaskCalendarAdapte
         });
 
         editDetailsContainer.setOnClickListener(v -> {
-            Toast.makeText(context, "Edit details clicked", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(context, TaskDetailsActivity.class);
+            intent.putExtra("task", task);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
             bottomSheetDialog.dismiss();
         });
 

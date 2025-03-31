@@ -3,6 +3,8 @@ package com.example.amplenoteclone.tasks;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.widget.CheckBox;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -22,6 +24,8 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class TasksPageActivity extends DrawerActivity {
@@ -29,8 +33,11 @@ public class TasksPageActivity extends DrawerActivity {
     private RecyclerView recyclerView;
     private TaskAdapter taskAdapter;
     private List<TaskCardView> taskCardList;
+    private List<TaskCardView> allTaskCardList; // Lưu danh sách đầy đủ
     private FirebaseFirestore db;
     private ListenerRegistration taskListener;
+    private TextView tasksFilter;
+    private CheckBox filterCheckbox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +49,11 @@ public class TasksPageActivity extends DrawerActivity {
         recyclerView = findViewById(R.id.recycler_view_tasks);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        tasksFilter = findViewById(R.id.tasks_filter);
+        filterCheckbox = findViewById(R.id.filter_checkbox);
+
         taskCardList = new ArrayList<>();
+        allTaskCardList = new ArrayList<>();
         taskAdapter = new TaskAdapter(taskCardList);
         recyclerView.setAdapter(taskAdapter);
 
@@ -55,6 +66,12 @@ public class TasksPageActivity extends DrawerActivity {
             Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
             finish();
         }
+
+        // Xử lý khi checkbox thay đổi trạng thái
+        filterCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            tasksFilter.setText(isChecked ? "All tasks" : "Available tasks");
+            updateTaskList(isChecked);
+        });
     }
 
     private void loadTasks(String userId) {
@@ -69,11 +86,9 @@ public class TasksPageActivity extends DrawerActivity {
                         return;
                     }
 
-                    Log.d("Firestore", "Snapshot received, size: " + (value != null ? value.size() : 0));
-                    taskCardList.clear();
+                    allTaskCardList.clear();
                     if (value != null) {
                         for (QueryDocumentSnapshot document : value) {
-                            Log.d("Firestore", "Task ID: " + document.getId() + ", Data: " + document.getData());
                             Task taskItem = new Task(
                                     document.getString("userId"),
                                     document.getString("noteId"),
@@ -97,15 +112,33 @@ public class TasksPageActivity extends DrawerActivity {
                             if (taskItem.getTitle() != null) {
                                 TaskCardView taskCard = new TaskCardView(this);
                                 taskCard.setTask(taskItem);
-                                taskCardList.add(taskCard);
-                            } else {
-                                Log.w("TasksPageActivity", "Task with null title ignored: " + document.getId());
+                                allTaskCardList.add(taskCard);
                             }
                         }
-                        taskAdapter.setTasks(new ArrayList<>(taskCardList));
-                        taskAdapter.notifyDataSetChanged(); // Đảm bảo gọi notify để cập nhật giao diện
+                        // Cập nhật danh sách hiển thị dựa trên trạng thái checkbox
+                        updateTaskList(filterCheckbox.isChecked());
                     }
                 });
+    }
+
+    private void updateTaskList(boolean showAll) {
+        taskCardList.clear();
+        Date currentTime = Calendar.getInstance().getTime();
+
+        if (showAll) {
+            taskCardList.addAll(allTaskCardList);
+        } else {
+            for (TaskCardView taskCard : allTaskCardList) {
+                Task task = taskCard.getTask();
+                Date hideUntil = task.getHideUntil();
+                boolean isAvailable = !task.isCompleted() && (hideUntil == null || hideUntil.before(currentTime));
+                if (isAvailable) {
+                    taskCardList.add(taskCard);
+                }
+            }
+        }
+        taskAdapter.setTasks(new ArrayList<>(taskCardList));
+        taskAdapter.notifyDataSetChanged();
     }
 
     @Override
