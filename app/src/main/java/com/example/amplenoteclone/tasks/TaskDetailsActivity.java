@@ -21,6 +21,7 @@ public class TaskDetailsActivity extends AppCompatActivity {
     private RecyclerView taskRecyclerView;
     private TaskAdapter taskAdapter;
     private List<TaskCardView> taskCardViewList;
+    private boolean isEditable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +41,8 @@ public class TaskDetailsActivity extends AppCompatActivity {
 
         // Lấy Task từ Intent
         Task task = (Task) getIntent().getSerializableExtra("task");
+        isEditable = getIntent().getBooleanExtra("editable", true);
+
         if (task != null) {
             TaskCardView taskCardView = new TaskCardView(this);
             taskCardView.setTask(task);
@@ -56,5 +59,6 @@ public class TaskDetailsActivity extends AppCompatActivity {
         taskRecyclerView.setAdapter(taskAdapter);
         taskAdapter.setExpandedPosition(0);
         taskAdapter.setShowDeleteButton(false);
+        taskAdapter.setEditable(isEditable);
     }
 }
