@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
+import androidx.appcompat.widget.SearchView; // Correct import
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -33,6 +35,9 @@ import com.google.firebase.firestore.Source;
 import java.util.ArrayList;
 
 public class NotesActivity extends DrawerActivity {
+    private NotesAdapter adapter;
+    private ArrayList<NoteCardView> allNotes = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,10 +65,11 @@ public class NotesActivity extends DrawerActivity {
         RecyclerView recyclerView = findViewById(R.id.recyclerNotes);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        NotesAdapter adapter = new NotesAdapter(); // Empty list initially
+        adapter = new NotesAdapter(); // Empty list initially
         recyclerView.setAdapter(adapter);
 
         getNotesFromFirebase(this.userId, notes -> runOnUiThread(() -> {
+            allNotes = notes;
             adapter.setNotes(notes);
             adapter.notifyDataSetChanged();
         }));
@@ -87,9 +93,8 @@ public class NotesActivity extends DrawerActivity {
         invalidateOptionsMenu();
 
         // Refresh notes when returning to the activity
-        NotesAdapter adapter = ((NotesAdapter) ((RecyclerView) findViewById(R.id.recyclerNotes)).getAdapter());
-
         getNotesFromFirebase(this.userId, notes -> runOnUiThread(() -> {
+            allNotes = notes;
             adapter.setNotes(notes);
             adapter.notifyDataSetChanged();
         }));
@@ -127,6 +132,25 @@ public class NotesActivity extends DrawerActivity {
         menu.findItem(R.id.action_ocr).setOnMenuItemClickListener(item -> {
             checkPremiumAndOpenScan();
             return true;
+        });
+
+        // Handle search action
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView.setQueryHint("Search notes");
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                filterNotes(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filterNotes(newText);
+                return false;
+            }
         });
 
         return true;
@@ -172,7 +196,6 @@ public class NotesActivity extends DrawerActivity {
                             if (updatedAt != null)
                                 note.setUpdatedAt(updatedAt.toDate());
 
-
                             // Get lists safely
                             note.setTags((ArrayList<String>) document.get("tags"));
                             note.setTasks((ArrayList<String>) document.get("tasks"));
@@ -190,5 +213,16 @@ public class NotesActivity extends DrawerActivity {
 
                     firestoreListCallback.onCallback(notes);
                 });
+    }
+
+    private void filterNotes(String query) {
+        ArrayList<NoteCardView> filteredNotes = new ArrayList<>();
+        for (NoteCardView noteCard : allNotes) {
+            if (noteCard.getNote().getTitle().toLowerCase().contains(query.toLowerCase())) {
+                filteredNotes.add(noteCard);
+            }
+        }
+        adapter.setNotes(filteredNotes);
+        adapter.notifyDataSetChanged();
     }
 }
