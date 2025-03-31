@@ -11,8 +11,9 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import androidx.appcompat.widget.SearchView; // Correct import
+import android.widget.TextView;
 
+import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -72,6 +73,7 @@ public class NotesActivity extends DrawerActivity {
             allNotes = notes;
             adapter.setNotes(notes);
             adapter.notifyDataSetChanged();
+            updateNotesNumber();
         }));
 
         adapter.setOnNoteCardClickListener(noteCardView -> {
@@ -97,6 +99,7 @@ public class NotesActivity extends DrawerActivity {
             allNotes = notes;
             adapter.setNotes(notes);
             adapter.notifyDataSetChanged();
+            updateNotesNumber();
         }));
     }
 
@@ -224,5 +227,17 @@ public class NotesActivity extends DrawerActivity {
         }
         adapter.setNotes(filteredNotes);
         adapter.notifyDataSetChanged();
+    }
+    private void updateNotesNumber() {
+        // Update the notes number in the toolbar
+        int NotesNumber = adapter.getItemCount();
+
+        TextView txtNotesCount = findViewById(R.id.txtNotesCount);
+
+        if (NotesNumber == 1) {
+            txtNotesCount.setText(R.string.notes_count_1);
+        } else {
+            txtNotesCount.setText(String.format(getString(R.string.notes_count), NotesNumber));
+        }
     }
 }

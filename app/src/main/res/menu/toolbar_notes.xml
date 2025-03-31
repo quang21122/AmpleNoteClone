@@ -5,20 +5,20 @@
     <item
         android:id="@+id/action_ocr"
         android:icon="@drawable/ic_camera"
-        android:title="OCR"
+        android:title="@string/ocr"
         app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/action_search"
         android:icon="@drawable/ic_search_nav"
-        android:title="Search"
+        android:title="@string/search"
         app:showAsAction="ifRoom|collapseActionView"
         app:actionViewClass="androidx.appcompat.widget.SearchView" />
 
     <item
         android:id="@+id/action_add_note"
         android:icon="@drawable/ic_note_add"
-        android:title="Add Notes"
+        android:title="@string/add_note"
         app:showAsAction="ifRoom"/>
 
 </menu>

@@ -5,31 +5,31 @@
     <item
         android:id="@+id/action_search"
         android:icon="@drawable/ic_pencil"
-        android:title="Jots"
+        android:title="@string/jots"
         app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/action_notes"
         android:icon="@drawable/ic_note"
-        android:title="Notes"
+        android:title="@string/notes"
         app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/action_tasks"
         android:icon="@drawable/ic_task"
-        android:title="Tasks"
+        android:title="@string/tasks"
         app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/action_calendar"
         android:icon="@drawable/ic_calendar_nav"
-        android:title="Calendar"
+        android:title="@string/calendar"
         app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/action_new_task"
         android:icon="@drawable/ic_add_nav"
-        android:title="Add Task"
+        android:title="@string/add_task"
         app:showAsAction="ifRoom"/>
 
 
