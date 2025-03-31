@@ -1,5 +1,6 @@
 package com.example.amplenoteclone.calendar;
 
+import android.content.Intent;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -11,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.models.Task;
+import com.example.amplenoteclone.tasks.TaskDetailsActivity;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -460,7 +461,9 @@ public class WeekFragment extends Fragment implements DateSelectable, TaskView {
         });
 
         view.findViewById(R.id.btn_edit_details).setOnClickListener(v -> {
-            // Show edit dialog
+            Intent intent = new Intent(requireContext(), TaskDetailsActivity.class);
+            intent.putExtra("task", task);
+            startActivity(intent);
             dialog.dismiss();
         });
 

@@ -1,5 +1,6 @@
 package com.example.amplenoteclone.calendar;
 
+import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
 
@@ -7,7 +8,6 @@ import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.models.Task;
+import com.example.amplenoteclone.tasks.TaskDetailsActivity;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -495,7 +496,9 @@ public class ThreeDaysFragment extends Fragment implements DateSelectable, TaskV
         });
 
         view.findViewById(R.id.btn_edit_details).setOnClickListener(v -> {
-            // Show edit dialog
+            Intent intent = new Intent(requireContext(), TaskDetailsActivity.class);
+            intent.putExtra("task", task);
+            startActivity(intent);
             dialog.dismiss();
         });
 
