@@ -17,6 +17,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     private int expandedPosition = -1;
     private int lastKnownSize = 0;
     private boolean showDeleteButton = true;
+    private boolean isEditable = true;
 
     public TaskAdapter() {
         this.taskList = new ArrayList<>();
@@ -70,6 +71,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
         // Ẩn/hiện nút xóa dựa trên showDeleteButton
         holder.taskCardView.setShowDeleteButton(showDeleteButton);
+        holder.taskCardView.setEditable(isEditable);
 
         holder.taskCardView.getExpandButton().setOnClickListener(v -> {
             int previousExpandedPosition = expandedPosition;
@@ -110,6 +112,10 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     }
     public void setShowDeleteButton(boolean show) {
         this.showDeleteButton = show;
+        notifyDataSetChanged();
+    }
+    public void setEditable(boolean editable) {
+        this.isEditable = editable;
         notifyDataSetChanged();
     }
 }
