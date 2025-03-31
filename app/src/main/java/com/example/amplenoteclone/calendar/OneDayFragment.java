@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.models.Task;
+import com.example.amplenoteclone.note.ViewNoteActivity;
 import com.example.amplenoteclone.tasks.TaskDetailsActivity;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
@@ -487,7 +488,9 @@ public class OneDayFragment extends Fragment implements DateSelectable, TaskView
         });
 
         view.findViewById(R.id.btn_view_notes).setOnClickListener(v -> {
-            // view notes
+            Intent intent = new Intent(requireContext(), ViewNoteActivity.class);
+            intent.putExtra("noteId", task.getNoteId());
+            startActivity(intent);
             dialog.dismiss();
         });
 
