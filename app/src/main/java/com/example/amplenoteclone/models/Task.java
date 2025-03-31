@@ -1,10 +1,15 @@
 package com.example.amplenoteclone.models;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.amplenoteclone.R;
+import com.example.amplenoteclone.tasks.TaskNotificationReceiver;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -41,6 +46,25 @@ public class Task implements Serializable {
 
     // Constructor mặc định (yêu cầu bởi Firestore)
     public Task() {
+    }
+
+    // Constructor để tạo task mới
+    public Task(String userId, String noteId, String title) {
+        this.userId = userId;
+        this.noteId = noteId;
+        this.title = title;
+        this.createAt = new Date();
+        this.isCompleted = false;
+        this.repeat = "Doesn't repeat";
+        this.startAtDate = "";
+        this.startAtTime = "";
+        this.startAtPeriod = "";
+        this.startNoti = 0;
+        this.hideUntilDate = "";
+        this.hideUntilTime = "";
+        this.priority = "";
+        this.duration = 0;
+        this.score = 1.0f;
     }
 
     // Constructor đầy đủ
@@ -164,6 +188,7 @@ public class Task implements Serializable {
     @PropertyName("startAt")
     public void setStartAt(Date startAt) {
         this.startAt = startAt;
+        updateStartAtComponent();
     }
 
     @PropertyName("startAtDate")
@@ -279,6 +304,21 @@ public class Task implements Serializable {
         this.score = score;
     }
 
+    public void createInFirestore(Context context, Runnable onSuccess, Consumer<Exception> onFailure) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String taskId = db.collection("tasks").document().getId(); // Tạo ID mới
+        this.id = taskId;
+
+        db.collection("tasks")
+                .document(taskId)
+                .set(this)
+                .addOnSuccessListener(aVoid -> {
+                    scheduleNotification(context); // Lên lịch thông báo
+                    onSuccess.run();
+                })
+                .addOnFailureListener(onFailure::accept);
+    }
+
     public void updateInFirestore(Runnable onSuccess, Consumer<Exception> onFailure) {
         if (id == null || id.isEmpty()) {
             onFailure.accept(new Exception("Task ID is null or empty"));
@@ -287,7 +327,10 @@ public class Task implements Serializable {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("tasks").document(id)
                 .set(this)
-                .addOnSuccessListener(aVoid -> onSuccess.run())
+                .addOnSuccessListener(aVoid -> {
+                    onSuccess.run();
+                    scheduleNotification(db.getApp().getApplicationContext()); // Lên lịch sau khi cập nhật
+                })
                 .addOnFailureListener(onFailure::accept);
     }
 
@@ -303,8 +346,68 @@ public class Task implements Serializable {
             batch.update(db.collection("notes").document(noteId), "tasks", FieldValue.arrayRemove(id));
         }
         batch.commit()
-                .addOnSuccessListener(aVoid -> onSuccess.run())
+                .addOnSuccessListener(aVoid -> {
+                    cancelNotification(db.getApp().getApplicationContext()); // Hủy thông báo trước khi xóa
+                    onSuccess.run();
+                })
                 .addOnFailureListener(onFailure::accept);
+    }
+
+    public void scheduleNotification(Context context) {
+        if (startAt == null || startNoti <= 0) {
+            return; // Không lên lịch nếu không có startAt hoặc startNoti
+        }
+
+        // Check if we have notification permission using NotificationManagerCompat
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+        if (!notificationManager.areNotificationsEnabled()) {
+            Log.d("Task", "Notifications are not enabled - skipping notification schedule for task " + id);
+            return;
+        }
+
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context, TaskNotificationReceiver.class);
+        intent.putExtra("taskId", id);
+        intent.putExtra("taskTitle", title);
+
+        // Tạo PendingIntent với flag để cập nhật nếu đã tồn tại
+        int requestCode = id.hashCode(); // Đảm bảo mỗi task có requestCode riêng
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                context,
+                requestCode,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        // Tính thời gian thông báo: startAt - startNoti (phút)
+        long startAtMillis = startAt.getTime();
+        long notificationTimeMillis = startAtMillis - (startNoti * 60 * 1000); // Chuyển phút thành milliseconds
+        long currentTimeMillis = System.currentTimeMillis();
+
+        if (notificationTimeMillis > currentTimeMillis) {
+            alarmManager.setExact(
+                    AlarmManager.RTC_WAKEUP,
+                    notificationTimeMillis,
+                    pendingIntent
+            );
+            Log.d("Task", "Notification scheduled for task " + id + " at " + new Date(notificationTimeMillis));
+        } else {
+            Log.d("Task", "Notification time is in the past for task " + id);
+        }
+    }
+
+    public void cancelNotification(Context context) {
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context, TaskNotificationReceiver.class);
+        int requestCode = id.hashCode();
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                context,
+                requestCode,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+        alarmManager.cancel(pendingIntent);
+        Log.d("Task", "Notification canceled for task " + id);
     }
 
     public int calculateBorderTypeByScore() {
@@ -374,7 +477,6 @@ public class Task implements Serializable {
                 Log.e("Task", "Error parsing date/time", e);
             }
         } else {
-            // Nếu ngày hoặc giờ rỗng, đặt startAt là null
             this.startAt = null;
         }
     }
@@ -396,9 +498,43 @@ public class Task implements Serializable {
                 Log.e("Task", "Error parsing date/time", e);
             }
         } else {
-            // Nếu ngày hoặc giờ rỗng, đặt startAt là null
             this.hideUntil = null;
         }
     }
+
+    private void updateStartAtComponent(){
+        if (startAt != null) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, MMM d", Locale.getDefault());
+            SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
+            SimpleDateFormat hourFormat = new SimpleDateFormat("HH", Locale.getDefault());
+
+            this.startAtDate = dateFormat.format(startAt);
+            this.startAtTime = timeFormat.format(startAt);
+            int hour = Integer.parseInt(hourFormat.format(startAt));
+            this.startAtPeriod = getPeriodFromHour(hour);
+
+        } else {
+            this.startAtDate = "";
+            this.startAtTime = "";
+            this.startAtPeriod = "";
+        }
+    }
+
+    private String getPeriodFromHour(int hour) {
+        if (hour >= 3 && hour < 7) {
+            return "Early morning";
+        } else if (hour >= 8 && hour < 11) {
+            return "Morning";
+        } else if (hour >= 12 && hour < 16) {
+            return "Afternoon";
+        } else if (hour >= 16 && hour < 19) {
+            return "Evening";
+        } else if (hour >= 20 && hour < 23) {
+            return "Latenight";
+        } else {
+            return "Anytime";
+        }
+    }
+
 }
 

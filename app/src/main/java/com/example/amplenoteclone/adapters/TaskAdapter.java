@@ -9,15 +9,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.amplenoteclone.ui.customviews.TaskCardView;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder> {
 
     private List<TaskCardView> taskList;
     private int expandedPosition = -1;
     private int lastKnownSize = 0;
+    private boolean showDeleteButton = true;
 
     public TaskAdapter() {
         this.taskList = new ArrayList<>();
@@ -28,8 +27,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     }
 
     public void setTasks(List<TaskCardView> tasks) {
-        Log.d("TaskAdapter", "setTasks called - Last known size: " + lastKnownSize + ", New size: " + tasks.size() + ", expandedPosition: " + expandedPosition);
-
         // Lưu task đang expand
         TaskCardView expandedTask = expandedPosition != -1 && expandedPosition < taskList.size() ? taskList.get(expandedPosition) : null;
 
@@ -52,10 +49,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             }
         }
 
-        // Cập nhật lastKnownSize
         lastKnownSize = tasks.size();
-
-        Log.d("TaskAdapter", "After update - expandedPosition: " + expandedPosition + ", taskList size: " + taskList.size());
         notifyDataSetChanged();
     }
 
@@ -73,6 +67,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
         boolean isExpanded = position == expandedPosition;
         holder.taskCardView.setExpanded(isExpanded);
+
+        // Ẩn/hiện nút xóa dựa trên showDeleteButton
+        holder.taskCardView.setShowDeleteButton(showDeleteButton);
 
         holder.taskCardView.getExpandButton().setOnClickListener(v -> {
             int previousExpandedPosition = expandedPosition;
@@ -102,8 +99,17 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         }
     }
 
-    public void resetExpand() {
-        expandedPosition = -1;
+    public void setExpandedPosition(int position) {
+        if (position >= 0 && position < taskList.size()) {
+            this.expandedPosition = position;
+            notifyItemChanged(position); // Cập nhật item tại vị trí được expand
+        } else {
+            this.expandedPosition = -1;
+            notifyDataSetChanged();
+        }
+    }
+    public void setShowDeleteButton(boolean show) {
+        this.showDeleteButton = show;
         notifyDataSetChanged();
     }
 }
