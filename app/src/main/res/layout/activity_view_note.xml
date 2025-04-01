@@ -68,8 +68,22 @@
             android:paddingBottom="20dp"
             android:minHeight="200dp" />
 
+        <!-- Tasks Section -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/tasks_recycler_view"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager">
+
+        </androidx.recyclerview.widget.RecyclerView>
+
         <!-- Status Tabs -->
         <LinearLayout
+            android:id="@+id/status_tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
