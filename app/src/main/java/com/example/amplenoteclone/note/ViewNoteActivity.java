@@ -260,7 +260,7 @@ public class ViewNoteActivity extends DrawerActivity {
 
     private void setupTaskSection() {
         // Check if the note is newly created
-        if (currentNote.getId() == null) {
+        if (currentNote.getId() == null || currentNote.getTasks() == null || currentNote.getTasks().isEmpty()) {
             return;
         }
 
