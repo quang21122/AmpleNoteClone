@@ -1,4 +1,5 @@
 package com.example.amplenoteclone.models;
+
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -10,6 +11,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.tasks.TaskNotificationReceiver;
+import com.example.amplenoteclone.utils.FirestoreListCallback;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -19,6 +21,7 @@ import com.google.firebase.firestore.WriteBatch;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -536,5 +539,23 @@ public class Task implements Serializable {
         }
     }
 
+    public static void loadTasksInNote(String noteId, FirestoreListCallback<Task> callback) {
+        ArrayList<Task> tasks = new ArrayList<>();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("tasks")
+                .whereEqualTo("noteId", noteId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (int i = 0; i < queryDocumentSnapshots.size(); i++) {
+                        Task task = queryDocumentSnapshots.getDocuments().get(i).toObject(Task.class);
+                        if (task != null) {
+                            task.setId(queryDocumentSnapshots.getDocuments().get(i).getId());
+                            tasks.add(task);
+                        }
+                    }
+                    callback.onCallback(tasks);
+                })
+                .addOnFailureListener(e -> Log.e("Task", "Error loading tasks in note", e));
+    }
 }
 

@@ -36,7 +36,7 @@ import com.google.firebase.firestore.Source;
 import java.util.ArrayList;
 
 public class NotesActivity extends DrawerActivity {
-    private NotesAdapter adapter;
+    private NotesAdapter notesAdapter;
     private ArrayList<NoteCardView> allNotes = new ArrayList<>();
 
     @Override
@@ -66,17 +66,17 @@ public class NotesActivity extends DrawerActivity {
         RecyclerView recyclerView = findViewById(R.id.recyclerNotes);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        adapter = new NotesAdapter(); // Empty list initially
-        recyclerView.setAdapter(adapter);
+        notesAdapter = new NotesAdapter(); // Empty list initially
+        recyclerView.setAdapter(notesAdapter);
 
         getNotesFromFirebase(this.userId, notes -> runOnUiThread(() -> {
             allNotes = notes;
-            adapter.setNotes(notes);
-            adapter.notifyDataSetChanged();
+            notesAdapter.setNotes(notes);
+            notesAdapter.notifyDataSetChanged();
             updateNotesNumber();
         }));
 
-        adapter.setOnNoteCardClickListener(noteCardView -> {
+        notesAdapter.setOnNoteCardClickListener(noteCardView -> {
             Intent intent = new Intent(this, ViewNoteActivity.class);
 
             // Get the Note object from the NoteCardView
@@ -97,8 +97,8 @@ public class NotesActivity extends DrawerActivity {
         // Refresh notes when returning to the activity
         getNotesFromFirebase(this.userId, notes -> runOnUiThread(() -> {
             allNotes = notes;
-            adapter.setNotes(notes);
-            adapter.notifyDataSetChanged();
+            notesAdapter.setNotes(notes);
+            notesAdapter.notifyDataSetChanged();
             updateNotesNumber();
         }));
     }
@@ -225,12 +225,12 @@ public class NotesActivity extends DrawerActivity {
                 filteredNotes.add(noteCard);
             }
         }
-        adapter.setNotes(filteredNotes);
-        adapter.notifyDataSetChanged();
+        notesAdapter.setNotes(filteredNotes);
+        notesAdapter.notifyDataSetChanged();
     }
     private void updateNotesNumber() {
         // Update the notes number in the toolbar
-        int NotesNumber = adapter.getItemCount();
+        int NotesNumber = notesAdapter.getItemCount();
 
         TextView txtNotesCount = findViewById(R.id.txtNotesCount);
 

@@ -5,15 +5,20 @@ import static com.example.amplenoteclone.utils.TimeConverter.formatLastUpdated;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.Menu;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.amplenoteclone.DrawerActivity;
 import com.example.amplenoteclone.R;
+import com.example.amplenoteclone.adapters.TaskAdapter;
 import com.example.amplenoteclone.models.Note;
+import com.example.amplenoteclone.models.Task;
+import com.example.amplenoteclone.ui.customviews.TaskCardView;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -40,6 +45,8 @@ public class ViewNoteActivity extends DrawerActivity {
     private Note currentNote;
     private Timer autoSaveTimer;
     private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
+    private TaskAdapter taskAdapter;
+    private ArrayList<TaskCardView> taskCardList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +57,19 @@ public class ViewNoteActivity extends DrawerActivity {
         initializeNote();
         setupListeners();
         setupAutoSave();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (hasNoteChanged()) saveNote();
+        cancelAutoSave();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        cancelAutoSave();
     }
 
     private void initializeViews() {
@@ -94,8 +114,6 @@ public class ViewNoteActivity extends DrawerActivity {
         collectionRef.document(noteId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        Log.d("Note", "Loaded note: " + documentSnapshot.getData());
-
                         currentNote = new Note(
                                 documentSnapshot.getId(),
                                 documentSnapshot.getString("title"),
@@ -111,6 +129,9 @@ public class ViewNoteActivity extends DrawerActivity {
                         updateLastUpdated();
                         titleEditText.setText(currentNote.getTitle());
                         contentEditText.setText(currentNote.getContent());
+
+                        // Set up tasks section
+                        setupTaskSection();
                     } else {
                         Toast.makeText(this, "Note not found", Toast.LENGTH_SHORT).show();
                         finish();
@@ -206,8 +227,6 @@ public class ViewNoteActivity extends DrawerActivity {
     }
 
     private Map<String, Object> createUploadData() {
-        Log.d("Note", "Saving note: " + currentNote.getUpdatedAt().toString() + " " + currentNote.getCreatedAt().toString());
-
         Map<String, Object> noteData = new HashMap<>();
         noteData.put("title", currentNote.getTitle());
         noteData.put("content", currentNote.getContent());
@@ -232,13 +251,6 @@ public class ViewNoteActivity extends DrawerActivity {
         finish();
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (hasNoteChanged()) saveNote();
-        cancelAutoSave();
-    }
-
     private void cancelAutoSave() {
         if (autoSaveTimer != null) {
             autoSaveTimer.cancel();
@@ -246,12 +258,45 @@ public class ViewNoteActivity extends DrawerActivity {
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        cancelAutoSave();
+    private void setupTaskSection() {
+        // Check if the note is newly created
+        if (currentNote.getId() == null) {
+            return;
+        }
+
+        // Recycler View
+        RecyclerView recyclerView = findViewById(R.id.tasks_recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        // Task Adapter
+        taskAdapter = new TaskAdapter();
+        recyclerView.setAdapter(taskAdapter);
+        taskAdapter.notifyDataSetChanged();
+
+        // Get tasks
+        getTasks();
     }
 
+    private void getTasks() {
+        ArrayList<Task> taskList = new ArrayList<>();
+        Task.loadTasksInNote(currentNote.getId(), tasks -> runOnUiThread(() -> {
+            // Add tasks to taskList
+            taskList.addAll(tasks);
+
+            // Clear taskCardList
+            taskCardList.clear();
+
+            // Add tasks to taskCardList
+            for (Task task : taskList) {
+                TaskCardView taskCard = new TaskCardView(this);
+                taskCard.setTask(task);
+                taskCardList.add(taskCard);
+            }
+
+            // Add tasks to adapter
+            taskAdapter.setTasks(taskCardList);
+        }));
+    }
     public String getToolbarTitle() {
         return "View Note";
     }
