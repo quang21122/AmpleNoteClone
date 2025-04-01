@@ -65,4 +65,5 @@ dependencies {
     implementation "androidx.camera:camera-video:${camerax_version}"
     implementation "androidx.camera:camera-view:${camerax_version}"
     implementation "androidx.camera:camera-mlkit-vision:${camerax_version}"
+    implementation 'com.google.android.flexbox:flexbox:3.0.0'
 }

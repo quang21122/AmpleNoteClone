@@ -5,8 +5,12 @@ import static com.example.amplenoteclone.utils.TimeConverter.formatLastUpdated;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,12 +23,14 @@ import com.example.amplenoteclone.adapters.TaskAdapter;
 import com.example.amplenoteclone.models.Note;
 import com.example.amplenoteclone.models.Task;
 import com.example.amplenoteclone.ui.customviews.TaskCardView;
+import com.google.android.flexbox.FlexboxLayout;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Timer;
@@ -41,12 +47,14 @@ public class ViewNoteActivity extends DrawerActivity {
     private TextView completedTabTextView;
     private TextView backlinksTabTextView;
     private TextView noCompletedTasksTextView;
+    private FlexboxLayout tagsContainer;
 
     private Note currentNote;
     private Timer autoSaveTimer;
     private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
     private TaskAdapter taskAdapter;
     private ArrayList<TaskCardView> taskCardList = new ArrayList<>();
+    private List<String> tagsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +65,17 @@ public class ViewNoteActivity extends DrawerActivity {
         initializeNote();
         setupListeners();
         setupAutoSave();
+
+        tagsList = new ArrayList<>();
+        // Ví dụ: Giả lập danh sách tag
+        tagsList.add("daily-jots");
+        tagsList.add("f");
+        tagsList.add("fu");
+        tagsList.add("gu");
+        tagsList.add("ht");
+        tagsList.add("vu");
+
+        displayTags();
     }
 
     @Override
@@ -81,6 +100,7 @@ public class ViewNoteActivity extends DrawerActivity {
         completedTabTextView = findViewById(R.id.tab_completed);
         backlinksTabTextView = findViewById(R.id.tab_backlinks);
         noCompletedTasksTextView = findViewById(R.id.no_completed_tasks);
+        tagsContainer = findViewById(R.id.tags_container);
     }
 
     private void initializeNote() {
@@ -297,11 +317,48 @@ public class ViewNoteActivity extends DrawerActivity {
             taskAdapter.setTasks(taskCardList);
         }));
     }
+
     public String getToolbarTitle() {
         return "View Note";
     }
 
     public int getCurrentPageId() {
         return R.id.action_notes;
+    }
+
+    private void displayTags() {
+        // Xóa các tag cũ (trừ nút "Add a tag")
+        tagsContainer.removeViews(0, tagsContainer.getChildCount() - 1);
+
+        // Thêm các tag vào FlexboxLayout
+        for (String tag : tagsList) {
+            // Inflate layout tag_item.xml
+            View tagView = LayoutInflater.from(this).inflate(R.layout.tag_item, tagsContainer, false);
+
+            // Gán dữ liệu cho tag
+            TextView tagName = tagView.findViewById(R.id.tag_name);
+            tagName.setText(tag);
+
+            // Thiết lập margin cho tag
+            FlexboxLayout.LayoutParams params = new FlexboxLayout.LayoutParams(
+                    FlexboxLayout.LayoutParams.WRAP_CONTENT,
+                    FlexboxLayout.LayoutParams.WRAP_CONTENT
+            );
+            params.setMargins(0, 0, (int) (8 * getResources().getDisplayMetrics().density), (int) (8 * getResources().getDisplayMetrics().density));
+            tagView.setLayoutParams(params);
+
+            // Xử lý sự kiện click vào icon ic_more (ví dụ: hiển thị menu)
+            ImageView moreIcon = tagView.findViewById(R.id.more_icon);
+            moreIcon.setOnClickListener(v -> {
+                // Hiển thị menu hoặc dialog để chỉnh sửa/xóa tag
+                Log.d("ViewNoteActivity", "Clicked more icon for tag: " + tag);
+                // Ví dụ: Xóa tag (giả lập)
+                tagsList.remove(tag);
+                displayTags();
+            });
+
+            // Thêm tag vào FlexboxLayout (trước nút "Add a tag")
+            tagsContainer.addView(tagView, tagsContainer.getChildCount() - 1);
+        }
     }
 }
