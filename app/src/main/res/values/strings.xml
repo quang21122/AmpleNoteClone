@@ -16,7 +16,18 @@
     <string name="web_key">AIzaSyAkIY_8aPwRp2w9YMwRGOp5-GLMzGnwItE</string>
     <string name="work">WORK</string>
     <string name="personal">PERSONAL</string>
+
     <string name="calendar">Calendar</string>
+    <string name="notes">Notes</string>
+    <string name="settings">Settings</string>
+    <string name="tasks">Tasks</string>
+    <string name="jots">Jots</string>
+    <string name="search">Search</string>
+    <string name="ocr">OCR</string>
+    <string name="add_note">Add Note</string>
+    <string name="add_task">Add Task</string>
+
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string-array name="sort_options">
@@ -48,4 +59,19 @@
     <string name="subscribe">Subscribe</string>
     <string name="open_drawer">Open Navigation Drawer</string>
     <string name="close_drawer">Close Navigation Drawer</string>
+
+    <string name="notes_count_1">1 NOTE</string>
+    <string name="notes_count">%d NOTES</string>
+
+    <string name="logout">Log out</string>
+
+    <string name="drawer_title_nav">NAVIGATION</string>
+    <string name="drawer_title_tags">TAGS</string>
+    <string name="today">Today</string>
+    <string name="tomorrow">Tomorrow</string>
+    <string name="this_weekend">This weekend</string>
+    <string name="one_week">One week</string>
+    <string name="three_weeks">Three weeks</string>
+    <string name="choose_date">Choose date</string>
+
 </resources>

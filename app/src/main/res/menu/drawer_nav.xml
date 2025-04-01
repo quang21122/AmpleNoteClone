@@ -2,37 +2,37 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/main_item"
-        android:title="NAVIGATION">
+        android:title="@string/drawer_title_nav">
         <menu>
             <item
                 android:id="@+id/drawer_jots"
                 android:icon="@drawable/ic_pencil"
-                android:title="Jots"
+                android:title="@string/jots"
                 android:checkable="true"/>
             <item
                 android:id="@+id/drawer_notes"
                 android:icon="@drawable/ic_note"
-                android:title="Notes"
+                android:title="@string/notes"
                 android:checkable="true"/>
             <item
                 android:id="@+id/drawer_tasks"
                 android:icon="@drawable/ic_task"
-                android:title="Tasks"
+                android:title="@string/tasks"
                 android:checkable="true"/>
             <item
                 android:id="@+id/drawer_calendar"
                 android:icon="@drawable/ic_calendar_nav"
-                android:title="Calendar"
+                android:title="@string/calendar"
                 android:checkable="true"/>
             <item
                 android:id="@+id/drawer_settings"
                 android:icon="@drawable/ic_settings"
-                android:title="Settings"
+                android:title="@string/settings"
                 android:checkable="true"/>
             <item
                 android:id="@+id/drawer_logout"
                 android:icon="@drawable/ic_logout"
-                android:title="Log out"
+                android:title="@string/logout"
                 android:checkable="true"/>
         </menu>
     </item>
@@ -40,7 +40,7 @@
     <!-- Container for dynamic tags -->
     <item
         android:id="@+id/drawer_tags"
-        android:title="TAGS">
+        android:title="@string/drawer_title_tags">
         <menu>
 
         </menu>

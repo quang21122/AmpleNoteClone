@@ -15,7 +15,7 @@
             android:id="@+id/txtNotesCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="67 NOTES"
+            android:text=""
             android:textSize="14sp"
             android:textColor="@android:color/darker_gray" />
 
@@ -36,5 +36,4 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:clipToPadding="false" />
-
 </LinearLayout>
