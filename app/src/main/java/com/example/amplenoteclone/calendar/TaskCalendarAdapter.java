@@ -80,15 +80,12 @@ public class TaskCalendarAdapter extends RecyclerView.Adapter<TaskCalendarAdapte
                 String durationStr = durationSpinner.getSelectedItem().toString();
                 int duration = Integer.parseInt(durationStr.split(" ")[0]); // Extract number from "XX min"
 
-                // Update task in Firestore
-                FirebaseFirestore.getInstance().collection("tasks")
-                        .document(task.getId())
-                        .update(
-                                "isCompleted", true,
-                                "startAt", currentTime,
-                                "duration", duration
-                        )
-                        .addOnSuccessListener(aVoid -> {
+                task.setStartAt(currentTime);
+                task.setCompleted(true);
+                task.setDuration(duration);
+
+                task.updateInFirestore(
+                        () -> {
                             int pos = tasks.indexOf(task);
                             if (pos != -1) {
                                 tasks.remove(pos);
@@ -99,13 +96,12 @@ public class TaskCalendarAdapter extends RecyclerView.Adapter<TaskCalendarAdapte
                             if (context instanceof CalendarActivity) {
                                 ((CalendarActivity) context).refreshCurrentFragment();
                             }
-
-                            Toast.makeText(context, "Task completed", Toast.LENGTH_SHORT).show();
-                        })
-                        .addOnFailureListener(e -> {
+                        },
+                        e -> {
                             holder.taskCheckbox.setChecked(false);
                             Toast.makeText(context, "Failed to complete task", Toast.LENGTH_SHORT).show();
-                        });
+                        }
+                );
             }
         });
     }
@@ -128,16 +124,11 @@ public class TaskCalendarAdapter extends RecyclerView.Adapter<TaskCalendarAdapte
 
                 String durationStr = durationSpinner.getSelectedItem().toString();
                 int duration = Integer.parseInt(durationStr.split(" ")[0]);
-
-                // Update task in Firestore
-                db.collection("tasks")
-                        .document(task.getId())
-                        .update(
-                                "isCompleted", true,
-                                "startAt", currentTime,
-                                "duration", duration
-                        )
-                        .addOnSuccessListener(aVoid -> {
+                task.setStartAt(currentTime);
+                task.setCompleted(true);
+                task.setDuration(duration);
+                task.updateInFirestore(
+                        () -> {
                             int pos = tasks.indexOf(task);
                             if (pos != -1) {
                                 tasks.remove(pos);
@@ -150,13 +141,9 @@ public class TaskCalendarAdapter extends RecyclerView.Adapter<TaskCalendarAdapte
                             if (context instanceof CalendarActivity) {
                                 ((CalendarActivity) context).refreshCurrentFragment();
                             }
-
-                            Toast.makeText(context, "Task completed", Toast.LENGTH_SHORT).show();
-                        })
-                        .addOnFailureListener(e -> {
-                            taskCheckbox.setChecked(false);
-                            Toast.makeText(context, "Failed to complete task", Toast.LENGTH_SHORT).show();
-                        });
+                        },
+                        e -> Toast.makeText(context, "Failed to complete task", Toast.LENGTH_SHORT).show()
+                );
             }
         });
 
@@ -254,14 +241,9 @@ public class TaskCalendarAdapter extends RecyclerView.Adapter<TaskCalendarAdapte
     private void updateTaskTime(Task task, Date startAt, BottomSheetDialog dialog) {
         String durationStr = durationSpinner.getSelectedItem().toString();
         int duration = Integer.parseInt(durationStr.split(" ")[0]);
-
-        db.collection("tasks")
-                .document(task.getId())
-                .update(
-                        "startAt", startAt,
-                        "duration", duration
-                )
-                .addOnSuccessListener(aVoid -> {
+        task.setStartAt(startAt);
+        task.updateInFirestore(
+                () -> {
                     Toast.makeText(context, "Task scheduled", Toast.LENGTH_SHORT).show();
                     int pos = tasks.indexOf(task);
                     if (pos != -1) {
@@ -274,10 +256,9 @@ public class TaskCalendarAdapter extends RecyclerView.Adapter<TaskCalendarAdapte
                     if (context instanceof CalendarActivity) {
                         ((CalendarActivity) context).refreshCurrentFragment();
                     }
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(context, "Failed to schedule task", Toast.LENGTH_SHORT).show()
-                );
+                },
+                e -> Toast.makeText(context, "Failed to schedule task", Toast.LENGTH_SHORT).show()
+        );
     }
 
     @Override
