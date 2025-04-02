@@ -18,6 +18,7 @@ import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.adapters.TaskAdapter;
 import com.example.amplenoteclone.models.Note;
 import com.example.amplenoteclone.models.Task;
+import com.example.amplenoteclone.tasks.CreateTaskBottomSheet;
 import com.example.amplenoteclone.ui.customviews.TaskCardView;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
@@ -47,6 +48,10 @@ public class ViewNoteActivity extends DrawerActivity {
     private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
     private TaskAdapter taskAdapter;
     private ArrayList<TaskCardView> taskCardList = new ArrayList<>();
+
+    public interface OnTaskCreationListener {
+        void onTaskCreated();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -215,7 +220,7 @@ public class ViewNoteActivity extends DrawerActivity {
             return;
         }
 
-        // Save the note to Firebase
+        // Save the note toFirebase
         collectionRef.document(currentNote.getId())
                 .set(noteData)
                 .addOnSuccessListener(aVoid -> {
@@ -297,6 +302,26 @@ public class ViewNoteActivity extends DrawerActivity {
             taskAdapter.setTasks(taskCardList);
         }));
     }
+
+    @Override
+    protected boolean createNewTask() {
+        CreateTaskBottomSheet bottomSheet = new CreateTaskBottomSheet();
+        bottomSheet.setTaskCreationListener(new OnTaskCreationListener() {
+            @Override
+            public void onTaskCreated() {
+                refreshTaskSection();
+            }
+        });
+        bottomSheet.setSelectedNote(currentNote);
+        bottomSheet.show(getSupportFragmentManager(), bottomSheet.getTag());
+        return true;
+    }
+
+    private void refreshTaskSection() {
+        getTasks();
+        taskAdapter.notifyDataSetChanged();
+    }
+
     public String getToolbarTitle() {
         return "View Note";
     }
@@ -304,4 +329,5 @@ public class ViewNoteActivity extends DrawerActivity {
     public int getCurrentPageId() {
         return R.id.action_notes;
     }
+
 }

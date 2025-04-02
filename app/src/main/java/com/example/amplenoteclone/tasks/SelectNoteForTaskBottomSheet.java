@@ -39,7 +39,6 @@ public class SelectNoteForTaskBottomSheet extends BottomSheetDialogFragment {
         void onNoteSelected(Note note); // Khi chọn một note có sẵn
         void onStartNewNoteSelected();  // Khi chọn "Start a new note"
     }
-
     public SelectNoteForTaskBottomSheet(OnNoteSelectionListener listener) {
         this.onNoteSelectionListener = listener;
     }

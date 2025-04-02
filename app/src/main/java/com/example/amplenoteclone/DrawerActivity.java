@@ -215,9 +215,7 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
         int id = item.getItemId();
 
         if (id == R.id.action_new_task) {
-            CreateTaskBottomSheet bottomSheet = new CreateTaskBottomSheet();
-            bottomSheet.show(getSupportFragmentManager(), bottomSheet.getTag());
-            return true;
+            createNewTask();
         }
 
         // If the selected item is already the current page, do nothing
@@ -233,6 +231,12 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
             startActivity(new Intent(this, TasksPageActivity.class));
         }
 
+        return true;
+    }
+
+    protected boolean createNewTask() {
+        CreateTaskBottomSheet bottomSheet = new CreateTaskBottomSheet();
+        bottomSheet.show(getSupportFragmentManager(), bottomSheet.getTag());
         return true;
     }
 
