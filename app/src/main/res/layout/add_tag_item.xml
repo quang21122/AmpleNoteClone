@@ -1,5 +1,5 @@
+<!-- res/layout/add_tag_item.xml -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
@@ -11,28 +11,19 @@
 
     <!-- Icon ic_tag -->
     <ImageView
-        android:id="@+id/tag_icon"
         android:layout_width="12dp"
         android:layout_height="12dp"
         android:src="@drawable/ic_tag"
         android:layout_marginEnd="8dp"
-        app:tint="@color/gray" />
+        android:tint="@color/textGray"/>
 
-    <!-- Tên tag -->
+    <!-- Text "add a tag" -->
     <TextView
-        android:id="@+id/tag_name"
+        android:id="@+id/add_tag"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Tag Name"
+        android:text="add a tag"
         android:textColor="@color/textGray"
-        android:textSize="12sp"
-        android:layout_marginEnd="8dp" />
-
-    <!-- Icon ic_more -->
-    <ImageView
-        android:id="@+id/more_icon"
-        android:layout_width="12dp"
-        android:layout_height="12dp"
-        android:src="@drawable/ic_more" />
+        android:textSize="12sp" />
 
 </LinearLayout>
