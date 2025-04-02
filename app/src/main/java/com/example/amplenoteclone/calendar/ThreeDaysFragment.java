@@ -590,17 +590,15 @@ public class ThreeDaysFragment extends Fragment implements DateSelectable, TaskV
     }
 
     private void rescheduleTaskToDate(Task task, Date newDate) {
-        FirebaseFirestore.getInstance()
-                .collection("tasks")
-                .document(task.getId())
-                .update("startAt", newDate)
-                .addOnSuccessListener(aVoid -> {
+        task.setStartAt(newDate);
+        task.updateInFirestore(
+                () -> {
                     if (requireActivity() instanceof CalendarActivity) {
                         ((CalendarActivity) requireActivity()).selectDate(newDate);
                     }
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(requireContext(), "Failed to reschedule task", Toast.LENGTH_SHORT).show());
+                },
+                e -> Toast.makeText(requireContext(), "Failed to reschedule task", Toast.LENGTH_SHORT).show()
+        );
     }
 
     private void showDatePicker(Task task, int hour, int minute, BottomSheetDialog currentDialog) {
@@ -700,7 +698,7 @@ public class ThreeDaysFragment extends Fragment implements DateSelectable, TaskV
         FirebaseFirestore.getInstance()
                 .collection("tasks")
                 .document(task.getId())
-                .update("startAt", null, "duration", 0)
+                .update("startAt", null, "duration", 0, "startAtDate", "", "startAtTime", "", "startAtPeriod", "", "startNoti", 0)
                 .addOnSuccessListener(aVoid -> {
                     if (requireActivity() instanceof CalendarActivity) {
                         ((CalendarActivity) requireActivity()).refreshCurrentFragment();

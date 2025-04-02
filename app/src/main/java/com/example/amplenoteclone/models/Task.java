@@ -358,7 +358,8 @@ public class Task implements Serializable {
 
     public void scheduleNotification(Context context) {
         if (startAt == null || startNoti <= 0) {
-            return; // Không lên lịch nếu không có startAt hoặc startNoti
+            cancelNotification(context);
+            return;
         }
 
         // Check if we have notification permission using NotificationManagerCompat
