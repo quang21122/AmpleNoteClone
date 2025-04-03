@@ -10,11 +10,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,11 +28,14 @@ import com.example.amplenoteclone.models.Note;
 import com.example.amplenoteclone.models.Tag;
 import com.example.amplenoteclone.models.Task;
 import com.example.amplenoteclone.ui.customviews.TaskCardView;
+import com.example.amplenoteclone.utils.TagManager;
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.flexbox.FlexboxLayoutManager;
 import com.google.android.flexbox.JustifyContent;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
@@ -65,6 +70,7 @@ public class ViewNoteActivity extends DrawerActivity {
     private List<Tag> tagsList;
     private TagsAdapter tagsAdapter;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private TagManager tagManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,17 +94,13 @@ public class ViewNoteActivity extends DrawerActivity {
 
         // Khởi tạo adapter
         tagsAdapter = new TagsAdapter(
+                this,
                 tagsList,
-                () -> {
-                    // Hiển thị dialog để nhập tên tag mới
-                    showAddTagDialog();
-                },
-                tag -> {
-                    // Xử lý sự kiện click vào icon ic_more (xóa tag)
-                    removeTagFromNote(tag);
-                });
+                this::showTagMenu
+        );
 
         tagsRecyclerView.setAdapter(tagsAdapter);
+        tagManager = new TagManager(this, tagsAdapter, tagsList, currentNote);
     }
 
     @Override
@@ -171,6 +173,9 @@ public class ViewNoteActivity extends DrawerActivity {
                         updateLastUpdated();
                         titleEditText.setText(currentNote.getTitle());
                         contentEditText.setText(currentNote.getContent());
+
+                        // Cập nhật currentNote cho TagManager
+                        tagManager = new TagManager(this, tagsAdapter, tagsList, currentNote);
 
                         // Set up tasks section
                         setupTaskSection();
@@ -312,186 +317,6 @@ public class ViewNoteActivity extends DrawerActivity {
         return R.id.action_notes;
     }
 
-//
-private void loadTags() {
-    tagsList.clear();
-    List<String> tagIds = currentNote.getTags();
-    if (tagIds == null || tagIds.isEmpty()) {
-        tagsAdapter.setTags(tagsList);
-        return;
-    }
-
-    for (String tagId : tagIds) {
-        // Kiểm tra tagId hợp lệ
-        if (tagId == null || tagId.trim().isEmpty()) {
-            continue;
-        }
-
-        try {
-            db.collection("tags").document(tagId)
-                    .get()
-                    .addOnSuccessListener(documentSnapshot -> {
-                        if (documentSnapshot.exists()) {
-                            Tag tag = documentSnapshot.toObject(Tag.class);
-                            if (tag != null) {
-                                tag.setId(tagId);
-                                tagsList.add(tag);
-                                tagsAdapter.setTags(tagsList);
-                            }
-                        }
-                    })
-                    .addOnFailureListener(e -> {
-                        Log.e("ViewNoteActivity", "Failed to load tag " + tagId + ": " + e.getMessage());
-                    });
-        } catch (IllegalArgumentException e) {
-            Log.e("ViewNoteActivity", "Invalid tag ID: " + tagId);
-            // Có thể xóa tagId không hợp lệ khỏi note
-            removeInvalidTagFromNote(tagId);
-        }
-    }
-}
-
-    private void removeInvalidTagFromNote(String invalidTagId) {
-        List<String> updatedTagIds = new ArrayList<>(currentNote.getTags());
-        updatedTagIds.remove(invalidTagId);
-        currentNote.setTags((ArrayList<String>) updatedTagIds);
-
-        db.collection("notes").document(currentNote.getId())
-                .update("tags", updatedTagIds)
-                .addOnSuccessListener(aVoid ->
-                        Log.d("ViewNoteActivity", "Removed invalid tag ID from note")
-                )
-                .addOnFailureListener(e ->
-                        Log.e("ViewNoteActivity", "Failed to remove invalid tag ID: " + e.getMessage())
-                );
-    }
-    private void showAddTagDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Add a Tag");
-
-        // Tạo EditText để nhập tên tag
-        final EditText input = new EditText(this);
-        input.setHint("Enter tag name");
-        builder.setView(input);
-
-        // Nút OK
-        builder.setPositiveButton("OK", (dialog, which) -> {
-            String tagName = input.getText().toString().trim();
-            if (!tagName.isEmpty()) {
-                addNewTag(tagName);
-            }
-        });
-
-        // Nút Cancel
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-
-        builder.show();
-    }
-
-    private void addNewTag(String tagName) {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        // Kiểm tra xem tag đã tồn tại chưa
-        db.collection("tags")
-                .whereEqualTo("name", tagName)
-                .whereEqualTo("userId", userId)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        // Tag đã tồn tại, sử dụng tag hiện có
-                        Tag existingTag = queryDocumentSnapshots.getDocuments().get(0).toObject(Tag.class);
-                        existingTag.setId(queryDocumentSnapshots.getDocuments().get(0).getId());
-                        addTagToNote(existingTag);
-                    } else {
-                        // Tạo tag mới
-                        Tag newTag = new Tag(tagName, userId);
-                        db.collection("tags")
-                                .add(newTag)
-                                .addOnSuccessListener(documentReference -> {
-                                    String newTagId = documentReference.getId();
-                                    newTag.setId(newTagId);
-                                    addTagToNote(newTag);
-                                })
-                                .addOnFailureListener(e -> {
-                                    Log.e("ViewNoteActivity", "Failed to add new tag: " + e.getMessage());
-                                    Toast.makeText(this, "Failed to add tag", Toast.LENGTH_SHORT).show();
-                                });
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("ViewNoteActivity", "Failed to check existing tag: " + e.getMessage());
-                    Toast.makeText(this, "Failed to add tag", Toast.LENGTH_SHORT).show();
-                });
-    }
-
-    private void addTagToNote(Tag tag) {
-        List<String> updatedTagIds = new ArrayList<>(currentNote.getTags());
-        if (!updatedTagIds.contains(tag.getId())) {
-            updatedTagIds.add(tag.getId());
-            currentNote.setTags((ArrayList<String>) updatedTagIds);
-
-            // Cập nhật Note trên Firestore
-            db.collection("notes").document(currentNote.getId())
-                    .update("tags", updatedTagIds)
-                    .addOnSuccessListener(aVoid -> {
-                        Log.d("ViewNoteActivity", "Tag added to note successfully");
-                        tagsList.add(tag);
-                        tagsAdapter.setTags(tagsList);
-                        Toast.makeText(this, "Tag added", Toast.LENGTH_SHORT).show();
-                    })
-                    .addOnFailureListener(e -> {
-                        Log.e("ViewNoteActivity", "Failed to update note tags: " + e.getMessage());
-                        Toast.makeText(this, "Failed to add tag", Toast.LENGTH_SHORT).show();
-                    });
-        }
-    }
-
-    private void removeTagFromNote(Tag tag) {
-        List<String> updatedTagIds = new ArrayList<>(currentNote.getTags());
-        updatedTagIds.remove(tag.getId());
-        currentNote.setTags((ArrayList<String>) updatedTagIds);
-
-        // Cập nhật Note trên Firestore
-        db.collection("notes").document(currentNote.getId())
-                .update("tags", updatedTagIds)
-                .addOnSuccessListener(aVoid -> {
-                    Log.d("ViewNoteActivity", "Tag removed from note successfully");
-                    tagsList.remove(tag);
-                    tagsAdapter.setTags(tagsList);
-                    Toast.makeText(this, "Tag removed", Toast.LENGTH_SHORT).show();
-
-                    // (Tùy chọn) Xóa Tag khỏi collection "tags" nếu không còn note nào sử dụng
-                    checkAndDeleteTag(tag);
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("ViewNoteActivity", "Failed to remove tag from note: " + e.getMessage());
-                    Toast.makeText(this, "Failed to remove tag", Toast.LENGTH_SHORT).show();
-                });
-    }
-
-    private void checkAndDeleteTag(Tag tag) {
-        // Kiểm tra xem tag có còn được sử dụng bởi note nào khác không
-        db.collection("notes")
-                .whereArrayContains("tags", tag.getId())
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (queryDocumentSnapshots.isEmpty()) {
-                        // Không còn note nào sử dụng tag này, xóa tag
-                        db.collection("tags").document(tag.getId())
-                                .delete()
-                                .addOnSuccessListener(aVoid -> {
-                                    Log.d("ViewNoteActivity", "Tag deleted from Firestore: " + tag.getId());
-                                })
-                                .addOnFailureListener(e -> {
-                                    Log.e("ViewNoteActivity", "Failed to delete tag: " + e.getMessage());
-                                });
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("ViewNoteActivity", "Failed to check tag usage: " + e.getMessage());
-                });
-    }
-
     private void setupTaskSection() {
         if (currentNote.getId() == null || currentNote.getTasks() == null || currentNote.getTasks().isEmpty()) {
             return;
@@ -517,5 +342,100 @@ private void loadTags() {
             }
             taskAdapter.setTasks(taskCardList);
         }));
+    }
+
+    public Note getCurrentNote() {
+        return currentNote;
+    }
+
+    private void loadTags() {
+        tagsList.clear();
+        List<String> tagIds = currentNote.getTags();
+        if (tagIds == null || tagIds.isEmpty()) {
+            tagsAdapter.setTags(tagsList);
+            return;
+        }
+
+        // Lấy thông tin chi tiết của từng tag từ collection "tags"
+        for (String tagId : tagIds) {
+            db.collection("tags").document(tagId)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            Tag tag = documentSnapshot.toObject(Tag.class);
+                            if (tag != null) {
+                                tag.setId(tagId);
+                                tagsList.add(tag);
+                                tagsAdapter.setTags(tagsList);
+                            }
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e("ViewNoteActivity", "Failed to load tag " + tagId + ": " + e.getMessage());
+                    });
+        }
+    }
+
+    private void showTagMenu(Tag tag) {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+        View bottomSheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_tag_menu, null);
+        bottomSheetDialog.setContentView(bottomSheetView);
+
+        // Lấy chiều cao màn hình
+        int screenHeight = getResources().getDisplayMetrics().heightPixels;
+
+        // Điều chỉnh độ cao của BottomSheetDialog để chiếm toàn bộ màn hình
+        ViewGroup.LayoutParams layoutParams = bottomSheetView.getLayoutParams();
+        if (layoutParams == null) {
+            layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, screenHeight);
+        } else {
+            layoutParams.height = screenHeight;
+        }
+        bottomSheetView.setLayoutParams(layoutParams);
+
+        // Cấu hình BottomSheetBehavior
+        BottomSheetBehavior<View> behavior = BottomSheetBehavior.from((View) bottomSheetView.getParent());
+        behavior.setPeekHeight(screenHeight); // Đặt peekHeight bằng chiều cao màn hình
+        behavior.setState(BottomSheetBehavior.STATE_EXPANDED); // Mở rộng hoàn toàn
+        behavior.setSkipCollapsed(true); // Bỏ qua trạng thái collapsed
+        behavior.setFitToContents(false); // Không tự động điều chỉnh theo nội dung
+
+        // Cập nhật tiêu đề (tên tag)
+        TextView tagNameTitle = bottomSheetView.findViewById(R.id.tag_menu_name);
+        tagNameTitle.setText(tag.getName());
+
+        // Cập nhật icon (nếu tag là "daily-jots" thì đổi màu icon)
+        ImageView tagIcon = bottomSheetView.findViewById(R.id.tag_menu_icon);
+        if ("daily-jots".equalsIgnoreCase(tag.getName())) {
+            tagIcon.setColorFilter(ContextCompat.getColor(this, R.color.textBlue));
+        } else {
+            tagIcon.setColorFilter(ContextCompat.getColor(this, R.color.dark));
+        }
+
+        // Xử lý nút X để đóng dialog
+        ImageView closeButton = bottomSheetView.findViewById(R.id.close_button);
+        closeButton.setOnClickListener(v -> bottomSheetDialog.dismiss());
+
+        // Xử lý các tùy chọn trong menu bằng TagManager
+        bottomSheetView.findViewById(R.id.option_remove_tag).setOnClickListener(v -> {
+            tagManager.removeTagFromNote(tag);
+            bottomSheetDialog.dismiss();
+        });
+
+        bottomSheetView.findViewById(R.id.option_edit_tag).setOnClickListener(v -> {
+            tagManager.editTag(tag);
+            bottomSheetDialog.dismiss();
+        });
+
+        bottomSheetView.findViewById(R.id.option_delete_tag).setOnClickListener(v -> {
+            tagManager.deleteTag(tag);
+            bottomSheetDialog.dismiss();
+        });
+
+        bottomSheetDialog.show();
+    }
+
+    public void addNewTag(String tagName) {
+        tagManager.addNewTag(tagName);
     }
 }
