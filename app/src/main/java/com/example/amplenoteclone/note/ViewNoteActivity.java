@@ -65,6 +65,7 @@ public class ViewNoteActivity extends DrawerActivity {
         setActivityContent(R.layout.activity_view_note);
 
         initializeViews();
+        setupTaskSection();
         initializeNote();
         setupListeners();
         setupAutoSave();
@@ -102,6 +103,7 @@ public class ViewNoteActivity extends DrawerActivity {
     private void initializeNote() {
         if (getIntent().hasExtra("noteId")) {
             loadNote();
+            getTasks();
         } else {
             createNewNote();
             updateLastUpdated();
@@ -295,13 +297,6 @@ public class ViewNoteActivity extends DrawerActivity {
     }
 
     private void setupTaskSection() {
-        // Check if the note is newly created
-        if (currentNote.getId() == null
-                || currentNote.getTasks() == null
-                || currentNote.getTasks().isEmpty()) {
-            return;
-        }
-
         // Recycler View
         RecyclerView recyclerView = findViewById(R.id.tasks_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -310,13 +305,15 @@ public class ViewNoteActivity extends DrawerActivity {
         taskAdapter = new TaskAdapter();
         recyclerView.setAdapter(taskAdapter);
         taskAdapter.notifyDataSetChanged();
-
-        // Get tasks
-        getTasks();
     }
 
     private void getTasks() {
         ArrayList<Task> taskList = new ArrayList<>();
+
+        if (currentNote.getId() == null) {
+            return;
+        }
+
         loadTasksInNote(
                 currentNote.getId(),
                 tasks ->
@@ -348,9 +345,6 @@ public class ViewNoteActivity extends DrawerActivity {
                 new OnTaskCreationListener() {
                     @Override
                     public void onTaskCreated() {
-                        // Init Task Section if not yet created
-                        if (taskAdapter == null) setupTaskSection();
-
                         refreshTaskSection();
                     }
                 });
@@ -426,6 +420,10 @@ public class ViewNoteActivity extends DrawerActivity {
     }
 
     private void refreshTaskSection() {
+        if (taskAdapter == null) {
+            return;
+        }
+
         getTasks();
 
         taskAdapter.notifyDataSetChanged();
