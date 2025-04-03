@@ -201,6 +201,7 @@ public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
 
         // Tạo task mới
         Task newTask = new Task(userId, noteId, taskTitle);
+        newTask.setId(db.collection("tasks").document().getId());
         setTaskStartTime(newTask); // Cập nhật thời gian nếu có
 
         // Lưu note và thêm task ID
