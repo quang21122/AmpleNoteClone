@@ -5,6 +5,7 @@ import static com.example.amplenoteclone.utils.TimeConverter.formatLastUpdated;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.Menu;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -20,9 +21,13 @@ import com.example.amplenoteclone.models.Note;
 import com.example.amplenoteclone.models.Task;
 import com.example.amplenoteclone.tasks.CreateTaskBottomSheet;
 import com.example.amplenoteclone.ui.customviews.TaskCardView;
+import com.example.amplenoteclone.utils.FirestoreListCallback;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,6 +53,7 @@ public class ViewNoteActivity extends DrawerActivity {
     private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
     private TaskAdapter taskAdapter;
     private ArrayList<TaskCardView> taskCardList = new ArrayList<>();
+    private ListenerRegistration taskListener;
 
     public interface OnTaskCreationListener {
         void onTaskCreated();
@@ -75,6 +81,11 @@ public class ViewNoteActivity extends DrawerActivity {
     protected void onDestroy() {
         super.onDestroy();
         cancelAutoSave();
+
+        if (taskListener != null) {
+            taskListener.remove();
+            taskListener = null;
+        }
     }
 
     private void initializeViews() {
@@ -306,12 +317,13 @@ public class ViewNoteActivity extends DrawerActivity {
 
     private void getTasks() {
         ArrayList<Task> taskList = new ArrayList<>();
-        Task.loadTasksInNote(
+        loadTasksInNote(
                 currentNote.getId(),
                 tasks ->
                         runOnUiThread(
                                 () -> {
                                     // Add tasks to taskList
+                                    taskList.clear();
                                     taskList.addAll(tasks);
 
                                     // Clear taskCardList
@@ -345,6 +357,72 @@ public class ViewNoteActivity extends DrawerActivity {
         bottomSheet.setSelectedNote(currentNote);
         bottomSheet.show(getSupportFragmentManager(), bottomSheet.getTag());
         return true;
+    }
+
+    public void loadTasksInNote(String noteId, FirestoreListCallback<Task> callback) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference collectionRef = db.collection("tasks");
+
+        if (taskListener != null) {
+            taskListener.remove();
+        }
+
+        taskListener =
+                collectionRef
+                        .whereEqualTo("noteId", noteId)
+                        .orderBy("createAt", Query.Direction.DESCENDING)
+                        .addSnapshotListener(
+                                (queryDocumentSnapshots, error) -> {
+                                    if (error != null) {
+                                        Log.e("Firestore", "Error listening to tasks: ", error);
+                                        Toast.makeText(
+                                                        this,
+                                                        "Error loading tasks: "
+                                                                + error.getMessage(),
+                                                        Toast.LENGTH_SHORT)
+                                                .show();
+                                    } else {
+                                        // **Clear existing tasks before adding new ones**
+                                        ArrayList<Task> tasks = new ArrayList<>();
+
+                                        for (QueryDocumentSnapshot document :
+                                                queryDocumentSnapshots) {
+                                            Task task =
+                                                    new Task(
+                                                            document.getString("userId"),
+                                                            document.getString("noteId"),
+                                                            document.getString("title"),
+                                                            document.getDate("createAt"),
+                                                            document.getBoolean("isCompleted"),
+                                                            document.getString("repeat"),
+                                                            document.getDate("startAt"),
+                                                            document.getString("startAtDate"),
+                                                            document.getString("startAtPeriod"),
+                                                            document.getString("startAtTime"),
+                                                            document.getLong("startNoti") != null
+                                                                    ? document.getLong("startNoti")
+                                                                            .intValue()
+                                                                    : 0,
+                                                            document.getDate("hideUntil"),
+                                                            document.getString("hideUntilDate"),
+                                                            document.getString("hideUntilTime"),
+                                                            document.getString("priority"),
+                                                            document.getLong("duration") != null
+                                                                    ? document.getLong("duration")
+                                                                            .intValue()
+                                                                    : 0,
+                                                            document.getDouble("score") != null
+                                                                    ? document.getDouble("score")
+                                                                            .floatValue()
+                                                                    : 0.0f);
+                                            task.setId(document.getId());
+                                            if (task.getTitle() != null) {
+                                                tasks.add(task);
+                                            }
+                                        }
+                                        callback.onCallback(tasks);
+                                    }
+                                });
     }
 
     private void refreshTaskSection() {
