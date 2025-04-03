@@ -116,36 +116,39 @@ public class ViewNoteActivity extends DrawerActivity {
         // Load note from Firebase
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference collectionRef = db.collection("notes");
-        collectionRef.document(noteId).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        currentNote = new Note(
-                                documentSnapshot.getId(),
-                                documentSnapshot.getString("title"),
-                                documentSnapshot.getString("content"),
-                                (ArrayList<String>) documentSnapshot.get("tags"),
-                                (ArrayList<String>) documentSnapshot.get("tasks"),
-                                documentSnapshot.getTimestamp("createdAt").toDate(),
-                                documentSnapshot.getTimestamp("updatedAt").toDate(),
-                                documentSnapshot.getBoolean("isProtected")
+        collectionRef
+                .document(noteId)
+                .get()
+                .addOnSuccessListener(
+                        documentSnapshot -> {
+                            if (documentSnapshot.exists()) {
+                                currentNote =
+                                        new Note(
+                                                documentSnapshot.getId(),
+                                                documentSnapshot.getString("title"),
+                                                documentSnapshot.getString("content"),
+                                                (ArrayList<String>) documentSnapshot.get("tags"),
+                                                (ArrayList<String>) documentSnapshot.get("tasks"),
+                                                documentSnapshot.getTimestamp("createdAt").toDate(),
+                                                documentSnapshot.getTimestamp("updatedAt").toDate(),
+                                                documentSnapshot.getBoolean("isProtected"));
 
-                        );
+                                updateLastUpdated();
+                                titleEditText.setText(currentNote.getTitle());
+                                contentEditText.setText(currentNote.getContent());
 
-                        updateLastUpdated();
-                        titleEditText.setText(currentNote.getTitle());
-                        contentEditText.setText(currentNote.getContent());
-
-                        // Set up tasks section
-                        setupTaskSection();
-                    } else {
-                        Toast.makeText(this, "Note not found", Toast.LENGTH_SHORT).show();
-                        finish();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to load note", Toast.LENGTH_SHORT).show();
-                    finish();
-                });
+                                // Set up tasks section
+                                setupTaskSection();
+                            } else {
+                                Toast.makeText(this, "Note not found", Toast.LENGTH_SHORT).show();
+                                finish();
+                            }
+                        })
+                .addOnFailureListener(
+                        e -> {
+                            Toast.makeText(this, "Failed to load note", Toast.LENGTH_SHORT).show();
+                            finish();
+                        });
     }
 
     private void updateLastUpdated() {
@@ -153,36 +156,46 @@ public class ViewNoteActivity extends DrawerActivity {
     }
 
     private void setupListeners() {
-        hiddenTabTextView.setOnClickListener(v -> {
-            saveNote();
-            updateLastUpdated();
-        });
+        hiddenTabTextView.setOnClickListener(
+                v -> {
+                    saveNote();
+                    updateLastUpdated();
+                });
 
-        completedTabTextView.setOnClickListener(v -> {
-            saveNote();
-            updateLastUpdated();
-        });
+        completedTabTextView.setOnClickListener(
+                v -> {
+                    saveNote();
+                    updateLastUpdated();
+                });
 
-        backlinksTabTextView.setOnClickListener(v -> Toast.makeText(this, "Backlinks feature coming soon", Toast.LENGTH_SHORT).show());
-        addTagTextView.setOnClickListener(v -> Toast.makeText(this, "Tag feature coming soon", Toast.LENGTH_SHORT).show());
+        backlinksTabTextView.setOnClickListener(
+                v ->
+                        Toast.makeText(this, "Backlinks feature coming soon", Toast.LENGTH_SHORT)
+                                .show());
+        addTagTextView.setOnClickListener(
+                v -> Toast.makeText(this, "Tag feature coming soon", Toast.LENGTH_SHORT).show());
     }
 
     private void setupAutoSave() {
         autoSaveTimer = new Timer();
-        autoSaveTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if (hasNoteChanged()) {
-                    mainThreadHandler.post(() -> saveNote());
-                }
-            }
-        }, AUTOSAVE_DELAY, AUTOSAVE_DELAY);
+        autoSaveTimer.schedule(
+                new TimerTask() {
+                    @Override
+                    public void run() {
+                        if (hasNoteChanged()) {
+                            mainThreadHandler.post(() -> saveNote());
+                        }
+                    }
+                },
+                AUTOSAVE_DELAY,
+                AUTOSAVE_DELAY);
     }
 
     private boolean hasNoteChanged() {
-        return currentNote != null &&
-                (!Objects.equals(titleEditText.getText().toString(), currentNote.getTitle()) ||
-                        !Objects.equals(contentEditText.getText().toString(), currentNote.getContent()));
+        return currentNote != null
+                && (!Objects.equals(titleEditText.getText().toString(), currentNote.getTitle())
+                        || !Objects.equals(
+                                contentEditText.getText().toString(), currentNote.getContent()));
     }
 
     private void saveNote() {
@@ -209,26 +222,33 @@ public class ViewNoteActivity extends DrawerActivity {
 
         if (currentNote.getId() == null) {
             // Create a new note
-            collectionRef.add(noteData)
-                    .addOnSuccessListener(documentReference -> {
-                        currentNote.setId(documentReference.getId());
-                        Toast.makeText(this, "Note saved", Toast.LENGTH_SHORT).show();
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Failed to save note", Toast.LENGTH_SHORT).show();
-                    });
+            collectionRef
+                    .add(noteData)
+                    .addOnSuccessListener(
+                            documentReference -> {
+                                currentNote.setId(documentReference.getId());
+                                Toast.makeText(this, "Note saved", Toast.LENGTH_SHORT).show();
+                            })
+                    .addOnFailureListener(
+                            e -> {
+                                Toast.makeText(this, "Failed to save note", Toast.LENGTH_SHORT)
+                                        .show();
+                            });
             return;
         }
 
         // Save the note toFirebase
-        collectionRef.document(currentNote.getId())
+        collectionRef
+                .document(currentNote.getId())
                 .set(noteData)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "Note saved", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to save note", Toast.LENGTH_SHORT).show();
-                });
+                .addOnSuccessListener(
+                        aVoid -> {
+                            Toast.makeText(this, "Note saved", Toast.LENGTH_SHORT).show();
+                        })
+                .addOnFailureListener(
+                        e -> {
+                            Toast.makeText(this, "Failed to save note", Toast.LENGTH_SHORT).show();
+                        });
     }
 
     private Map<String, Object> createUploadData() {
@@ -265,7 +285,9 @@ public class ViewNoteActivity extends DrawerActivity {
 
     private void setupTaskSection() {
         // Check if the note is newly created
-        if (currentNote.getId() == null || currentNote.getTasks() == null || currentNote.getTasks().isEmpty()) {
+        if (currentNote.getId() == null
+                || currentNote.getTasks() == null
+                || currentNote.getTasks().isEmpty()) {
             return;
         }
 
@@ -284,34 +306,42 @@ public class ViewNoteActivity extends DrawerActivity {
 
     private void getTasks() {
         ArrayList<Task> taskList = new ArrayList<>();
-        Task.loadTasksInNote(currentNote.getId(), tasks -> runOnUiThread(() -> {
-            // Add tasks to taskList
-            taskList.addAll(tasks);
+        Task.loadTasksInNote(
+                currentNote.getId(),
+                tasks ->
+                        runOnUiThread(
+                                () -> {
+                                    // Add tasks to taskList
+                                    taskList.addAll(tasks);
 
-            // Clear taskCardList
-            taskCardList.clear();
+                                    // Clear taskCardList
+                                    taskCardList.clear();
 
-            // Add tasks to taskCardList
-            for (Task task : taskList) {
-                TaskCardView taskCard = new TaskCardView(this);
-                taskCard.setTask(task);
-                taskCardList.add(taskCard);
-            }
+                                    // Add tasks to taskCardList
+                                    for (Task task : taskList) {
+                                        TaskCardView taskCard = new TaskCardView(this);
+                                        taskCard.setTask(task);
+                                        taskCardList.add(taskCard);
+                                    }
 
-            // Add tasks to adapter
-            taskAdapter.setTasks(taskCardList);
-        }));
+                                    // Add tasks to adapter
+                                    taskAdapter.setTasks(taskCardList);
+                                }));
     }
 
     @Override
     protected boolean createNewTask() {
         CreateTaskBottomSheet bottomSheet = new CreateTaskBottomSheet();
-        bottomSheet.setTaskCreationListener(new OnTaskCreationListener() {
-            @Override
-            public void onTaskCreated() {
-                refreshTaskSection();
-            }
-        });
+        bottomSheet.setTaskCreationListener(
+                new OnTaskCreationListener() {
+                    @Override
+                    public void onTaskCreated() {
+                        // Init Task Section if not yet created
+                        if (taskAdapter == null) setupTaskSection();
+
+                        refreshTaskSection();
+                    }
+                });
         bottomSheet.setSelectedNote(currentNote);
         bottomSheet.show(getSupportFragmentManager(), bottomSheet.getTag());
         return true;
@@ -319,6 +349,7 @@ public class ViewNoteActivity extends DrawerActivity {
 
     private void refreshTaskSection() {
         getTasks();
+
         taskAdapter.notifyDataSetChanged();
     }
 
@@ -329,5 +360,4 @@ public class ViewNoteActivity extends DrawerActivity {
     public int getCurrentPageId() {
         return R.id.action_notes;
     }
-
 }
