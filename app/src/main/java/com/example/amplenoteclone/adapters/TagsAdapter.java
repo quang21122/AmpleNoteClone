@@ -85,9 +85,10 @@ public class TagsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             addTagHolder.addTagButton.setOnClickListener(v -> {
                 // Hiển thị AddTagDialogFragment
                 AddTagDialogFragment dialogFragment = new AddTagDialogFragment();
-                dialogFragment.setOnTagAddedListener(tagName -> {
+                dialogFragment.setOnTagAddedListener(tag -> {
                     if (context instanceof ViewNoteActivity) {
-                        ((ViewNoteActivity) context).addNewTag(tagName);
+                        tagsList.add(tag);
+                        notifyDataSetChanged();
                     }
                 });
                 dialogFragment.show(((FragmentActivity) context).getSupportFragmentManager(), "AddTagDialog");

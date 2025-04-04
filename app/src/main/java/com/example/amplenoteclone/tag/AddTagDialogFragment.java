@@ -29,6 +29,9 @@ import com.example.amplenoteclone.note.NotesActivity;
 import com.example.amplenoteclone.note.ViewNoteActivity;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AddTagDialogFragment extends DialogFragment {
 
     private EditText tagNameInput;
@@ -37,7 +40,7 @@ public class AddTagDialogFragment extends DialogFragment {
     private ImageView doneButton;
 
     public interface OnTagAddedListener {
-        void onTagAdded(String tagName);
+        void onTagAdded(Tag tag);
     }
 
     private OnTagAddedListener tagAddedListener;
@@ -65,7 +68,6 @@ public class AddTagDialogFragment extends DialogFragment {
         setupTagNameWatcher();
         setupListener();
 
-
         return view;
     }
 
@@ -91,7 +93,7 @@ public class AddTagDialogFragment extends DialogFragment {
         }
     }
 
-    private void setUpDialog(){
+    private void setUpDialog() {
         Dialog dialog = getDialog();
         if (dialog != null) {
             Window window = dialog.getWindow();
@@ -109,11 +111,14 @@ public class AddTagDialogFragment extends DialogFragment {
                 window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
                 window.setStatusBarColor(getResources().getColor(android.R.color.transparent));
                 window.setAttributes(params);
+
+                // Đặt hiệu ứng làm mờ nền giống BottomSheetDialog
+                window.setDimAmount(0.5f);
             }
         }
     }
 
-    private void setupTagNameWatcher(){
+    private void setupTagNameWatcher() {
         tagNameInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -145,7 +150,7 @@ public class AddTagDialogFragment extends DialogFragment {
         });
     }
 
-    private void setupListener(){
+    private void setupListener() {
         // Xử lý nút Back
         backButton.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), NotesActivity.class);
@@ -171,18 +176,11 @@ public class AddTagDialogFragment extends DialogFragment {
             Note currentNote = activity.getCurrentNote();
             if (currentNote != null && currentNote.getTags() != null) {
                 for (String tagId : currentNote.getTags()) {
-                    FirebaseFirestore.getInstance().collection("tags")
-                            .document(tagId)
-                            .get()
-                            .addOnSuccessListener(documentSnapshot -> {
-                                if (documentSnapshot.exists()) {
-                                    Tag tag = documentSnapshot.toObject(Tag.class);
-                                    if (tag != null && tag.getName().equalsIgnoreCase(tagName)) {
-                                        System.out.println("Note already has the same tag");
-                                        dismiss();
-                                    }
-                                }
-                            });
+                    Tag existingTag = new Tag();
+                    existingTag.setId(tagId);
+                    if (existingTag.getName() != null && existingTag.getName().equalsIgnoreCase(tagName)) {
+                        return true;
+                    }
                 }
             }
         }
@@ -196,11 +194,44 @@ public class AddTagDialogFragment extends DialogFragment {
             return;
         }
 
-        if (!isTagExists(tagName)) {
-            if (tagAddedListener != null) {
-                tagAddedListener.onTagAdded(tagName);
-            }
+        if (isTagExists(tagName)) {
+            Toast.makeText(getContext(), "Note already has this tag", Toast.LENGTH_SHORT).show();
+            dismiss();
+            return;
         }
-        dismiss();
+
+        // Tạo tag mới trong Firestore
+        Tag.createTagInFirestore(requireContext(),
+                tagName,
+                newTag -> {
+                    // Thêm tag vào note
+                    if (getActivity() instanceof ViewNoteActivity) {
+                        ViewNoteActivity activity = (ViewNoteActivity) getActivity();
+                        Note currentNote = activity.getCurrentNote();
+                        if (currentNote != null) {
+                            List<String> updatedTagIds = new ArrayList<>(currentNote.getTags());
+                            updatedTagIds.add(newTag.getId());
+                            currentNote.setTags((ArrayList<String>) updatedTagIds);
+
+                            FirebaseFirestore.getInstance().collection("notes").document(currentNote.getId())
+                                    .update("tags", updatedTagIds)
+                                    .addOnSuccessListener(aVoid -> {
+                                        if (tagAddedListener != null) {
+                                            tagAddedListener.onTagAdded(newTag);
+                                        }
+                                        Toast.makeText(getContext(), "Tag added", Toast.LENGTH_SHORT).show();
+                                        dismiss();
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(getContext(), "Failed to add tag to note", Toast.LENGTH_SHORT).show();
+                                        dismiss();
+                                    });
+                        }
+                    }
+                },
+                error -> {
+                    Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
+                    dismiss();
+                });
     }
 }

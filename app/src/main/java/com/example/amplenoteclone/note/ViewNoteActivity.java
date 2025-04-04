@@ -27,8 +27,8 @@ import com.example.amplenoteclone.adapters.TaskAdapter;
 import com.example.amplenoteclone.models.Note;
 import com.example.amplenoteclone.models.Tag;
 import com.example.amplenoteclone.models.Task;
+import com.example.amplenoteclone.tag.BottomSheetTagMenu;
 import com.example.amplenoteclone.ui.customviews.TaskCardView;
-import com.example.amplenoteclone.utils.TagManager;
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayout;
@@ -70,7 +70,6 @@ public class ViewNoteActivity extends DrawerActivity {
     private List<Tag> tagsList;
     private TagsAdapter tagsAdapter;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private TagManager tagManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,11 +95,31 @@ public class ViewNoteActivity extends DrawerActivity {
         tagsAdapter = new TagsAdapter(
                 this,
                 tagsList,
-                this::showTagMenu
+                tag -> {
+                    BottomSheetTagMenu bottomSheetTagMenu = BottomSheetTagMenu.newInstance(tag);
+                    bottomSheetTagMenu.setOnTagActionListener(new BottomSheetTagMenu.OnTagActionListener() {
+                        @Override
+                        public void onTagRemoved(Tag tag) {
+                            tagsList.remove(tag);
+                            tagsAdapter.setTags(tagsList);
+                        }
+
+                        @Override
+                        public void onTagEdited(Tag tag) {
+                            tagsAdapter.setTags(tagsList);
+                        }
+
+                        @Override
+                        public void onTagDeleted(Tag tag) {
+                            tagsList.remove(tag);
+                            tagsAdapter.setTags(tagsList);
+                        }
+                    });
+                    bottomSheetTagMenu.show(getSupportFragmentManager(), "BottomSheetTagMenu");
+                }
         );
 
         tagsRecyclerView.setAdapter(tagsAdapter);
-        tagManager = new TagManager(this, tagsAdapter, tagsList, currentNote);
     }
 
     @Override
@@ -173,12 +192,6 @@ public class ViewNoteActivity extends DrawerActivity {
                         updateLastUpdated();
                         titleEditText.setText(currentNote.getTitle());
                         contentEditText.setText(currentNote.getContent());
-
-                        // Cập nhật currentNote cho TagManager
-                        tagManager = new TagManager(this, tagsAdapter, tagsList, currentNote);
-
-                        // Set up tasks section
-                        setupTaskSection();
 
                         // Load tags
                         loadTags();
@@ -374,68 +387,5 @@ public class ViewNoteActivity extends DrawerActivity {
                         Log.e("ViewNoteActivity", "Failed to load tag " + tagId + ": " + e.getMessage());
                     });
         }
-    }
-
-    private void showTagMenu(Tag tag) {
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
-        View bottomSheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_tag_menu, null);
-        bottomSheetDialog.setContentView(bottomSheetView);
-
-        // Lấy chiều cao màn hình
-        int screenHeight = getResources().getDisplayMetrics().heightPixels;
-
-        // Điều chỉnh độ cao của BottomSheetDialog để chiếm toàn bộ màn hình
-        ViewGroup.LayoutParams layoutParams = bottomSheetView.getLayoutParams();
-        if (layoutParams == null) {
-            layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, screenHeight);
-        } else {
-            layoutParams.height = screenHeight;
-        }
-        bottomSheetView.setLayoutParams(layoutParams);
-
-        // Cấu hình BottomSheetBehavior
-        BottomSheetBehavior<View> behavior = BottomSheetBehavior.from((View) bottomSheetView.getParent());
-        behavior.setPeekHeight(screenHeight); // Đặt peekHeight bằng chiều cao màn hình
-        behavior.setState(BottomSheetBehavior.STATE_EXPANDED); // Mở rộng hoàn toàn
-        behavior.setSkipCollapsed(true); // Bỏ qua trạng thái collapsed
-        behavior.setFitToContents(false); // Không tự động điều chỉnh theo nội dung
-
-        // Cập nhật tiêu đề (tên tag)
-        TextView tagNameTitle = bottomSheetView.findViewById(R.id.tag_menu_name);
-        tagNameTitle.setText(tag.getName());
-
-        // Cập nhật icon (nếu tag là "daily-jots" thì đổi màu icon)
-        ImageView tagIcon = bottomSheetView.findViewById(R.id.tag_menu_icon);
-        if ("daily-jots".equalsIgnoreCase(tag.getName())) {
-            tagIcon.setColorFilter(ContextCompat.getColor(this, R.color.textBlue));
-        } else {
-            tagIcon.setColorFilter(ContextCompat.getColor(this, R.color.dark));
-        }
-
-        // Xử lý nút X để đóng dialog
-        ImageView closeButton = bottomSheetView.findViewById(R.id.close_button);
-        closeButton.setOnClickListener(v -> bottomSheetDialog.dismiss());
-
-        // Xử lý các tùy chọn trong menu bằng TagManager
-        bottomSheetView.findViewById(R.id.option_remove_tag).setOnClickListener(v -> {
-            tagManager.removeTagFromNote(tag);
-            bottomSheetDialog.dismiss();
-        });
-
-        bottomSheetView.findViewById(R.id.option_edit_tag).setOnClickListener(v -> {
-            tagManager.editTag(tag);
-            bottomSheetDialog.dismiss();
-        });
-
-        bottomSheetView.findViewById(R.id.option_delete_tag).setOnClickListener(v -> {
-            tagManager.deleteTag(tag);
-            bottomSheetDialog.dismiss();
-        });
-
-        bottomSheetDialog.show();
-    }
-
-    public void addNewTag(String tagName) {
-        tagManager.addNewTag(tagName);
     }
 }
