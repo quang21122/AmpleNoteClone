@@ -93,8 +93,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/task_created_at_time_ago"
             android:orientation="vertical"
-            android:background="@color/light_blue_gray"
-            android:visibility="gone">
+            android:background="@color/light_blue_gray">
+<!--            android:visibility="gone">-->
 
             <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
@@ -290,7 +290,7 @@
                                             android:layout_height="wrap_content"
                                             android:clickable="true"
                                             android:focusable="true"
-                                            android:gravity="center_vertical"
+                                            android:gravity="end|center_vertical"
                                             android:orientation="horizontal">
 
                                             <TextView
@@ -301,11 +301,6 @@
                                                 android:text=""
                                                 android:textColor="@color/textRed"
                                                 android:textSize="16sp" />
-
-                                            <View
-                                                android:layout_width="0dp"
-                                                android:layout_height="0dp"
-                                                android:layout_weight="1" />
 
                                             <ImageView
                                                 android:layout_width="20dp"
