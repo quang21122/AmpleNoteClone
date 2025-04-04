@@ -9,11 +9,12 @@ import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class Tag {
+public class Tag implements Serializable {
     private String id;
     private String name;
     private String userId;
@@ -118,36 +119,66 @@ public class Tag {
     }
 
     public void deleteTagInFirestore(Context context, Runnable onSuccess, Consumer<String> onFailure) {
+        Context appContext = context.getApplicationContext();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Kiểm tra id
         if (id == null) {
             onFailure.accept("Tag ID is null");
             return;
         }
 
-        // Xóa tag khỏi tất cả các note
-        db.collection("notes")
-                .whereArrayContains("tags", id)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        List<String> updatedTags = new ArrayList<>(doc.get("tags", ArrayList.class));
-                        updatedTags.remove(id);
-                        db.collection("notes").document(doc.getId())
-                                .update("tags", updatedTags);
-                    }
+        // Transaction để đảm bảo tất cả các thao tác được thực hiện hoặc không có thao tác nào được thực hiện
+        db.runTransaction(transaction -> {
+            // 1. Lấy tất cả notes chứa tag này
+            db.collection("notes")
+                    .whereArrayContains("tags", id)
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        // 2. Xóa tag khỏi tất cả notes
+                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                            List<String> currentTags = (List<String>) doc.get("tags");
+                            if (currentTags != null) {
+                                List<String> updatedTags = new ArrayList<>(currentTags);
+                                updatedTags.remove(id);
 
-                    // Xóa tag khỏi collection "tags"
-                    db.collection("tags").document(id)
-                            .delete()
-                            .addOnSuccessListener(aVoid -> onSuccess.run())
-                            .addOnFailureListener(e -> {
-                                Log.e("Tag", "Failed to delete tag: " + e.getMessage());
-                                onFailure.accept("Failed to delete tag");
-                            });
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("Tag", "Failed to delete tag from notes: " + e.getMessage());
-                    onFailure.accept("Failed to delete tag from notes");
-                });
+                                // Cập nhật note
+                                db.collection("notes")
+                                        .document(doc.getId())
+                                        .update("tags", updatedTags)
+                                        .addOnSuccessListener(aVoid -> {
+                                            // 3. Sau khi xóa khỏi tất cả notes, xóa tag chính
+                                            db.collection("tags")
+                                                    .document(id)
+                                                    .delete()
+                                                    .addOnSuccessListener(aVoid2 -> {
+                                                        onSuccess.run();
+                                                    })
+                                                    .addOnFailureListener(e ->
+                                                            onFailure.accept("Failed to delete tag: " + e.getMessage())
+                                                    );
+                                        })
+                                        .addOnFailureListener(e ->
+                                                onFailure.accept("Failed to update notes: " + e.getMessage())
+                                        );
+                            }
+                        }
+
+                        // Nếu không có note nào chứa tag này
+                        if (queryDocumentSnapshots.isEmpty()) {
+                            db.collection("tags")
+                                    .document(id)
+                                    .delete()
+                                    .addOnSuccessListener(aVoid -> onSuccess.run())
+                                    .addOnFailureListener(e ->
+                                            onFailure.accept("Failed to delete tag: " + e.getMessage())
+                                    );
+                        }
+                    })
+                    .addOnFailureListener(e ->
+                            onFailure.accept("Failed to query notes: " + e.getMessage())
+                    );
+            return null;
+        });
     }
 }

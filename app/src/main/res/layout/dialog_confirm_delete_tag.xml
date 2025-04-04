@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@android:color/white">
+
+    <!-- Tiêu đề -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Delete this tag?"
+        android:textSize="20sp"
+        android:textColor="@android:color/white"
+        android:padding="16dp"
+        android:background="?attr/colorPrimary"/>
+
+    <!-- Thông báo -->
+    <TextView
+        android:id="@+id/delete_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Deleting #tag-name will remove it from all notes it is applied to and remove all descendant tags. You cannot undo this action."
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        android:padding="16dp"/>
+
+    <!-- Nút Cancel và Delete -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:paddingBottom="8dp"
+        android:paddingHorizontal="16dp">
+
+        <TextView
+            android:id="@+id/cancel_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CANCEL"
+            android:textSize="16sp"
+            android:textColor="#1E88E5"
+            android:padding="8dp" />
+
+        <TextView
+            android:id="@+id/delete_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DELETE TAG"
+            android:textSize="16sp"
+            android:textColor="#E53935"
+            android:padding="8dp"
+            android:layout_marginStart="16dp" />
+
+    </LinearLayout>
+
+</LinearLayout>

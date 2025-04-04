@@ -61,6 +61,15 @@ public class AddTagDialogFragment extends DialogFragment {
         cancelButton = view.findViewById(R.id.cancel_button);
         doneButton = view.findViewById(R.id.done_button);
 
+
+        tagNameInput.requestFocus();
+        tagNameInput.post(() -> {
+            Window window = getDialog().getWindow();
+            if (window != null) {
+                window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+            }
+        });
+
         // Set màu xám ban đầu cho nút done
         doneButton.setColorFilter(ContextCompat.getColor(requireContext(), R.color.textGray));
         doneButton.setEnabled(false);
@@ -75,22 +84,6 @@ public class AddTagDialogFragment extends DialogFragment {
     public void onStart() {
         super.onStart();
         setUpDialog();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        // Tự động focus vào EditText và hiển thị bàn phím
-        if (tagNameInput != null) {
-            tagNameInput.requestFocus();
-            tagNameInput.post(() -> {
-                Window window = getDialog().getWindow();
-                if (window != null) {
-                    window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-                }
-            });
-        }
     }
 
     private void setUpDialog() {
@@ -111,9 +104,6 @@ public class AddTagDialogFragment extends DialogFragment {
                 window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
                 window.setStatusBarColor(getResources().getColor(android.R.color.transparent));
                 window.setAttributes(params);
-
-                // Đặt hiệu ứng làm mờ nền giống BottomSheetDialog
-                window.setDimAmount(0.5f);
             }
         }
     }
@@ -121,7 +111,8 @@ public class AddTagDialogFragment extends DialogFragment {
     private void setupTagNameWatcher() {
         tagNameInput.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -132,7 +123,8 @@ public class AddTagDialogFragment extends DialogFragment {
             }
 
             @Override
-            public void afterTextChanged(Editable s) {}
+            public void afterTextChanged(Editable s) {
+            }
         });
 
         // Sửa xử lý nút Done trên bàn phím
@@ -200,7 +192,6 @@ public class AddTagDialogFragment extends DialogFragment {
             return;
         }
 
-        // Tạo tag mới trong Firestore
         Tag.createTagInFirestore(requireContext(),
                 tagName,
                 newTag -> {

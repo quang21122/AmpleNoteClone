@@ -106,6 +106,15 @@ public class ViewNoteActivity extends DrawerActivity {
 
                         @Override
                         public void onTagEdited(Tag tag) {
+                            // Cập nhật tag trong tagsList
+                            for (int i = 0; i < tagsList.size(); i++) {
+                                Tag t = tagsList.get(i);
+                                if (t.getId().equals(tag.getId())) {
+                                    tagsList.set(i, tag); // Thay thế đối tượng tag cũ bằng tag mới
+                                    break;
+                                }
+                            }
+                            // Làm mới giao diện
                             tagsAdapter.setTags(tagsList);
                         }
 
@@ -369,7 +378,10 @@ public class ViewNoteActivity extends DrawerActivity {
             return;
         }
 
-        // Lấy thông tin chi tiết của từng tag từ collection "tags"
+        // Biến đếm số lượng truy vấn đã hoàn thành
+        final int totalTags = tagIds.size();
+        final int[] completedQueries = {0};
+
         for (String tagId : tagIds) {
             db.collection("tags").document(tagId)
                     .get()
@@ -379,12 +391,23 @@ public class ViewNoteActivity extends DrawerActivity {
                             if (tag != null) {
                                 tag.setId(tagId);
                                 tagsList.add(tag);
-                                tagsAdapter.setTags(tagsList);
                             }
+                        }
+
+                        // Tăng biến đếm
+                        completedQueries[0]++;
+                        // Nếu tất cả truy vấn đã hoàn thành, cập nhật adapter
+                        if (completedQueries[0] == totalTags) {
+                            tagsAdapter.setTags(tagsList);
                         }
                     })
                     .addOnFailureListener(e -> {
                         Log.e("ViewNoteActivity", "Failed to load tag " + tagId + ": " + e.getMessage());
+                        // Tăng biến đếm ngay cả khi thất bại để tránh treo
+                        completedQueries[0]++;
+                        if (completedQueries[0] == totalTags) {
+                            tagsAdapter.setTags(tagsList);
+                        }
                     });
         }
     }

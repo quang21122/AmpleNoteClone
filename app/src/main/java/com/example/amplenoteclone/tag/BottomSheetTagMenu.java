@@ -1,15 +1,22 @@
 package com.example.amplenoteclone.tag;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -31,6 +38,7 @@ public class BottomSheetTagMenu extends BottomSheetDialogFragment {
 
     private Tag tag;
     private OnTagActionListener tagActionListener;
+    private ActivityResultLauncher<Intent> editTagLauncher;
 
     public interface OnTagActionListener {
         void onTagRemoved(Tag tag);
@@ -48,6 +56,27 @@ public class BottomSheetTagMenu extends BottomSheetDialogFragment {
         this.tagActionListener = listener;
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Khởi tạo ActivityResultLauncher để xử lý kết quả từ EditTagActivity
+        editTagLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        Intent data = result.getData();
+                        if (data != null) {
+                            Tag updatedTag = (Tag) data.getSerializableExtra(EditTagActivity.EXTRA_NEW_TAG_NAME);
+                            if (updatedTag != null && tagActionListener != null) {
+                                tagActionListener.onTagEdited(updatedTag);
+                            }
+                        }
+                    }
+                }
+        );
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -60,9 +89,9 @@ public class BottomSheetTagMenu extends BottomSheetDialogFragment {
         // Cập nhật icon (nếu tag là "daily-jots" thì đổi màu icon)
         ImageView tagIcon = view.findViewById(R.id.tag_menu_icon);
         if ("daily-jots".equalsIgnoreCase(tag.getName())) {
-            tagIcon.setColorFilter(ContextCompat.getColor(requireContext(), R.color.textBlue));
+            tagIcon.setColorFilter(ContextCompat.getColor(requireContext(), R.color.textGray));
         } else {
-            tagIcon.setColorFilter(ContextCompat.getColor(requireContext(), R.color.dark));
+            tagIcon.setColorFilter(ContextCompat.getColor(requireContext(), R.color.textBlue));
         }
 
         // Xử lý nút X để đóng dialog
@@ -76,13 +105,16 @@ public class BottomSheetTagMenu extends BottomSheetDialogFragment {
         });
 
         view.findViewById(R.id.option_edit_tag).setOnClickListener(v -> {
-            editTag();
-            dismiss();
+            // Khởi động EditTagActivity
+            Intent intent = new Intent(getContext(), EditTagActivity.class);
+            intent.putExtra(EditTagActivity.EXTRA_TAG, tag);
+            editTagLauncher.launch(intent);
+            dismiss(); // Đóng BottomSheetTagMenu
         });
 
         view.findViewById(R.id.option_delete_tag).setOnClickListener(v -> {
-            deleteTag();
             dismiss();
+            showDeleteConfirmationDialog();
         });
 
         return view;
@@ -117,7 +149,44 @@ public class BottomSheetTagMenu extends BottomSheetDialogFragment {
         }
     }
 
+    private void showDeleteConfirmationDialog() {
+        Context context = getContext();
+        if (context == null) return;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_confirm_delete_tag, null);
+        builder.setView(dialogView);
+
+        final AlertDialog dialog = builder.create();
+
+        TextView deleteMessage = dialogView.findViewById(R.id.delete_message);
+        String message = "Deleting #" + tag.getName() + " will remove it from all notes it is applied to and remove all descendant tags. You cannot undo this action.";
+        deleteMessage.setText(message);
+
+        TextView cancelButton = dialogView.findViewById(R.id.cancel_button);
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+
+        TextView deleteButton = dialogView.findViewById(R.id.delete_button);
+        deleteButton.setOnClickListener(v -> {
+            dialog.dismiss();
+            tag.deleteTagInFirestore(context,
+                    () -> {
+                        if (tagActionListener != null) {
+                            tagActionListener.onTagDeleted(tag);
+                        }
+                        Toast.makeText(context, "Tag deleted", Toast.LENGTH_SHORT).show();
+                    },
+                    error -> Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+            );
+        });
+
+        dialog.show();
+    }
     private void removeTagFromNote() {
+        // Lưu context an toàn
+        Context context = getContext();
+        if (context == null) return;
+
         if (getActivity() instanceof ViewNoteActivity) {
             ViewNoteActivity activity = (ViewNoteActivity) getActivity();
             Note currentNote = activity.getCurrentNote();
@@ -127,57 +196,63 @@ public class BottomSheetTagMenu extends BottomSheetDialogFragment {
                 currentNote.setTags((ArrayList<String>) updatedTagIds);
 
                 // Cập nhật Note trên Firestore
-                FirebaseFirestore.getInstance().collection("notes").document(currentNote.getId())
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                db.collection("notes").document(currentNote.getId())
                         .update("tags", updatedTagIds)
                         .addOnSuccessListener(aVoid -> {
                             if (tagActionListener != null) {
                                 tagActionListener.onTagRemoved(tag);
                             }
-                            Toast.makeText(getContext(), "Tag removed", Toast.LENGTH_SHORT).show();
+                            // Kiểm tra xem có note nào khác còn chứa tag này không
+                            checkAndDeleteTagIfUnused(context, tag);
+                            // Sử dụng context đã lưu
+                            if (context != null) {
+                                Toast.makeText(context.getApplicationContext(),
+                                        "Tag removed", Toast.LENGTH_SHORT).show();
+                            }
                         })
                         .addOnFailureListener(e -> {
-                            Toast.makeText(getContext(), "Failed to remove tag", Toast.LENGTH_SHORT).show();
+                            // Sử dụng context đã lưu
+                            if (context != null) {
+                                Toast.makeText(context.getApplicationContext(),
+                                        "Failed to remove tag", Toast.LENGTH_SHORT).show();
+                            }
                         });
             }
         }
     }
 
-    private void editTag() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Edit Tag");
-
-        final EditText input = new EditText(requireContext());
-        input.setText(tag.getName());
-        input.setHint("Enter new tag name");
-        builder.setView(input);
-
-        builder.setPositiveButton("OK", (dialog, which) -> {
-            String newTagName = input.getText().toString().trim();
-            if (!newTagName.isEmpty() && !newTagName.equals(tag.getName())) {
-                tag.editTagInFirestore(requireContext(),
-                        newTagName,
-                        () -> {
-                            if (tagActionListener != null) {
-                                tagActionListener.onTagEdited(tag);
-                            }
-                            Toast.makeText(getContext(), "Tag updated", Toast.LENGTH_SHORT).show();
-                        },
-                        error -> Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show());
-            }
-        });
-
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-        builder.show();
-    }
-
-    private void deleteTag() {
-        tag.deleteTagInFirestore(requireContext(),
-                () -> {
-                    if (tagActionListener != null) {
-                        tagActionListener.onTagDeleted(tag);
+    private void checkAndDeleteTagIfUnused(Context context, Tag tag) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("notes")
+                .whereArrayContains("tags", tag.getId())
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        // Không có note nào chứa tag này, xóa tag
+                        tag.deleteTagInFirestore(context.getApplicationContext(),
+                                () -> {
+                                    if (tagActionListener != null) {
+                                        tagActionListener.onTagDeleted(tag);
+                                    }
+                                    if (context != null) {
+                                        Toast.makeText(context.getApplicationContext(),
+                                                "Tag deleted as it was not used in any notes", Toast.LENGTH_SHORT).show();
+                                    }
+                                },
+                                error -> {
+                                    if (context != null) {
+                                        Toast.makeText(context.getApplicationContext(),
+                                                error, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                     }
-                    Toast.makeText(getContext(), "Tag deleted", Toast.LENGTH_SHORT).show();
-                },
-                error -> Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show());
+                })
+                .addOnFailureListener(e -> {
+                    if (context != null) {
+                        Toast.makeText(context.getApplicationContext(),
+                                "Failed to check tag usage: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }

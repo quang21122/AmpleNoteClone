@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white">
+
+    <!-- Thanh tiêu đề với nút Back -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="8dp">
+
+        <!-- Nút Back -->
+        <ImageView
+            android:id="@+id/back_button"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_back_revert"
+            app:tint="@android:color/white" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Tiêu đề -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Edit tag"
+                android:textSize="20sp"
+                android:textColor="@android:color/white" />
+
+            <!-- Tên tag hiện tại -->
+            <TextView
+                android:id="@+id/current_tag_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="#tag_name"
+                android:textSize="16sp"
+                android:textColor="@android:color/white"
+                android:paddingLeft="8dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Thanh EditText để nhập tên tag -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="20dp"
+        android:paddingBottom="8dp"
+        android:paddingStart="20dp"
+        android:background="@color/white">
+
+        <!-- Icon -->
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_edit_text"
+            android:layout_marginEnd="24dp"
+            android:layout_marginTop="8dp" />
+
+        <!-- Main Edit Tag Name Card -->
+        <LinearLayout
+            android:id="@+id/edit_card"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:background="@drawable/border_card"
+            android:elevation="2dp"
+            android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginEnd="16dp">
+
+            <!-- Title -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TAG NAME"
+                android:textSize="16sp"
+                android:textColor="@color/textGray"
+                android:layout_marginBottom="8dp"
+                android:padding="8dp" />
+
+            <!-- EditText để nhập tên tag -->
+            <EditText
+                android:id="@+id/tag_name_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:paddingBottom="8dp"
+                android:paddingHorizontal="8dp"
+                android:background="@null"
+                android:backgroundTint="@android:color/transparent" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Nút Rename và Cancel -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="start"
+        android:paddingStart="70dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:paddingEnd="16dp">
+
+        <TextView
+            android:id="@+id/rename_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="RENAME"
+            android:textSize="16sp"
+            android:textColor="@android:color/white"
+            android:padding="8dp"
+            android:background="@color/textBlue" />
+
+        <TextView
+            android:id="@+id/cancel_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:textSize="16sp"
+            android:textColor="@color/textBlue"
+            android:padding="8dp"
+            android:layout_marginStart="16dp" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -16,6 +16,7 @@ import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.models.Tag;
 import com.example.amplenoteclone.note.ViewNoteActivity;
 import com.example.amplenoteclone.tag.AddTagDialogFragment;
+import com.example.amplenoteclone.tag.BottomSheetTagMenu;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,32 +67,32 @@ public class TagsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             Tag tag = tagsList.get(position);
             tagHolder.tagName.setText(tag.getName());
 
-            // Kiểm tra nếu tag name là "daily-jots" thì đổi màu tag_icon thành textBlue
+            // Màu icon cho daily-jots
             Context context = tagHolder.tagIcon.getContext();
             if ("daily-jots".equalsIgnoreCase(tag.getName())) {
-                tagHolder.tagIcon.setColorFilter(ContextCompat.getColor(context, R.color.textBlue));
+                tagHolder.tagIcon.setColorFilter(ContextCompat.getColor(context, R.color.textGray));
             } else {
-                tagHolder.tagIcon.clearColorFilter();
+                tagHolder.tagIcon.setColorFilter(ContextCompat.getColor(context, R.color.textBlue));
             }
 
-            // Xóa sự kiện onClick của more_icon (chỉ để hiển thị)
-            tagHolder.moreIcon.setClickable(false);
-            tagHolder.moreIcon.setFocusable(false);
-
-            // Thêm sự kiện onClick cho toàn bộ item
-            tagHolder.itemView.setOnClickListener(v -> tagItemClickListener.onTagItemClick(tag));
+            // Chỉ gọi listener, không tạo BottomSheetTagMenu ở đây
+            tagHolder.itemView.setOnClickListener(v -> {
+                if (tagItemClickListener != null) {
+                    tagItemClickListener.onTagItemClick(tag);
+                }
+            });
         } else {
+            // Xử lý AddTagViewHolder giữ nguyên
             AddTagViewHolder addTagHolder = (AddTagViewHolder) holder;
-            addTagHolder.addTagButton.setOnClickListener(v -> {
-                // Hiển thị AddTagDialogFragment
-                AddTagDialogFragment dialogFragment = new AddTagDialogFragment();
-                dialogFragment.setOnTagAddedListener(tag -> {
-                    if (context instanceof ViewNoteActivity) {
+            addTagHolder.itemView.setOnClickListener(v -> {
+                if (context instanceof ViewNoteActivity) {
+                    AddTagDialogFragment dialog = new AddTagDialogFragment();
+                    dialog.setOnTagAddedListener(tag -> {
                         tagsList.add(tag);
                         notifyDataSetChanged();
-                    }
-                });
-                dialogFragment.show(((FragmentActivity) context).getSupportFragmentManager(), "AddTagDialog");
+                    });
+                    dialog.show(((ViewNoteActivity) context).getSupportFragmentManager(), "AddTagDialog");
+                }
             });
         }
     }
