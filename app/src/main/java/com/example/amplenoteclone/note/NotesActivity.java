@@ -108,21 +108,10 @@ public class NotesActivity extends DrawerActivity {
 
         // Handle search action
         MenuItem searchItem = menu.findItem(R.id.action_search);
-        SearchView searchView = (SearchView) searchItem.getActionView();
-        searchView.setQueryHint("Search notes");
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                filterNotes(query);
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                filterNotes(newText);
-                return false;
-            }
+        searchItem.setOnMenuItemClickListener(item -> {
+            SearchBottomSheetFragment searchFragment = new SearchBottomSheetFragment(allNotes);
+            searchFragment.show(getSupportFragmentManager(), "searchFragment");
+            return true;
         });
 
         return true;
