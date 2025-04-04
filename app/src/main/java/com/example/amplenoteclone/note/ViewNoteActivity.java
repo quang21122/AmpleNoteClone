@@ -37,7 +37,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class ViewNoteActivity extends DrawerActivity {
-    private static final long AUTOSAVE_DELAY = 5000; // 5 seconds
+    private static final long AUTOSAVE_DELAY = 2000; // 2 seconds
 
     private EditText titleEditText;
     private TextView lastUpdatedTextView;
@@ -103,7 +103,6 @@ public class ViewNoteActivity extends DrawerActivity {
     private void initializeNote() {
         if (getIntent().hasExtra("noteId")) {
             loadNote();
-            getTasks();
         } else {
             createNewNote();
             updateLastUpdated();
@@ -112,7 +111,9 @@ public class ViewNoteActivity extends DrawerActivity {
 
     private void createNewNote() {
         currentNote = new Note();
-        currentNote.setTitle("");
+        currentNote.setTitle("Untitled Note");
+        titleEditText.setText(currentNote.getTitle());
+
         currentNote.setContent("");
         currentNote.setCreatedAt(Timestamp.now().toDate());
         currentNote.setUpdatedAt(Timestamp.now().toDate());
@@ -150,8 +151,7 @@ public class ViewNoteActivity extends DrawerActivity {
                                 titleEditText.setText(currentNote.getTitle());
                                 contentEditText.setText(currentNote.getContent());
 
-                                // Set up tasks section
-                                setupTaskSection();
+                                getTasks();
                             } else {
                                 Toast.makeText(this, "Note not found", Toast.LENGTH_SHORT).show();
                                 finish();
