@@ -73,5 +73,6 @@
     <string name="one_week">One week</string>
     <string name="three_weeks">Three weeks</string>
     <string name="choose_date">Choose date</string>
+    <string name="delete_note">Delete Note</string>
 
 </resources>
