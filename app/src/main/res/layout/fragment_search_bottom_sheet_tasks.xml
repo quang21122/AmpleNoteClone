@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- Top Section: dark background for header (tabs and search container) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/darkBackground">
+
+        <!-- Search Bar, Filter and Close Button Container -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical">
+
+            <!-- Search Bar (EditText) -->
+            <EditText
+                android:id="@+id/searchEditText"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:hint="Search tasks"
+                android:background="@drawable/search_bar_bg"
+                android:drawableStart="@drawable/ic_search_nav_gray"
+                android:drawablePadding="8dp"
+                android:padding="8dp"
+                android:inputType="text" />
+
+            <!-- Filter Button -->
+            <ImageButton
+                android:id="@+id/filterButton"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_filter"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8dp" />
+
+            <!-- Close Button -->
+            <ImageButton
+                android:id="@+id/closeButton"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_close"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8dp" />
+        </LinearLayout>
+
+        <!-- Top Tabs -->
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/searchTabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/darkBackground"
+            app:tabIndicatorColor="@android:color/white"
+            app:tabSelectedTextColor="@android:color/white"
+            app:tabTextColor="@android:color/darker_gray"
+            android:elevation="4dp">
+
+            <com.google.android.material.tabs.TabItem
+                android:id="@+id/tabTaskLookup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TASK LOOKUP" />
+
+            <com.google.android.material.tabs.TabItem
+                android:id="@+id/tabFullSearch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="FULL SEARCH" />
+        </com.google.android.material.tabs.TabLayout>
+    </LinearLayout>
+
+    <!-- RecyclerView: white background for displaying search results -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerSearchTasks"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@android:color/white"
+        android:clipToPadding="false" />
+
+</LinearLayout>

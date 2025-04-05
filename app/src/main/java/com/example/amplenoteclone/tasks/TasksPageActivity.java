@@ -1,8 +1,11 @@
+// TasksPageActivity.java
 package com.example.amplenoteclone.tasks;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -152,6 +155,15 @@ public class TasksPageActivity extends DrawerActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.toolbar_tasks, menu);
+
+        // Handle search action
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        searchItem.setOnMenuItemClickListener(item -> {
+            SearchBottomSheetFragmentTasks searchFragment = new SearchBottomSheetFragmentTasks(new ArrayList<>(allTaskCardList));
+            searchFragment.show(getSupportFragmentManager(), "searchFragment");
+            return true;
+        });
+
         return true;
     }
 
