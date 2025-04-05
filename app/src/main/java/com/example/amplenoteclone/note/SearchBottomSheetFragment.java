@@ -1,3 +1,4 @@
+// SearchBottomSheetFragment.java
 package com.example.amplenoteclone.note;
 
 import android.app.Dialog;
@@ -32,6 +33,7 @@ public class SearchBottomSheetFragment extends BottomSheetDialogFragment {
     private List<TaskCardView> allTasks;
     private RecyclerView recyclerView;
     private EditText searchEditText;
+    private TabLayout tabLayout;
 
     public SearchBottomSheetFragment(List<NoteCardView> allNotes, List<TaskCardView> allTasks) {
         this.allNotes = allNotes;
@@ -90,7 +92,7 @@ public class SearchBottomSheetFragment extends BottomSheetDialogFragment {
         ImageButton closeButton = view.findViewById(R.id.closeButton);
         closeButton.setOnClickListener(v -> dismiss());
 
-        TabLayout tabLayout = view.findViewById(R.id.searchTabLayout);
+        tabLayout = view.findViewById(R.id.searchTabLayout);
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -104,11 +106,15 @@ public class SearchBottomSheetFragment extends BottomSheetDialogFragment {
             public void onTabReselected(TabLayout.Tab tab) { }
         });
 
+        // Display notes by default when the fragment is created
+        view.post(() -> filterItems(""));
+
         return view;
     }
 
     private void filterItems(String query) {
-        TabLayout tabLayout = getView().findViewById(R.id.searchTabLayout);
+        if (getView() == null) return;
+
         int selectedTabPosition = tabLayout.getSelectedTabPosition();
 
         if (selectedTabPosition == 0) { // Note Lookup

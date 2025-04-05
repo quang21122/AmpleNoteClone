@@ -77,6 +77,8 @@ public class TasksPageActivity extends DrawerActivity {
             loadTasks(userId);
             getNotesFromFirebase(userId, notes -> runOnUiThread(() -> {
                 allNotes = notes;
+                notesAdapter.setNotes(notes);
+                notesAdapter.notifyDataSetChanged();
             }));
         } else {
             Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
