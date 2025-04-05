@@ -44,7 +44,7 @@ public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
     private String selectedStartAtTime;
     private String selectedStartAtPeriod;
     private boolean isAddTaskVisible = false;
-    private Note selectedNote; // Lưu note đã chọn
+    private Note selectedNote;
     private boolean isStartNewNote = false;
     private ViewNoteActivity.OnTaskCreationListener taskCreationListener;
 
@@ -226,12 +226,13 @@ public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
 
     private void createTaskWithExistingNote(String userId, String taskTitle) {
         if (selectedNote != null) {
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
             String noteId = selectedNote.getId();
             Task newTask = new Task(userId, noteId, taskTitle);
-            setTaskStartTime(newTask); // Cập nhật thời gian nếu có
+            newTask.setId(db.collection("tasks").document().getId());
+            setTaskStartTime(newTask);
 
             // Cập nhật note với task ID
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
             db.collection("notes").document(noteId)
                     .update("tasks", FieldValue.arrayUnion(newTask.getId()))
                     .addOnSuccessListener(aVoid -> {

@@ -344,7 +344,6 @@ public class Task implements Serializable {
     public void createInFirestore(
             Context context, Runnable onSuccess, Consumer<Exception> onFailure) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-
         String taskId = this.id;
         if(taskId == null || taskId.isEmpty()) {
             taskId = db.collection("tasks").document().getId(); // Tạo ID mới
