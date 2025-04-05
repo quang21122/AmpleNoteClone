@@ -23,7 +23,15 @@ public class Note {
         this.tasks = new ArrayList<>();
     }
 
-    public Note(String id, String title, String content, ArrayList<String> tags, ArrayList<String> tasks, Date createdAt, Date updatedAt, Boolean isProtected) {
+    public Note(
+            String id,
+            String title,
+            String content,
+            ArrayList<String> tags,
+            ArrayList<String> tasks,
+            Date createdAt,
+            Date updatedAt,
+            Boolean isProtected) {
         this.id = id;
         this.title = title;
         this.content = content;
