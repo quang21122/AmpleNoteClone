@@ -17,6 +17,8 @@ import com.example.amplenoteclone.DrawerActivity;
 import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.adapters.TaskAdapter;
 import com.example.amplenoteclone.models.Task;
+import com.example.amplenoteclone.note.SearchBottomSheetFragment;
+import com.example.amplenoteclone.ui.customviews.NoteCardView;
 import com.example.amplenoteclone.ui.customviews.TaskCardView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -159,7 +161,8 @@ public class TasksPageActivity extends DrawerActivity {
         // Handle search action
         MenuItem searchItem = menu.findItem(R.id.action_search);
         searchItem.setOnMenuItemClickListener(item -> {
-            SearchBottomSheetFragmentTasks searchFragment = new SearchBottomSheetFragmentTasks(new ArrayList<>(allTaskCardList));
+            List<NoteCardView> allNotes = new ArrayList<>(); // Load all notes here
+            SearchBottomSheetFragment searchFragment = new SearchBottomSheetFragment(allNotes, new ArrayList<>(allTaskCardList));
             searchFragment.show(getSupportFragmentManager(), "searchFragment");
             return true;
         });

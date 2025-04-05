@@ -25,6 +25,7 @@ import com.example.amplenoteclone.adapters.NotesAdapter;
 import com.example.amplenoteclone.models.Note;
 import com.example.amplenoteclone.ocr.ScanImageToNoteActivity;
 import com.example.amplenoteclone.ui.customviews.NoteCardView;
+import com.example.amplenoteclone.ui.customviews.TaskCardView;
 import com.example.amplenoteclone.utils.FirestoreListCallback;
 import com.example.amplenoteclone.utils.PremiumChecker;
 import com.google.firebase.Timestamp;
@@ -34,6 +35,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class NotesActivity extends DrawerActivity {
     private NotesAdapter notesAdapter;
@@ -140,7 +142,8 @@ public class NotesActivity extends DrawerActivity {
         // Handle search action
         MenuItem searchItem = menu.findItem(R.id.action_search);
         searchItem.setOnMenuItemClickListener(item -> {
-            SearchBottomSheetFragment searchFragment = new SearchBottomSheetFragment(allNotes);
+            List<TaskCardView> allTasks = new ArrayList<>(); // Load all tasks here
+            SearchBottomSheetFragment searchFragment = new SearchBottomSheetFragment(new ArrayList<>(allNotes), allTasks);
             searchFragment.show(getSupportFragmentManager(), "searchFragment");
             return true;
         });

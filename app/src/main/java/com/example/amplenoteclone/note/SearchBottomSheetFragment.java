@@ -15,19 +15,27 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.adapters.NotesAdapter;
+import com.example.amplenoteclone.adapters.TaskAdapter;
 import com.example.amplenoteclone.ui.customviews.NoteCardView;
+import com.example.amplenoteclone.ui.customviews.TaskCardView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.tabs.TabLayout;
 import java.util.ArrayList;
+import java.util.List;
 
 public class SearchBottomSheetFragment extends BottomSheetDialogFragment {
     private NotesAdapter notesAdapter;
-    private ArrayList<NoteCardView> allNotes;
+    private TaskAdapter taskAdapter;
+    private List<NoteCardView> allNotes;
+    private List<TaskCardView> allTasks;
+    private RecyclerView recyclerView;
+    private EditText searchEditText;
 
-    public SearchBottomSheetFragment(ArrayList<NoteCardView> allNotes) {
+    public SearchBottomSheetFragment(List<NoteCardView> allNotes, List<TaskCardView> allTasks) {
         this.allNotes = allNotes;
+        this.allTasks = allTasks;
     }
 
     @Override
@@ -59,20 +67,20 @@ public class SearchBottomSheetFragment extends BottomSheetDialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_search_bottom_sheet, container, false);
 
-        RecyclerView recyclerView = view.findViewById(R.id.recyclerSearchNotes);
+        recyclerView = view.findViewById(R.id.recyclerSearchNotes);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        notesAdapter = new NotesAdapter();
+        notesAdapter = new NotesAdapter(new ArrayList<>());
+        taskAdapter = new TaskAdapter(new ArrayList<>());
         recyclerView.setAdapter(notesAdapter);
 
-        // Use the EditText for search input instead of SearchView
-        EditText searchEditText = view.findViewById(R.id.searchEditText);
+        searchEditText = view.findViewById(R.id.searchEditText);
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { /* No-op */ }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                filterNotes(s.toString());
+                filterItems(s.toString());
             }
 
             @Override
@@ -82,12 +90,11 @@ public class SearchBottomSheetFragment extends BottomSheetDialogFragment {
         ImageButton closeButton = view.findViewById(R.id.closeButton);
         closeButton.setOnClickListener(v -> dismiss());
 
-        // (Optional) Handle TabLayout selections if needed
         TabLayout tabLayout = view.findViewById(R.id.searchTabLayout);
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                // You can adjust your filtering logic here based on the selected tab
+                filterItems(searchEditText.getText().toString());
             }
 
             @Override
@@ -100,14 +107,28 @@ public class SearchBottomSheetFragment extends BottomSheetDialogFragment {
         return view;
     }
 
-    private void filterNotes(String query) {
-        ArrayList<NoteCardView> filteredNotes = new ArrayList<>();
-        for (NoteCardView noteCard : allNotes) {
-            if (noteCard.getNote().getTitle().toLowerCase().contains(query.toLowerCase())) {
-                filteredNotes.add(noteCard);
+    private void filterItems(String query) {
+        TabLayout tabLayout = getView().findViewById(R.id.searchTabLayout);
+        int selectedTabPosition = tabLayout.getSelectedTabPosition();
+
+        if (selectedTabPosition == 0) { // Note Lookup
+            List<NoteCardView> filteredNotes = new ArrayList<>();
+            for (NoteCardView noteCard : allNotes) {
+                if (noteCard.getNote().getTitle().toLowerCase().contains(query.toLowerCase())) {
+                    filteredNotes.add(noteCard);
+                }
             }
+            notesAdapter.setNotes(filteredNotes);
+            recyclerView.setAdapter(notesAdapter);
+        } else if (selectedTabPosition == 1) { // Task Lookup
+            List<TaskCardView> filteredTasks = new ArrayList<>();
+            for (TaskCardView taskCard : allTasks) {
+                if (taskCard.getTask().getTitle().toLowerCase().contains(query.toLowerCase())) {
+                    filteredTasks.add(taskCard);
+                }
+            }
+            taskAdapter.setTasks(filteredTasks);
+            recyclerView.setAdapter(taskAdapter);
         }
-        notesAdapter.setNotes(filteredNotes);
-        notesAdapter.notifyDataSetChanged();
     }
 }

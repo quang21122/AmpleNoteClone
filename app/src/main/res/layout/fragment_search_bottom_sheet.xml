@@ -27,7 +27,7 @@
                 android:layout_width="0dp"
                 android:layout_height="40dp"
                 android:layout_weight="1"
-                android:hint="Search notes"
+                android:hint="Search"
                 android:background="@drawable/search_bar_bg"
                 android:drawableStart="@drawable/ic_search_nav_gray"
                 android:drawablePadding="8dp"
@@ -75,12 +75,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="TASK LOOKUP" />
-
-            <com.google.android.material.tabs.TabItem
-                android:id="@+id/tabFullSearch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="FULL SEARCH" />
         </com.google.android.material.tabs.TabLayout>
     </LinearLayout>
 
