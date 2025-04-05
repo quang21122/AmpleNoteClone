@@ -15,11 +15,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.amplenoteclone.DrawerActivity;
 import com.example.amplenoteclone.R;
+import com.example.amplenoteclone.adapters.NotesAdapter;
 import com.example.amplenoteclone.adapters.TaskAdapter;
+import com.example.amplenoteclone.models.Note;
 import com.example.amplenoteclone.models.Task;
 import com.example.amplenoteclone.note.SearchBottomSheetFragment;
 import com.example.amplenoteclone.ui.customviews.NoteCardView;
 import com.example.amplenoteclone.ui.customviews.TaskCardView;
+import com.example.amplenoteclone.utils.FirestoreListCallback;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -27,6 +31,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -37,8 +42,10 @@ public class TasksPageActivity extends DrawerActivity {
 
     private RecyclerView recyclerView;
     private TaskAdapter taskAdapter;
+    private NotesAdapter notesAdapter;
     private List<TaskCardView> taskCardList;
     private List<TaskCardView> allTaskCardList; // Lưu danh sách đầy đủ
+    private ArrayList<NoteCardView> allNotes = new ArrayList<>();
     private FirebaseFirestore db;
     private ListenerRegistration taskListener;
     private TextView tasksFilter;
@@ -60,6 +67,7 @@ public class TasksPageActivity extends DrawerActivity {
         taskCardList = new ArrayList<>();
         allTaskCardList = new ArrayList<>();
         taskAdapter = new TaskAdapter(taskCardList);
+        notesAdapter = new NotesAdapter(new ArrayList<>());
         recyclerView.setAdapter(taskAdapter);
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -67,6 +75,9 @@ public class TasksPageActivity extends DrawerActivity {
 
         if (userId != null) {
             loadTasks(userId);
+            getNotesFromFirebase(userId, notes -> runOnUiThread(() -> {
+                allNotes = notes;
+            }));
         } else {
             Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
             finish();
@@ -126,6 +137,55 @@ public class TasksPageActivity extends DrawerActivity {
                 });
     }
 
+    private void getNotesFromFirebase(String userId, FirestoreListCallback<NoteCardView> firestoreListCallback) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference collectionRef = db.collection("notes");
+
+        // Fetch only notes for the given userId
+        collectionRef.whereEqualTo("userId", userId)
+                .get(Source.SERVER) // Force fetch from server
+                .addOnCompleteListener(task -> {
+                    ArrayList<NoteCardView> notes = new ArrayList<>();
+
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            Note note = new Note();
+
+                            // Directly get values from document
+                            note.setId(document.getId());
+                            note.setTitle(document.getString("title"));
+                            note.setContent(document.getString("content"));
+                            note.setUserId(document.getString("userId"));
+                            note.setProtected(document.getBoolean("isProtected"));
+
+                            // Handle possible null timestamps
+                            Timestamp createdAt = document.getTimestamp("createdAt");
+                            Timestamp updatedAt = document.getTimestamp("updatedAt");
+                            if (createdAt != null)
+                                note.setCreatedAt(createdAt.toDate());
+
+                            if (updatedAt != null)
+                                note.setUpdatedAt(updatedAt.toDate());
+
+                            // Get lists safely
+                            note.setTags((ArrayList<String>) document.get("tags"));
+                            note.setTasks((ArrayList<String>) document.get("tasks"));
+
+                            // Only add note if title exists
+                            if (note.getTitle() != null) {
+                                NoteCardView noteCard = new NoteCardView(this);
+                                noteCard.setNote(note);
+                                notes.add(noteCard);
+                            }
+                        }
+                    } else {
+                        Log.e("ERROR", "Firestore query failed: ", task.getException());
+                    }
+
+                    firestoreListCallback.onCallback(notes);
+                });
+    }
+
     private void updateTaskList(boolean showAll) {
         taskCardList.clear();
         Date currentTime = Calendar.getInstance().getTime();
@@ -161,8 +221,9 @@ public class TasksPageActivity extends DrawerActivity {
         // Handle search action
         MenuItem searchItem = menu.findItem(R.id.action_search);
         searchItem.setOnMenuItemClickListener(item -> {
-            List<NoteCardView> allNotes = new ArrayList<>(); // Load all notes here
-            SearchBottomSheetFragment searchFragment = new SearchBottomSheetFragment(allNotes, new ArrayList<>(allTaskCardList));
+            List<NoteCardView> allNotesList = new ArrayList<>(allNotes); // Ensure allNotes is initialized
+            List<TaskCardView> allTasks = new ArrayList<>(allTaskCardList); // Load all tasks here
+            SearchBottomSheetFragment searchFragment = new SearchBottomSheetFragment(allNotesList, allTasks);
             searchFragment.show(getSupportFragmentManager(), "searchFragment");
             return true;
         });
