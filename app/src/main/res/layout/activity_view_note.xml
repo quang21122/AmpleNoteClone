@@ -38,19 +38,14 @@
             android:paddingBottom="20dp" />
 
         <!-- Tag Section -->
-        <TextView
-            android:id="@+id/add_tag"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/tags_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="add a tag"
-            android:textColor="#777777"
-            android:textSize="16sp"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:paddingTop="16dp"
-            android:paddingBottom="16dp"
-            android:drawableStart="@drawable/ic_tag"
-            android:drawablePadding="8dp" />
+            android:paddingBottom="16dp" />
 
         <!-- Note Content -->
         <EditText
@@ -113,7 +108,7 @@
                     android:textColor="#777777"
                     android:textSize="16sp"
                     android:gravity="center_vertical"
-                    android:layout_marginStart="4dp"/>
+                    android:layout_marginStart="4dp" />
             </LinearLayout>
 
             <!-- Completed Tab -->
@@ -139,7 +134,7 @@
                     android:textColor="#777777"
                     android:textSize="16sp"
                     android:gravity="center_vertical"
-                    android:layout_marginStart="4dp"/>
+                    android:layout_marginStart="4dp" />
             </LinearLayout>
 
             <!-- Backlinks Tab -->
@@ -165,12 +160,10 @@
                     android:textColor="#777777"
                     android:textSize="16sp"
                     android:gravity="center_vertical"
-                    android:layout_marginStart="4dp"/>
+                    android:layout_marginStart="4dp" />
             </LinearLayout>
 
         </LinearLayout>
-
-
 
 
         <!-- No Completed Tasks Message -->
@@ -184,6 +177,6 @@
             android:gravity="center|center_vertical"
             android:textAlignment="center"
             android:paddingTop="40dp"
-            android:paddingBottom="40dp"/>
+            android:paddingBottom="40dp" />
     </LinearLayout>
 </ScrollView>

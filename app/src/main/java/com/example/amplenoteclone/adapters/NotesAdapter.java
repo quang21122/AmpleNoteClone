@@ -55,8 +55,8 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
         holder.iconView.setImageResource(R.drawable.ic_note);
         holder.titleView.setText(noteItem.getTitle());
         holder.contentView.setText(noteItem.getContent());
-        holder.tagsView.setText(noteItem.getTags());
         holder.dateView.setText(noteItem.getDate());
+        holder.setupTags(noteItem);
 
         holder.itemView.setOnClickListener(v -> {
             if (clickListener != null) {
@@ -72,8 +72,9 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
 
     // ViewHolder class
     static class NotesViewHolder extends RecyclerView.ViewHolder {
-        TextView titleView, contentView, tagsView, dateView;
+        TextView titleView, contentView, dateView;
         ImageView iconView;
+        RecyclerView tagsRecyclerView;
 
         public NotesViewHolder(@NonNull View itemView) {
 
@@ -82,8 +83,14 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
             iconView = itemView.findViewById(R.id.note_icon);
             titleView = itemView.findViewById(R.id.note_title);
             contentView = itemView.findViewById(R.id.note_content);
-            tagsView = itemView.findViewById(R.id.note_tags);
             dateView = itemView.findViewById(R.id.note_date);
+            tagsRecyclerView = itemView.findViewById(R.id.note_tags_recycler_view);
+        }
+
+        public void setupTags(NoteCardView noteCardView) {
+            if (tagsRecyclerView != null) {
+                noteCardView.setupTags(tagsRecyclerView);
+            }
         }
     }
 }
