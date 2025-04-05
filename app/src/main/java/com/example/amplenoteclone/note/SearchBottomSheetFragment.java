@@ -1,4 +1,3 @@
-// SearchBottomSheetFragment.java
 package com.example.amplenoteclone.note;
 
 import android.app.Dialog;
@@ -10,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -34,6 +34,7 @@ public class SearchBottomSheetFragment extends BottomSheetDialogFragment {
     private RecyclerView recyclerView;
     private EditText searchEditText;
     private TabLayout tabLayout;
+    private TextView defaultTextView;
 
     public SearchBottomSheetFragment(List<NoteCardView> allNotes, List<TaskCardView> allTasks) {
         this.allNotes = allNotes;
@@ -106,6 +107,8 @@ public class SearchBottomSheetFragment extends BottomSheetDialogFragment {
             public void onTabReselected(TabLayout.Tab tab) { }
         });
 
+        defaultTextView = view.findViewById(R.id.defaultTextView);
+
         // Display notes by default when the fragment is created
         view.post(() -> filterItems(""));
 
@@ -126,6 +129,8 @@ public class SearchBottomSheetFragment extends BottomSheetDialogFragment {
             }
             notesAdapter.setNotes(filteredNotes);
             recyclerView.setAdapter(notesAdapter);
+            defaultTextView.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
         } else if (selectedTabPosition == 1) { // Task Lookup
             List<TaskCardView> filteredTasks = new ArrayList<>();
             for (TaskCardView taskCard : allTasks) {
@@ -135,6 +140,25 @@ public class SearchBottomSheetFragment extends BottomSheetDialogFragment {
             }
             taskAdapter.setTasks(filteredTasks);
             recyclerView.setAdapter(taskAdapter);
+            defaultTextView.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        } else if (selectedTabPosition == 2) { // Full Search
+            if (query.isEmpty()) {
+                defaultTextView.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+            } else {
+                List<NoteCardView> filteredNotes = new ArrayList<>();
+                for (NoteCardView noteCard : allNotes) {
+                    if (noteCard.getNote().getTitle().toLowerCase().contains(query.toLowerCase()) ||
+                            noteCard.getNote().getContent().toLowerCase().contains(query.toLowerCase())) {
+                        filteredNotes.add(noteCard);
+                    }
+                }
+                notesAdapter.setNotes(filteredNotes);
+                recyclerView.setAdapter(notesAdapter);
+                defaultTextView.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+            }
         }
     }
 }

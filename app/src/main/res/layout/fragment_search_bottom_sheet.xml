@@ -75,8 +75,26 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="TASK LOOKUP" />
+
+            <com.google.android.material.tabs.TabItem
+                android:id="@+id/tabFullSearch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="FULL SEARCH" />
         </com.google.android.material.tabs.TabLayout>
     </LinearLayout>
+
+    <!-- Default TextView for Full Search Tab -->
+    <TextView
+        android:id="@+id/defaultTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enter text to search note content"
+        android:gravity="start"
+        android:visibility="gone"
+        android:padding="16dp"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="16sp" />
 
     <!-- RecyclerView: white background for displaying search results -->
     <androidx.recyclerview.widget.RecyclerView
