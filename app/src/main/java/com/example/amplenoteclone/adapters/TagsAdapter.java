@@ -9,14 +9,12 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.models.Tag;
 import com.example.amplenoteclone.note.ViewNoteActivity;
 import com.example.amplenoteclone.tag.AddTagDialogFragment;
-import com.example.amplenoteclone.tag.BottomSheetTagMenu;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,10 +50,10 @@ public class TagsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_TAG) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.tag_item, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_tag, parent, false);
             return new TagViewHolder(view);
         } else {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.add_tag_item, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_add_tag, parent, false);
             return new AddTagViewHolder(view);
         }
     }
@@ -82,7 +80,7 @@ public class TagsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
             });
         } else {
-            // Xử lý AddTagViewHolder giữ nguyên
+            // Xử lý AddTagViewHolder
             AddTagViewHolder addTagHolder = (AddTagViewHolder) holder;
             addTagHolder.itemView.setOnClickListener(v -> {
                 if (context instanceof ViewNoteActivity) {

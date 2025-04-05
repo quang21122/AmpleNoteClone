@@ -55,7 +55,6 @@ public class AddTagDialogFragment extends DialogFragment {
         View view = inflater.inflate(R.layout.dialog_add_tag, container, false);
         getDialog().setCanceledOnTouchOutside(false);
 
-        // Khởi tạo các view
         tagNameInput = view.findViewById(R.id.tag_name_input);
         backButton = view.findViewById(R.id.back_button);
         cancelButton = view.findViewById(R.id.cancel_button);
@@ -127,14 +126,14 @@ public class AddTagDialogFragment extends DialogFragment {
             }
         });
 
-        // Sửa xử lý nút Done trên bàn phím
+        // Xử lý nút Done trên bàn phím
         tagNameInput.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE ||
                     (event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN)) {
                 if (tagNameInput.getText().toString().trim().isEmpty()) {
-                    dismiss(); // Hủy dialog nếu input rỗng
+                    dismiss();
                 } else {
-                    completeAddTag(); // Thêm tag nếu input không rỗng
+                    completeAddTag();
                 }
                 return true;
             }
@@ -143,7 +142,6 @@ public class AddTagDialogFragment extends DialogFragment {
     }
 
     private void setupListener() {
-        // Xử lý nút Back
         backButton.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), NotesActivity.class);
             startActivity(intent);
@@ -151,10 +149,8 @@ public class AddTagDialogFragment extends DialogFragment {
             dismiss();
         });
 
-        // Xử lý nút X (Cancel)
         cancelButton.setOnClickListener(v -> dismiss());
 
-        // Sửa xử lý nút Tick (Done)
         doneButton.setOnClickListener(v -> {
             if (!tagNameInput.getText().toString().trim().isEmpty()) {
                 completeAddTag();

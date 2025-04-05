@@ -62,6 +62,15 @@ public class Tag implements Serializable {
         this.count = count;
     }
 
+    @Override
+    public String toString() {
+        return "Tag{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", userId='" + userId + '\'' +
+                '}';
+    }
+
     // Phương thức tạo tag mới trong Firestore
     public static void createTagInFirestore(Context context, String tagName, Consumer<Tag> onSuccess, Consumer<String> onFailure) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();

@@ -59,7 +59,6 @@ public class ViewNoteActivity extends DrawerActivity {
     private TextView completedTabTextView;
     private TextView backlinksTabTextView;
     private TextView noCompletedTasksTextView;
-    private FlexboxLayout tagsContainer;
     private RecyclerView tagsRecyclerView;
 
     private Note currentNote;
@@ -80,55 +79,7 @@ public class ViewNoteActivity extends DrawerActivity {
         initializeNote();
         setupListeners();
         setupAutoSave();
-
-
-        tagsList = new ArrayList<>();
-
-        // Thiết lập RecyclerView với FlexboxLayoutManager
-        FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(this);
-        layoutManager.setFlexDirection(FlexDirection.ROW);
-        layoutManager.setFlexWrap(FlexWrap.WRAP);
-        layoutManager.setJustifyContent(JustifyContent.FLEX_START);
-        tagsRecyclerView.setLayoutManager(layoutManager);
-
-        // Khởi tạo adapter
-        tagsAdapter = new TagsAdapter(
-                this,
-                tagsList,
-                tag -> {
-                    BottomSheetTagMenu bottomSheetTagMenu = BottomSheetTagMenu.newInstance(tag);
-                    bottomSheetTagMenu.setOnTagActionListener(new BottomSheetTagMenu.OnTagActionListener() {
-                        @Override
-                        public void onTagRemoved(Tag tag) {
-                            tagsList.remove(tag);
-                            tagsAdapter.setTags(tagsList);
-                        }
-
-                        @Override
-                        public void onTagEdited(Tag tag) {
-                            // Cập nhật tag trong tagsList
-                            for (int i = 0; i < tagsList.size(); i++) {
-                                Tag t = tagsList.get(i);
-                                if (t.getId().equals(tag.getId())) {
-                                    tagsList.set(i, tag); // Thay thế đối tượng tag cũ bằng tag mới
-                                    break;
-                                }
-                            }
-                            // Làm mới giao diện
-                            tagsAdapter.setTags(tagsList);
-                        }
-
-                        @Override
-                        public void onTagDeleted(Tag tag) {
-                            tagsList.remove(tag);
-                            tagsAdapter.setTags(tagsList);
-                        }
-                    });
-                    bottomSheetTagMenu.show(getSupportFragmentManager(), "BottomSheetTagMenu");
-                }
-        );
-
-        tagsRecyclerView.setAdapter(tagsAdapter);
+        setupTag();
     }
 
     @Override
@@ -378,7 +329,6 @@ public class ViewNoteActivity extends DrawerActivity {
             return;
         }
 
-        // Biến đếm số lượng truy vấn đã hoàn thành
         final int totalTags = tagIds.size();
         final int[] completedQueries = {0};
 
@@ -394,21 +344,70 @@ public class ViewNoteActivity extends DrawerActivity {
                             }
                         }
 
-                        // Tăng biến đếm
                         completedQueries[0]++;
-                        // Nếu tất cả truy vấn đã hoàn thành, cập nhật adapter
                         if (completedQueries[0] == totalTags) {
                             tagsAdapter.setTags(tagsList);
                         }
                     })
                     .addOnFailureListener(e -> {
                         Log.e("ViewNoteActivity", "Failed to load tag " + tagId + ": " + e.getMessage());
-                        // Tăng biến đếm ngay cả khi thất bại để tránh treo
                         completedQueries[0]++;
                         if (completedQueries[0] == totalTags) {
                             tagsAdapter.setTags(tagsList);
                         }
                     });
         }
+    }
+
+    private void setupTagFlexBoxLayout() {
+        FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(this);
+        layoutManager.setFlexDirection(FlexDirection.ROW);
+        layoutManager.setFlexWrap(FlexWrap.WRAP);
+        layoutManager.setJustifyContent(JustifyContent.FLEX_START);
+        tagsRecyclerView.setLayoutManager(layoutManager);
+    }
+
+    private void setupTag() {
+        tagsList = new ArrayList<>();
+        setupTagFlexBoxLayout();
+
+        // Khởi tạo adapter
+        tagsAdapter = new TagsAdapter(
+                this,
+                tagsList,
+                tag -> {
+                    BottomSheetTagMenu bottomSheetTagMenu = BottomSheetTagMenu.newInstance(tag);
+                    bottomSheetTagMenu.setOnTagActionListener(new BottomSheetTagMenu.OnTagActionListener() {
+                        @Override
+                        public void onTagRemoved(Tag tag) {
+                            tagsList.remove(tag);
+                            tagsAdapter.setTags(tagsList);
+                        }
+
+                        @Override
+                        public void onTagEdited(Tag tag) {
+                            // Cập nhật tag trong tagsList
+                            for (int i = 0; i < tagsList.size(); i++) {
+                                Tag t = tagsList.get(i);
+                                if (t.getId().equals(tag.getId())) {
+                                    tagsList.set(i, tag);
+                                    break;
+                                }
+                            }
+
+                            tagsAdapter.setTags(tagsList);
+                        }
+
+                        @Override
+                        public void onTagDeleted(Tag tag) {
+                            tagsList.remove(tag);
+                            tagsAdapter.setTags(tagsList);
+                        }
+                    });
+                    bottomSheetTagMenu.show(getSupportFragmentManager(), "BottomSheetTagMenu");
+                }
+        );
+
+        tagsRecyclerView.setAdapter(tagsAdapter);
     }
 }

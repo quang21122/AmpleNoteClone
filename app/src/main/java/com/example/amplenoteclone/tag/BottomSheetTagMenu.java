@@ -1,22 +1,15 @@
 package com.example.amplenoteclone.tag;
 
-import static android.app.Activity.RESULT_OK;
-
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -38,7 +31,6 @@ public class BottomSheetTagMenu extends BottomSheetDialogFragment {
 
     private Tag tag;
     private OnTagActionListener tagActionListener;
-    private ActivityResultLauncher<Intent> editTagLauncher;
 
     public interface OnTagActionListener {
         void onTagRemoved(Tag tag);
@@ -56,33 +48,11 @@ public class BottomSheetTagMenu extends BottomSheetDialogFragment {
         this.tagActionListener = listener;
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        // Khởi tạo ActivityResultLauncher để xử lý kết quả từ EditTagActivity
-        editTagLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == RESULT_OK) {
-                        Intent data = result.getData();
-                        if (data != null) {
-                            Tag updatedTag = (Tag) data.getSerializableExtra(EditTagActivity.EXTRA_NEW_TAG_NAME);
-                            if (updatedTag != null && tagActionListener != null) {
-                                tagActionListener.onTagEdited(updatedTag);
-                            }
-                        }
-                    }
-                }
-        );
-    }
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.bottom_sheet_tag_menu, container, false);
 
-        // Cập nhật tiêu đề (tên tag)
         TextView tagNameTitle = view.findViewById(R.id.tag_menu_name);
         tagNameTitle.setText(tag.getName());
 
@@ -94,7 +64,6 @@ public class BottomSheetTagMenu extends BottomSheetDialogFragment {
             tagIcon.setColorFilter(ContextCompat.getColor(requireContext(), R.color.textBlue));
         }
 
-        // Xử lý nút X để đóng dialog
         ImageView closeButton = view.findViewById(R.id.close_button);
         closeButton.setOnClickListener(v -> dismiss());
 
@@ -105,11 +74,14 @@ public class BottomSheetTagMenu extends BottomSheetDialogFragment {
         });
 
         view.findViewById(R.id.option_edit_tag).setOnClickListener(v -> {
-            // Khởi động EditTagActivity
-            Intent intent = new Intent(getContext(), EditTagActivity.class);
-            intent.putExtra(EditTagActivity.EXTRA_TAG, tag);
-            editTagLauncher.launch(intent);
-            dismiss(); // Đóng BottomSheetTagMenu
+            EditTagFragment editTagFragment = EditTagFragment.newInstance(tag, newTagName -> {
+                tag.setName(newTagName);
+                if (tagActionListener != null) {
+                    tagActionListener.onTagEdited(tag);
+                }
+            });
+            editTagFragment.show(getParentFragmentManager(), "EditTagFragment");
+            dismiss();
         });
 
         view.findViewById(R.id.option_delete_tag).setOnClickListener(v -> {
@@ -127,10 +99,8 @@ public class BottomSheetTagMenu extends BottomSheetDialogFragment {
         if (dialog != null) {
             View bottomSheet = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
             if (bottomSheet != null) {
-                // Lấy chiều cao màn hình
-                int screenHeight = getResources().getDisplayMetrics().heightPixels;
-
                 // Điều chỉnh độ cao của BottomSheetDialog để chiếm toàn bộ màn hình
+                int screenHeight = getResources().getDisplayMetrics().heightPixels;
                 ViewGroup.LayoutParams layoutParams = bottomSheet.getLayoutParams();
                 if (layoutParams == null) {
                     layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, screenHeight);
@@ -141,10 +111,10 @@ public class BottomSheetTagMenu extends BottomSheetDialogFragment {
 
                 // Cấu hình BottomSheetBehavior
                 BottomSheetBehavior<View> behavior = BottomSheetBehavior.from(bottomSheet);
-                behavior.setPeekHeight(screenHeight); // Đặt peekHeight bằng chiều cao màn hình
-                behavior.setState(BottomSheetBehavior.STATE_EXPANDED); // Mở rộng hoàn toàn
-                behavior.setSkipCollapsed(true); // Bỏ qua trạng thái collapsed
-                behavior.setFitToContents(false); // Không tự động điều chỉnh theo nội dung
+                behavior.setPeekHeight(screenHeight);
+                behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                behavior.setSkipCollapsed(true);
+                behavior.setFitToContents(false);
             }
         }
     }
@@ -182,8 +152,8 @@ public class BottomSheetTagMenu extends BottomSheetDialogFragment {
 
         dialog.show();
     }
+
     private void removeTagFromNote() {
-        // Lưu context an toàn
         Context context = getContext();
         if (context == null) return;
 
@@ -195,7 +165,6 @@ public class BottomSheetTagMenu extends BottomSheetDialogFragment {
                 updatedTagIds.remove(tag.getId());
                 currentNote.setTags((ArrayList<String>) updatedTagIds);
 
-                // Cập nhật Note trên Firestore
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                 db.collection("notes").document(currentNote.getId())
                         .update("tags", updatedTagIds)
@@ -205,14 +174,12 @@ public class BottomSheetTagMenu extends BottomSheetDialogFragment {
                             }
                             // Kiểm tra xem có note nào khác còn chứa tag này không
                             checkAndDeleteTagIfUnused(context, tag);
-                            // Sử dụng context đã lưu
                             if (context != null) {
                                 Toast.makeText(context.getApplicationContext(),
                                         "Tag removed", Toast.LENGTH_SHORT).show();
                             }
                         })
                         .addOnFailureListener(e -> {
-                            // Sử dụng context đã lưu
                             if (context != null) {
                                 Toast.makeText(context.getApplicationContext(),
                                         "Failed to remove tag", Toast.LENGTH_SHORT).show();
