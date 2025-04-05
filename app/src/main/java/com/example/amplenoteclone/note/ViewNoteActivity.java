@@ -2,17 +2,12 @@ package com.example.amplenoteclone.note;
 
 import static com.example.amplenoteclone.utils.TimeConverter.formatLastUpdated;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,11 +26,8 @@ import com.example.amplenoteclone.tag.BottomSheetTagMenu;
 import com.example.amplenoteclone.ui.customviews.TaskCardView;
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexWrap;
-import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.flexbox.FlexboxLayoutManager;
 import com.google.android.flexbox.JustifyContent;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.example.amplenoteclone.tasks.CreateTaskBottomSheet;
 import com.example.amplenoteclone.ui.customviews.TaskCardView;
 import com.example.amplenoteclone.utils.FirestoreListCallback;
@@ -460,10 +452,6 @@ public class ViewNoteActivity extends DrawerActivity {
         getTasks();
 
         taskAdapter.notifyDataSetChanged();
-    }
-
-    public String getToolbarTitle() {
-        return "View Note";
     }
 
     private void loadTags() {
