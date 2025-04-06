@@ -138,7 +138,7 @@ public class BottomSheetTagMenu extends BottomSheetDialogFragment {
         TextView deleteButton = dialogView.findViewById(R.id.delete_button);
         deleteButton.setOnClickListener(v -> {
             dialog.dismiss();
-            tag.deleteTagInFirestore(context,
+            tag.deleteTagInFirestore(
                     () -> {
                         if (tagActionListener != null) {
                             tagActionListener.onTagDeleted(tag);
@@ -160,65 +160,16 @@ public class BottomSheetTagMenu extends BottomSheetDialogFragment {
             ViewNoteActivity activity = (ViewNoteActivity) getActivity();
             Note currentNote = activity.getCurrentNote();
             if (currentNote != null) {
-                List<String> updatedTagIds = new ArrayList<>(currentNote.getTags());
-                updatedTagIds.remove(tag.getId());
-                currentNote.setTags((ArrayList<String>) updatedTagIds);
-
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-                db.collection("notes").document(currentNote.getId())
-                        .update("tags", updatedTagIds)
-                        .addOnSuccessListener(aVoid -> {
+                tag.removeTagFromNoteInFirestore(
+                        currentNote.getId(),
+                        () -> {
                             if (tagActionListener != null) {
                                 tagActionListener.onTagRemoved(tag);
                             }
-                            // Kiểm tra xem có note nào khác còn chứa tag này không
-                            checkAndDeleteTagIfUnused(context, tag);
-                            if (context != null) {
-                                Toast.makeText(context.getApplicationContext(),
-                                        "Tag removed", Toast.LENGTH_SHORT).show();
-                            }
-                        })
-                        .addOnFailureListener(e -> {
-                            if (context != null) {
-                                Toast.makeText(context.getApplicationContext(),
-                                        "Failed to remove tag", Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                            Toast.makeText(context, "Tag removed", Toast.LENGTH_SHORT).show();
+                        },
+                        error -> Toast.makeText(context, error, Toast.LENGTH_SHORT).show());
             }
         }
-    }
-
-    private void checkAndDeleteTagIfUnused(Context context, Tag tag) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("notes")
-                .whereArrayContains("tags", tag.getId())
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (queryDocumentSnapshots.isEmpty()) {
-                        // Không có note nào chứa tag này, xóa tag
-                        tag.deleteTagInFirestore(context.getApplicationContext(),
-                                () -> {
-                                    if (tagActionListener != null) {
-                                        tagActionListener.onTagDeleted(tag);
-                                    }
-                                    if (context != null) {
-                                        Toast.makeText(context.getApplicationContext(),
-                                                "Tag deleted as it was not used in any notes", Toast.LENGTH_SHORT).show();
-                                    }
-                                },
-                                error -> {
-                                    if (context != null) {
-                                        Toast.makeText(context.getApplicationContext(),
-                                                error, Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    if (context != null) {
-                        Toast.makeText(context.getApplicationContext(),
-                                "Failed to check tag usage: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
     }
 }

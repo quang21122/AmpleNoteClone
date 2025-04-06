@@ -71,7 +71,7 @@ public class Tag implements Serializable {
     }
 
     // Phương thức tạo tag mới trong Firestore
-    public static void createTagInFirestore(Context context, String tagName, Consumer<Tag> onSuccess, Consumer<String> onFailure) {
+    public static void createTagInFirestore(String tagName, Consumer<Tag> onSuccess, Consumer<String> onFailure) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
@@ -107,7 +107,7 @@ public class Tag implements Serializable {
                 });
     }
 
-    public void editTagInFirestore(Context context, String newTagName, Runnable onSuccess, Consumer<String> onFailure) {
+    public void editTagInFirestore(String newTagName, Runnable onSuccess, Consumer<String> onFailure) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         if (id == null) {
             onFailure.accept("Tag ID is null");
@@ -126,8 +126,7 @@ public class Tag implements Serializable {
                 });
     }
 
-    public void deleteTagInFirestore(Context context, Runnable onSuccess, Consumer<String> onFailure) {
-        Context appContext = context.getApplicationContext();
+    public void deleteTagInFirestore(Runnable onSuccess, Consumer<String> onFailure) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         // Kiểm tra id
@@ -150,7 +149,6 @@ public class Tag implements Serializable {
                                 List<String> updatedTags = new ArrayList<>(currentTags);
                                 updatedTags.remove(id);
 
-                                // Cập nhật note
                                 db.collection("notes")
                                         .document(doc.getId())
                                         .update("tags", updatedTags)
@@ -188,5 +186,82 @@ public class Tag implements Serializable {
                     );
             return null;
         });
+    }
+
+    public void removeTagFromNoteInFirestore(String noteId, Runnable onSuccess, Consumer<String> onFailure) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        if (id == null) {
+            onFailure.accept("Tag ID is null");
+            return;
+        }
+        if (noteId == null) {
+            onFailure.accept("Note ID is null");
+            return;
+        }
+
+        db.collection("notes").document(noteId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Note note = documentSnapshot.toObject(Note.class);
+                        if (note != null && note.getTags() != null && note.getTags().contains(id)) {
+                            List<String> updatedTags = new ArrayList<>(note.getTags());
+                            updatedTags.remove(id);
+
+                            // Cập nhật note trong Firestore
+                            db.collection("notes").document(noteId)
+                                    .update("tags", updatedTags)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Log.d("Tag", "Tag " + id + " removed from note " + noteId);
+                                        // Kiểm tra xem tag có còn được sử dụng không
+                                        checkAndDeleteIfUnused(onSuccess, onFailure);
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.e("Tag", "Failed to update note: " + e.getMessage());
+                                        onFailure.accept("Failed to remove tag from note");
+                                    });
+                        } else {
+                            onFailure.accept("Tag not found in note or note has no tags");
+                        }
+                    } else {
+                        onFailure.accept("Note not found");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Tag", "Failed to fetch note: " + e.getMessage());
+                    onFailure.accept("Failed to fetch note");
+                });
+    }
+
+    // Kiểm tra và xóa tag nếu không còn được sử dụng
+    private void checkAndDeleteIfUnused(Runnable onSuccess, Consumer<String> onFailure) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("notes")
+                .whereArrayContains("tags", id)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        // Không còn note nào sử dụng tag này, xóa tag
+                        db.collection("tags").document(id)
+                                .delete()
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d("Tag", "Tag " + id + " deleted as it is unused");
+                                    onSuccess.run();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("Tag", "Failed to delete unused tag: " + e.getMessage());
+                                    onFailure.accept("Failed to delete unused tag");
+                                });
+                    } else {
+                        // Tag vẫn được sử dụng, chỉ gọi onSuccess mà không xóa
+                        onSuccess.run();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Tag", "Failed to check tag usage: " + e.getMessage());
+                    onFailure.accept("Failed to check tag usage");
+                });
     }
 }
