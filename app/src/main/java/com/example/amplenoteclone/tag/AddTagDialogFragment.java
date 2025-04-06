@@ -188,7 +188,7 @@ public class AddTagDialogFragment extends DialogFragment {
             return;
         }
 
-        Tag.createTagInFirestore(requireContext(),
+        Tag.createTagInFirestore(
                 tagName,
                 newTag -> {
                     // Thêm tag vào note
@@ -206,7 +206,6 @@ public class AddTagDialogFragment extends DialogFragment {
                                         if (tagAddedListener != null) {
                                             tagAddedListener.onTagAdded(newTag);
                                         }
-                                        Toast.makeText(getContext(), "Tag added", Toast.LENGTH_SHORT).show();
                                         dismiss();
                                     })
                                     .addOnFailureListener(e -> {
