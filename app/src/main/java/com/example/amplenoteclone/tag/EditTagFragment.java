@@ -1,6 +1,8 @@
 package com.example.amplenoteclone.tag;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +27,9 @@ public class EditTagFragment extends BottomSheetDialogFragment {
     private Tag tag;
     private EditText tagNameInput;
     private ImageView backButton;
+    TextView cancelButton;
+    TextView renameButton;
+    TextView currentTagName;
     private OnTagEditListener tagEditListener;
 
     public interface OnTagEditListener {
@@ -55,24 +60,25 @@ public class EditTagFragment extends BottomSheetDialogFragment {
         }
 
         backButton = view.findViewById(R.id.back_button);
-        TextView currentTagName = view.findViewById(R.id.current_tag_name);
+        currentTagName = view.findViewById(R.id.current_tag_name);
         tagNameInput = view.findViewById(R.id.tag_name_input);
-        TextView renameButton = view.findViewById(R.id.rename_button);
-        TextView cancelButton = view.findViewById(R.id.cancel_button);
+        renameButton = view.findViewById(R.id.rename_button);
+        cancelButton = view.findViewById(R.id.cancel_button);
 
         currentTagName.setText("#" + tag.getName());
         tagNameInput.setText(tag.getName());
+        renameButton.setVisibility(View.GONE);
+        cancelButton.setVisibility(View.GONE);
+        setupTagNameWatcher();
 
         backButton.setOnClickListener(v -> dismiss());
         cancelButton.setOnClickListener(v -> dismiss());
-
         renameButton.setOnClickListener(v -> {
             String newTagName = tagNameInput.getText().toString().trim();
             if (!newTagName.isEmpty() && !newTagName.equals(tag.getName())) {
-                tag.editTagInFirestore(requireContext(),
+                tag.editTagInFirestore(
                         newTagName,
                         () -> {
-                            Toast.makeText(requireContext(), "Tag updated", Toast.LENGTH_SHORT).show();
                             if (tagEditListener != null) {
                                 tagEditListener.onTagEdited(newTagName);
                             }
@@ -113,5 +119,27 @@ public class EditTagFragment extends BottomSheetDialogFragment {
                 behavior.setFitToContents(false);
             }
         }
+    }
+
+    private void setupTagNameWatcher(){
+        tagNameInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String newTagName = s.toString().trim();
+                if (newTagName.isEmpty() || newTagName.equals(tag.getName())) {
+                    renameButton.setVisibility(View.GONE);
+                    cancelButton.setVisibility(View.GONE);
+                } else {
+                    renameButton.setVisibility(View.VISIBLE);
+                    cancelButton.setVisibility(View.VISIBLE);
+                }
+            }
+        });
     }
 }

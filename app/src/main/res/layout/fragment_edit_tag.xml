@@ -103,7 +103,8 @@
                 android:paddingBottom="8dp"
                 android:paddingHorizontal="8dp"
                 android:background="@null"
-                android:backgroundTint="@android:color/transparent" />
+                android:backgroundTint="@android:color/transparent"
+                android:textColor="@color/black"/>
         </LinearLayout>
     </LinearLayout>
 
