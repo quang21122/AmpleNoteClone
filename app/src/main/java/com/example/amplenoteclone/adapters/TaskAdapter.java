@@ -19,6 +19,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     private boolean showDeleteButton = true;
     private boolean isEditable = true;
     private boolean showTaskTitleDetails = true;
+    private boolean showGoToNoteButton = true;
 
     public TaskAdapter() {
         this.taskList = new ArrayList<>();
@@ -77,6 +78,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         // Ẩn/hiện tiêu đề chi tiết dựa trên showTaskTitleDetail
         holder.taskCardView.setShowTaskTitleDetails(showTaskTitleDetails);
 
+        // Ẩn/hiện nút "Go to Note" dựa trên showGoToNoteButton
+        holder.taskCardView.setShowGoToNoteButton(showGoToNoteButton);
+
         holder.taskCardView.getExpandButton().setOnClickListener(v -> {
             int previousExpandedPosition = expandedPosition;
             if (expandedPosition == position) {
@@ -124,6 +128,10 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
     }
     public void setShowTaskTitleDetails(boolean show) {
         this.showTaskTitleDetails = show;
+        notifyDataSetChanged();
+    }
+    public void setShowGoToNoteButton(boolean show) {
+        this.showGoToNoteButton = show;
         notifyDataSetChanged();
     }
 }

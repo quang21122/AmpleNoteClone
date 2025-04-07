@@ -704,13 +704,15 @@
                             android:layout_height="wrap_content"
                             android:text=" | "
                             android:textColor="@color/light_gray"
-                            android:textSize="14sp" />
+                            android:textSize="14sp"
+                            android:id="@+id/separate_line1"/>
 
                         <!-- Icon (Bạn có thể thay bằng ImageView với drawable) -->
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/ic_attach_note" />
+                            android:src="@drawable/ic_attach_note"
+                            android:id="@+id/attach_note_icon"/>
 
                         <!-- Am... (Placeholder) -->
                         <TextView
@@ -727,7 +729,8 @@
                             android:layout_height="wrap_content"
                             android:text=" | "
                             android:textColor="@color/light_gray"
-                            android:textSize="14sp" />
+                            android:textSize="14sp"
+                            android:id="@+id/separate_line2"/>
 
                         <!-- DONE Button -->
                         <TextView

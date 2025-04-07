@@ -82,6 +82,9 @@ public class TaskCardView extends CardView {
     private TextView deleteButton;
     private View priorityBar;
     private TextView textDoneUndone;
+    private ImageView noteIcon;
+    private TextView seperateLine1;
+    private TextView seperateLine2;
     private boolean showDeleteButton = true;
     private boolean isEditable = true;
     private boolean showTaskTileDetails = true;
@@ -147,6 +150,9 @@ public class TaskCardView extends CardView {
         deleteButton = findViewById(R.id.delete_button);
         priorityBar = findViewById(R.id.task_priority_bar);
         textDoneUndone = findViewById(R.id.text_done_undone);
+        noteIcon = findViewById(R.id.attach_note_icon);
+        seperateLine1 = findViewById(R.id.separate_line1);
+        seperateLine2 = findViewById(R.id.separate_line2);
     }
 
     public void setTask(Task task) {
@@ -484,6 +490,14 @@ public class TaskCardView extends CardView {
         }
     }
 
+    public void setShowGoToNoteButton(boolean show) {
+        if (noteIcon != null) {
+            noteIcon.setVisibility(show ? View.VISIBLE : View.GONE);
+            noteTitle2.setVisibility(show ? View.VISIBLE : View.GONE);
+            seperateLine2.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+    }
+
     public void setShowDeleteButton(boolean show) {
         this.showDeleteButton = show;
         updateDeleteButtonVisibility();
@@ -492,6 +506,7 @@ public class TaskCardView extends CardView {
     private void updateDeleteButtonVisibility() {
         if (deleteButton != null) {
             deleteButton.setVisibility(showDeleteButton ? View.VISIBLE : View.GONE);
+            seperateLine1.setVisibility(showDeleteButton ? View.VISIBLE : View.GONE);
         }
     }
 

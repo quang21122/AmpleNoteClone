@@ -328,6 +328,7 @@ public class ViewNoteActivity extends DrawerActivity {
         taskAdapter = new TaskAdapter();
         recyclerView.setAdapter(taskAdapter);
         taskAdapter.setShowTaskTitleDetails(false);
+        taskAdapter.setShowGoToNoteButton(false);
         taskAdapter.notifyDataSetChanged();
     }
 
