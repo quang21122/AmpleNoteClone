@@ -16,8 +16,10 @@
         <View
             android:id="@+id/task_priority_bar"
             android:layout_width="5dp"
-            android:layout_height="98dp"
+            android:layout_height="match_parent"
             android:layout_alignParentStart="true"
+            android:layout_alignTop="@id/task_title"
+            android:layout_alignBottom="@id/task_created_at_time_ago"
             android:background="@android:color/holo_red_light" />
 
         <!-- Checkbox -->
@@ -48,15 +50,15 @@
             android:focusable="true"
             android:focusableInTouchMode="true" />
 
-        <!-- Task Date -->
+        <!-- Note Title 1 -->
         <TextView
-            android:id="@+id/task_create_at_date"
+            android:id="@+id/note_title1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/task_title"
             android:layout_toEndOf="@id/check_task"
             android:layout_marginStart="8dp"
-            android:text="February 24th, 2025"
+            android:text="Note's Name"
             android:textSize="14sp"
             android:textColor="@color/textBlue"
             android:paddingVertical="4dp" />
@@ -66,7 +68,7 @@
             android:id="@+id/task_created_at_time_ago"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/task_create_at_date"
+            android:layout_below="@id/note_title1"
             android:layout_toEndOf="@id/check_task"
             android:layout_marginStart="8dp"
             android:text="Created 23 minutes ago"
@@ -86,12 +88,13 @@
             android:src="@drawable/ic_arrow_expanded"
             android:contentDescription="Expand/Collapse" />
 
+    </RelativeLayout>
+
         <!-- Expandable Layout -->
         <LinearLayout
             android:id="@+id/expandable_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/task_created_at_time_ago"
             android:orientation="vertical"
             android:background="@color/light_blue_gray">
 <!--            android:visibility="gone">-->
@@ -717,7 +720,7 @@
                             android:textColor="@color/textBlue"
                             android:textSize="14sp"
                             android:padding="4dp"
-                            android:id="@+id/note_title" />
+                            android:id="@+id/note_title2" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -758,5 +761,4 @@
 
             </androidx.core.widget.NestedScrollView>
         </LinearLayout>
-    </RelativeLayout>
 </LinearLayout>
