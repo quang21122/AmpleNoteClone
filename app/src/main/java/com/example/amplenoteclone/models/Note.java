@@ -3,6 +3,7 @@ package com.example.amplenoteclone.models;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.Exclude;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -45,6 +46,24 @@ public class Note {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             this.userId = user.getUid();
+        }
+    }
+    public void deleteNoteFromFirebase() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            String userId = user.getUid();
+            // Logic to delete the note from Firebase using the userId and noteId
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("notes")
+                    .document(this.id)
+                    .delete()
+                    .addOnSuccessListener(aVoid -> {
+                        // Note successfully deleted
+                    })
+                    .addOnFailureListener(e -> {
+                        // Handle failure
+                    });
+
         }
     }
 

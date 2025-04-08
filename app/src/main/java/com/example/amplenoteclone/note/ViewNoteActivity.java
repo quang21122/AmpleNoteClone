@@ -7,10 +7,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -102,6 +104,21 @@ public class ViewNoteActivity extends DrawerActivity {
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar_view_note, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+
+        MenuItem deleteItem = menu.findItem(R.id.action_delete_note);
+        deleteItem.setOnMenuItemClickListener(item -> {
+            deleteNote();
+            return true;
+        });
+
+        return true;
+    }
     private void initializeViews() {
         titleEditText = findViewById(R.id.note_title);
         lastUpdatedTextView = findViewById(R.id.last_updated);
@@ -290,16 +307,33 @@ public class ViewNoteActivity extends DrawerActivity {
 
         return noteData;
     }
+    private void deleteNote() {
+        if (currentNote.getId() == null) {
+            Toast.makeText(this, "Note not found", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.toolbar_notes, menu);
-        return true;
+        deleteAllTasksFromFirebase();
+        currentNote.deleteNoteFromFirebase();
+        finish();
     }
 
-    private void deleteNote() {
-        Toast.makeText(this, "Note deleted", Toast.LENGTH_SHORT).show();
-        finish();
+    private void deleteAllTasksFromFirebase() {
+       for (TaskCardView taskCard : taskCardList) {
+            Task task = taskCard.getTask();
+            if (task != null && task.getId() != null) {
+               task.deleteFromFirestore(
+                        () -> {
+                            // Task deleted successfully
+                            Log.d("Task", "Task deleted successfully: " + task.getId());
+                        },
+                        error -> {
+                            // Handle error
+                            Log.e("Task", "Error deleting task: " + error.getMessage());
+                        }
+               );
+            }
+        }
     }
 
     private void cancelAutoSave() {
