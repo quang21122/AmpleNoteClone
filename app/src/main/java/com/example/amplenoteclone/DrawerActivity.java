@@ -68,30 +68,38 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Setup ActionBarDrawerToggle with special handling for icon clicks
-        ActionBarDrawerToggle toggle = getActionBarDrawerToggle(toolbar);
-        drawerLayout.addDrawerListener(toggle);
-
         // Initialize the drawer as locked
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 
-        toggle.syncState();
+        if (useDrawerToggle()) {
+            // Setup ActionBarDrawerToggle with special handling for icon clicks
+            ActionBarDrawerToggle toggle = getActionBarDrawerToggle(toolbar);
+            drawerLayout.addDrawerListener(toggle);
 
-        // Set a click listener on the toolbar's navigation icon
-        toolbar.setNavigationOnClickListener(v -> {
-            if (drawerLayout.getDrawerLockMode(androidx.core.view.GravityCompat.START)
-                    == DrawerLayout.LOCK_MODE_LOCKED_CLOSED) {
-                // If drawer is locked, unlock it and open
-                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                drawerLayout.openDrawer(androidx.core.view.GravityCompat.START);
-            } else if (!drawerLayout.isDrawerOpen(androidx.core.view.GravityCompat.START)) {
-                // If drawer is unlocked but closed, open it
-                drawerLayout.openDrawer(androidx.core.view.GravityCompat.START);
-            } else {
-                // If drawer is open, close it
-                drawerLayout.closeDrawer(androidx.core.view.GravityCompat.START);
-            }
-        });
+            toggle.syncState();
+
+            // Set a click listener on the toolbar's navigation icon
+            toolbar.setNavigationOnClickListener(v -> {
+                if (drawerLayout.getDrawerLockMode(androidx.core.view.GravityCompat.START)
+                        == DrawerLayout.LOCK_MODE_LOCKED_CLOSED) {
+                    // If drawer is locked, unlock it and open
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                    drawerLayout.openDrawer(androidx.core.view.GravityCompat.START);
+                } else if (!drawerLayout.isDrawerOpen(androidx.core.view.GravityCompat.START)) {
+                    // If drawer is unlocked but closed, open it
+                    drawerLayout.openDrawer(androidx.core.view.GravityCompat.START);
+                } else {
+                    // If drawer is open, close it
+                    drawerLayout.closeDrawer(androidx.core.view.GravityCompat.START);
+                }
+            });
+        } else {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back); // your custom icon
+            toolbar.setNavigationOnClickListener(v -> onCustomNavigationClick());
+        }
+
+
 
         setupToolbar(); // Keep title setup
 
@@ -462,4 +470,11 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
     protected abstract String getToolbarTitle();
 
     protected abstract int getCurrentPageId();
+
+    protected boolean useDrawerToggle() {
+        return true;
+    }
+    protected void onCustomNavigationClick() {
+        finish();
+    }
 }

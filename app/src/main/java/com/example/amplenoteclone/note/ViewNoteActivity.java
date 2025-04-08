@@ -2,6 +2,8 @@ package com.example.amplenoteclone.note;
 
 import static com.example.amplenoteclone.utils.TimeConverter.formatLastUpdated;
 
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,6 +15,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,14 +28,13 @@ import com.example.amplenoteclone.models.Note;
 import com.example.amplenoteclone.models.Tag;
 import com.example.amplenoteclone.models.Task;
 import com.example.amplenoteclone.tag.BottomSheetTagMenu;
+import com.example.amplenoteclone.tasks.CreateTaskBottomSheet;
 import com.example.amplenoteclone.ui.customviews.TaskCardView;
+import com.example.amplenoteclone.utils.FirestoreListCallback;
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayoutManager;
 import com.google.android.flexbox.JustifyContent;
-import com.example.amplenoteclone.tasks.CreateTaskBottomSheet;
-import com.example.amplenoteclone.utils.FirestoreListCallback;
-
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -77,6 +80,22 @@ public class ViewNoteActivity extends DrawerActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setActivityContent(R.layout.activity_view_note);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        // Set a custom navigation icon
+        Drawable backIcon = ContextCompat.getDrawable(this, R.drawable.ic_back);
+        if (backIcon != null) {
+            backIcon.setTint(Color.WHITE);
+            toolbar.setNavigationIcon(backIcon);
+        }
+        // Set a custom action on click
+        toolbar.setNavigationOnClickListener(v -> {
+            // Back to NotesActivity
+            if (hasNoteChanged()) {
+                saveNote();
+            }
+            finish();
+        });
 
         initializeViews();
         setupTaskSection();
@@ -550,5 +569,9 @@ public class ViewNoteActivity extends DrawerActivity {
         );
 
         tagsRecyclerView.setAdapter(tagsAdapter);
+    }
+    @Override
+    protected boolean useDrawerToggle() {
+        return false;
     }
 }
