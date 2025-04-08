@@ -50,6 +50,8 @@ public class NotesActivity extends DrawerActivity {
     private TaskAdapter taskAdapter;
     private ArrayList<NoteCardView> allNotes = new ArrayList<>();
     private List<TaskCardView> allTaskCardList = new ArrayList<>(); // Lưu danh sách đầy đủ
+    private String selectedTagId;
+    private String selectedTagName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +76,11 @@ public class NotesActivity extends DrawerActivity {
                 startActivity(intent);
             }
         }
+
+        Intent tagIntent = getIntent();
+        selectedTagId = tagIntent.getStringExtra("tagId");
+        selectedTagName = tagIntent.getStringExtra("tagName");
+        setupToolbar();
 
         RecyclerView recyclerView = findViewById(R.id.recyclerNotes);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -179,16 +186,21 @@ public class NotesActivity extends DrawerActivity {
 
     @Override
     protected String getToolbarTitle() {
-        return "Notes";
+        return selectedTagName != null ? "#" + selectedTagName : "Notes";
     }
 
     private void getNotesFromFirebase(String userId, FirestoreListCallback<NoteCardView> firestoreListCallback) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference collectionRef = db.collection("notes");
 
+        // Truy vấn note dựa trên userId và tagId (nếu có)
+        var query = collectionRef.whereEqualTo("userId", userId);
+        if (selectedTagId != null) {
+            query = query.whereArrayContains("tags", selectedTagId);
+        }
+
         // Fetch only notes for the given userId
-        collectionRef.whereEqualTo("userId", userId)
-                .get(Source.SERVER) // Force fetch from server
+        query.get(Source.SERVER) // Force fetch from server
                 .addOnCompleteListener(task -> {
                     ArrayList<NoteCardView> notes = new ArrayList<>();
 

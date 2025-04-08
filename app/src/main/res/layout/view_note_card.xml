@@ -49,14 +49,12 @@
                 android:textColor="@color/black"
                 android:paddingTop="4dp"/>
 
-            <TextView
-                android:id="@+id/note_tags"
+<!--            tags-->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/note_tags_recycler_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Tags"
-                android:textSize="12sp"
-                android:textColor="@color/gray"
-                android:paddingTop="4dp"/>
+                android:layout_marginTop="8dp"/>
 
             <TextView
                 android:id="@+id/note_date"

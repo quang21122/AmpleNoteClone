@@ -1,8 +1,6 @@
 package com.example.amplenoteclone.ui.customviews;
 
-import android.app.AlarmManager;
 import android.app.DatePickerDialog;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.util.AttributeSet;
@@ -30,7 +28,6 @@ import androidx.core.content.ContextCompat;
 import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.models.Task;
 import com.example.amplenoteclone.note.ViewNoteActivity;
-import com.example.amplenoteclone.tasks.TaskNotificationReceiver;
 import com.example.amplenoteclone.utils.TimeConverter;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -45,11 +42,11 @@ public class TaskCardView extends CardView {
     private Task task;
     private CheckBox checkTask;
     private EditText taskTitle;
-    private TextView createdDate;
+    private TextView noteTitle1;
     private TextView createdTimeAgo1;
     private TextView createdTimeAgo2;
     private TextView taskScore;
-    private TextView noteTitle;
+    private TextView noteTitle2;
     private ImageView expandButton;
     private LinearLayout expandableLayout;
     private ImageView repeatIcon;
@@ -85,8 +82,12 @@ public class TaskCardView extends CardView {
     private TextView deleteButton;
     private View priorityBar;
     private TextView textDoneUndone;
+    private ImageView noteIcon;
+    private TextView seperateLine1;
+    private TextView seperateLine2;
     private boolean showDeleteButton = true;
     private boolean isEditable = true;
+    private boolean showTaskTileDetails = true;
 
     public TaskCardView(Context context) {
         super(context);
@@ -109,11 +110,11 @@ public class TaskCardView extends CardView {
         // Khởi tạo các view
         checkTask = findViewById(R.id.check_task);
         taskTitle = findViewById(R.id.task_title);
-        createdDate = findViewById(R.id.task_create_at_date);
+        noteTitle1 = findViewById(R.id.note_title1);
         createdTimeAgo1 = findViewById(R.id.task_created_at_time_ago);
         createdTimeAgo2 = findViewById(R.id.task_created_time_ago);
         taskScore = findViewById(R.id.task_score);
-        noteTitle = findViewById(R.id.note_title);
+        noteTitle2 = findViewById(R.id.note_title2);
         expandButton = findViewById(R.id.expand_button);
         expandableLayout = findViewById(R.id.expandable_layout);
         repeatIcon = findViewById(R.id.repeat_icon);
@@ -149,6 +150,9 @@ public class TaskCardView extends CardView {
         deleteButton = findViewById(R.id.delete_button);
         priorityBar = findViewById(R.id.task_priority_bar);
         textDoneUndone = findViewById(R.id.text_done_undone);
+        noteIcon = findViewById(R.id.attach_note_icon);
+        seperateLine1 = findViewById(R.id.separate_line1);
+        seperateLine2 = findViewById(R.id.separate_line2);
     }
 
     public void setTask(Task task) {
@@ -255,8 +259,11 @@ public class TaskCardView extends CardView {
         if (deleteButton != null) {
             deleteButton.setClickable(isEditable);
         }
-        if (noteTitle != null) {
-            noteTitle.setClickable(isEditable);
+        if (noteTitle1 != null) {
+            noteTitle1.setClickable(isEditable);
+        }
+        if (noteTitle2 != null) {
+            noteTitle2.setClickable(isEditable);
         }
     }
 
@@ -267,6 +274,8 @@ public class TaskCardView extends CardView {
     public void setExpanded(boolean expanded) {
         expandableLayout.setVisibility(expanded ? View.VISIBLE : View.GONE);
         expandButton.setImageResource(expanded ? R.drawable.ic_arrow_collapsed : R.drawable.ic_arrow_expanded);
+        noteTitle1.setVisibility(expanded ? View.GONE : View.VISIBLE);
+        createdTimeAgo1.setVisibility(expanded ? View.GONE : View.VISIBLE);
     }
 
     private void updateUI() {
@@ -307,9 +316,6 @@ public class TaskCardView extends CardView {
         hideUntilTimeText.setText(task.getHideUntilTime() != null ? task.getHideUntilTime() : "");
 
         taskScore.setText("Task Score " + task.getScore());
-
-        String formattedDate = task.getCreateAt() != null ? getFormattedDateWithSuffix(task.getCreateAt()) : "No Date";
-        createdDate.setText(formattedDate);
 
         String timeAgo = task.getCreateAt() != null ? TimeConverter.convertToTimeAgo(task.getCreateAt()) : "No Time";
         createdTimeAgo1.setText("Created " + timeAgo);
@@ -442,7 +448,14 @@ public class TaskCardView extends CardView {
         updateDeleteButtonVisibility();
 
         // Note Title
-        noteTitle.setOnClickListener(v -> {
+        noteTitle1.setOnClickListener(v -> {
+            if (task.getNoteId() != null && !task.getNoteId().isEmpty()) {
+                Intent intent = new Intent(getContext(), ViewNoteActivity.class);
+                intent.putExtra("noteId", task.getNoteId());
+                getContext().startActivity(intent);
+            }
+        });
+        noteTitle2.setOnClickListener(v -> {
             if (task.getNoteId() != null && !task.getNoteId().isEmpty()) {
                 Intent intent = new Intent(getContext(), ViewNoteActivity.class);
                 intent.putExtra("noteId", task.getNoteId());
@@ -469,6 +482,22 @@ public class TaskCardView extends CardView {
         }
     }
 
+    public void setShowTaskTitleDetails(boolean show) {
+        this.showTaskTileDetails = show;
+        if (!showTaskTileDetails) {
+            noteTitle1.setVisibility(View.GONE);
+            createdTimeAgo1.setVisibility(View.GONE);
+        }
+    }
+
+    public void setShowGoToNoteButton(boolean show) {
+        if (noteIcon != null) {
+            noteIcon.setVisibility(show ? View.VISIBLE : View.GONE);
+            noteTitle2.setVisibility(show ? View.VISIBLE : View.GONE);
+            seperateLine2.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
+    }
+
     public void setShowDeleteButton(boolean show) {
         this.showDeleteButton = show;
         updateDeleteButtonVisibility();
@@ -477,6 +506,7 @@ public class TaskCardView extends CardView {
     private void updateDeleteButtonVisibility() {
         if (deleteButton != null) {
             deleteButton.setVisibility(showDeleteButton ? View.VISIBLE : View.GONE);
+            seperateLine1.setVisibility(showDeleteButton ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -489,10 +519,18 @@ public class TaskCardView extends CardView {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         if (task.getNoteId() != null && !task.getNoteId().isEmpty()) {
             db.collection("notes").document(task.getNoteId()).get()
-                    .addOnSuccessListener(document -> noteTitle.setText(document.exists() ? document.getString("title") : "Unidentified Note"))
-                    .addOnFailureListener(e -> noteTitle.setText("Unidentified Note"));
+                    .addOnSuccessListener(document -> {
+                        String noteTitle = document.exists() ? document.getString("title") : "Unidentified Note";
+                        noteTitle1.setText(noteTitle);
+                        noteTitle2.setText(noteTitle);
+                    })
+                    .addOnFailureListener(e -> {
+                        noteTitle1.setText("Unidentified Note");
+                        noteTitle2.setText("Unidentified Note");
+                    });
         } else {
-            noteTitle.setText("No Note Linked");
+            noteTitle1.setText("No Note Linked");
+            noteTitle2.setText("No Note Linked");
         }
     }
 

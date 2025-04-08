@@ -11,7 +11,6 @@ import androidx.core.content.ContextCompat;
 
 import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.tasks.TaskNotificationReceiver;
-import com.example.amplenoteclone.utils.FirestoreListCallback;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -21,7 +20,6 @@ import com.google.firebase.firestore.WriteBatch;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -49,8 +47,7 @@ public class Task implements Serializable {
     private String details;
 
     // Constructor mặc định (yêu cầu bởi Firestore)
-    public Task() {
-    }
+    public Task() {}
 
     // Constructor để tạo task mới
     public Task(String userId, String noteId, String title) {
@@ -72,9 +69,24 @@ public class Task implements Serializable {
     }
 
     // Constructor đầy đủ
-    public Task(String userId, String noteId, String title, Date createAt, boolean isCompleted, String repeat,
-                Date startAt, String startAtDate, String startAtPeriod, String startAtTime, int startNoti,
-                Date hideUntil, String hideUntilDate, String hideUntilTime, String priority, int duration, float score) {
+    public Task(
+            String userId,
+            String noteId,
+            String title,
+            Date createAt,
+            boolean isCompleted,
+            String repeat,
+            Date startAt,
+            String startAtDate,
+            String startAtPeriod,
+            String startAtTime,
+            int startNoti,
+            Date hideUntil,
+            String hideUntilDate,
+            String hideUntilTime,
+            String priority,
+            int duration,
+            float score) {
         this.userId = userId;
         this.noteId = noteId;
         this.title = title;
@@ -96,26 +108,55 @@ public class Task implements Serializable {
 
     @Override
     public String toString() {
-        return "Task{" +
-                "id='" + id + '\'' +
-                ", userId='" + userId + '\'' +
-                ", noteId='" + noteId + '\'' +
-                ", title='" + title + '\'' +
-                ", createAt=" + createAt +
-                ", isCompleted=" + isCompleted +
-                ", repeat='" + repeat + '\'' +
-                ", startAt=" + startAt +
-                ", startAtDate='" + startAtDate + '\'' +
-                ", startAtPeriod='" + startAtPeriod + '\'' +
-                ", startAtTime='" + startAtTime + '\'' +
-                ", startNoti=" + startNoti +
-                ", hideUntil=" + hideUntil +
-                ", hideUntilDate='" + hideUntilDate + '\'' +
-                ", hideUntilTime='" + hideUntilTime + '\'' +
-                ", priority='" + priority + '\'' +
-                ", duration=" + duration +
-                ", score=" + score +
-                '}';
+        return "Task{"
+                + "id='"
+                + id
+                + '\''
+                + ", userId='"
+                + userId
+                + '\''
+                + ", noteId='"
+                + noteId
+                + '\''
+                + ", title='"
+                + title
+                + '\''
+                + ", createAt="
+                + createAt
+                + ", isCompleted="
+                + isCompleted
+                + ", repeat='"
+                + repeat
+                + '\''
+                + ", startAt="
+                + startAt
+                + ", startAtDate='"
+                + startAtDate
+                + '\''
+                + ", startAtPeriod='"
+                + startAtPeriod
+                + '\''
+                + ", startAtTime='"
+                + startAtTime
+                + '\''
+                + ", startNoti="
+                + startNoti
+                + ", hideUntil="
+                + hideUntil
+                + ", hideUntilDate='"
+                + hideUntilDate
+                + '\''
+                + ", hideUntilTime='"
+                + hideUntilTime
+                + '\''
+                + ", priority='"
+                + priority
+                + '\''
+                + ", duration="
+                + duration
+                + ", score="
+                + score
+                + '}';
     }
 
     // Getters và Setters với @PropertyName để ánh xạ tên trường trên Firestore
@@ -201,31 +242,27 @@ public class Task implements Serializable {
     }
 
     @PropertyName("startAtDate")
-
     public void setStartAtDate(String startAtDate) {
         this.startAtDate = startAtDate;
         updateStartAt();
     }
-  
+
     @PropertyName("startAtPeriod")
     public String getStartAtPeriod() {
         return startAtPeriod;
     }
 
     @PropertyName("startAtPeriod")
-
     public void setStartAtPeriod(String startAtPeriod) {
         this.startAtPeriod = startAtPeriod;
     }
 
     @PropertyName("startAtTime")
-
     public String getStartAtTime() {
         return startAtTime;
     }
 
     @PropertyName("startAtTime")
-
     public void setStartAtTime(String startAtTime) {
         this.startAtTime = startAtTime;
         updateStartAt();
@@ -257,20 +294,17 @@ public class Task implements Serializable {
     }
 
     @PropertyName("hideUntilDate")
-
     public void setHideUntilDate(String hideUntilDate) {
         this.hideUntilDate = hideUntilDate;
         updateHideUntil();
     }
 
     @PropertyName("hideUntilTime")
-
     public String getHideUntilTime() {
         return hideUntilTime;
     }
 
     @PropertyName("hideUntilTime")
-
     public void setHideUntilTime(String hideUntilTime) {
         this.hideUntilTime = hideUntilTime;
         updateHideUntil();
@@ -286,7 +320,7 @@ public class Task implements Serializable {
         this.priority = priority;
         calculateScore();
     }
-  
+
     @PropertyName("duration")
     public int getDuration() {
         return duration;
@@ -313,16 +347,20 @@ public class Task implements Serializable {
 
     public void createInFirestore(Context context, Runnable onSuccess, Consumer<Exception> onFailure) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String taskId = db.collection("tasks").document().getId(); // Tạo ID mới
-        this.id = taskId;
+        String taskId = this.id;
+        if(taskId == null || taskId.isEmpty()) {
+            taskId = db.collection("tasks").document().getId(); // Tạo ID mới
+            this.id = taskId;
+        }
 
         db.collection("tasks")
                 .document(taskId)
                 .set(this)
-                .addOnSuccessListener(aVoid -> {
-                    scheduleNotification(context); // Lên lịch thông báo
-                    onSuccess.run();
-                })
+                .addOnSuccessListener(
+                        aVoid -> {
+                            scheduleNotification(context); // Lên lịch thông báo
+                            onSuccess.run();
+                        })
                 .addOnFailureListener(onFailure::accept);
     }
 
@@ -332,12 +370,16 @@ public class Task implements Serializable {
             return;
         }
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("tasks").document(id)
+        db.collection("tasks")
+                .document(id)
                 .set(this)
-                .addOnSuccessListener(aVoid -> {
-                    onSuccess.run();
-                    scheduleNotification(db.getApp().getApplicationContext()); // Lên lịch sau khi cập nhật
-                })
+                .addOnSuccessListener(
+                        aVoid -> {
+                            onSuccess.run();
+                            scheduleNotification(
+                                    db.getApp()
+                                            .getApplicationContext()); // Lên lịch sau khi cập nhật
+                        })
                 .addOnFailureListener(onFailure::accept);
     }
 
@@ -350,13 +392,18 @@ public class Task implements Serializable {
         WriteBatch batch = db.batch();
         batch.delete(db.collection("tasks").document(id));
         if (noteId != null && !noteId.isEmpty()) {
-            batch.update(db.collection("notes").document(noteId), "tasks", FieldValue.arrayRemove(id));
+            batch.update(
+                    db.collection("notes").document(noteId), "tasks", FieldValue.arrayRemove(id));
         }
         batch.commit()
-                .addOnSuccessListener(aVoid -> {
-                    cancelNotification(db.getApp().getApplicationContext()); // Hủy thông báo trước khi xóa
-                    onSuccess.run();
-                })
+                .addOnSuccessListener(
+                        aVoid -> {
+                            cancelNotification(
+                                    db.getApp()
+                                            .getApplicationContext()); // Hủy thông báo trước khi
+                                                                       // xóa
+                            onSuccess.run();
+                        })
                 .addOnFailureListener(onFailure::accept);
     }
 
@@ -369,7 +416,10 @@ public class Task implements Serializable {
         // Check if we have notification permission using NotificationManagerCompat
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         if (!notificationManager.areNotificationsEnabled()) {
-            Log.d("Task", "Notifications are not enabled - skipping notification schedule for task " + id);
+            Log.d(
+                    "Task",
+                    "Notifications are not enabled - skipping notification schedule for task "
+                            + id);
             return;
         }
 
@@ -380,25 +430,27 @@ public class Task implements Serializable {
 
         // Tạo PendingIntent với flag để cập nhật nếu đã tồn tại
         int requestCode = id.hashCode(); // Đảm bảo mỗi task có requestCode riêng
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                context,
-                requestCode,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
+        PendingIntent pendingIntent =
+                PendingIntent.getBroadcast(
+                        context,
+                        requestCode,
+                        intent,
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         // Tính thời gian thông báo: startAt - startNoti (phút)
         long startAtMillis = startAt.getTime();
-        long notificationTimeMillis = startAtMillis - (startNoti * 60 * 1000); // Chuyển phút thành milliseconds
+        long notificationTimeMillis =
+                startAtMillis - (startNoti * 60 * 1000); // Chuyển phút thành milliseconds
         long currentTimeMillis = System.currentTimeMillis();
 
         if (notificationTimeMillis > currentTimeMillis) {
-            alarmManager.setExact(
-                    AlarmManager.RTC_WAKEUP,
-                    notificationTimeMillis,
-                    pendingIntent
-            );
-            Log.d("Task", "Notification scheduled for task " + id + " at " + new Date(notificationTimeMillis));
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, notificationTimeMillis, pendingIntent);
+            Log.d(
+                    "Task",
+                    "Notification scheduled for task "
+                            + id
+                            + " at "
+                            + new Date(notificationTimeMillis));
         } else {
             Log.d("Task", "Notification time is in the past for task " + id);
         }
@@ -408,12 +460,12 @@ public class Task implements Serializable {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, TaskNotificationReceiver.class);
         int requestCode = id.hashCode();
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                context,
-                requestCode,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
+        PendingIntent pendingIntent =
+                PendingIntent.getBroadcast(
+                        context,
+                        requestCode,
+                        intent,
+                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         alarmManager.cancel(pendingIntent);
         Log.d("Task", "Notification canceled for task " + id);
     }
@@ -468,10 +520,13 @@ public class Task implements Serializable {
     }
 
     private void updateStartAt() {
-        if (startAtDate != null && !startAtDate.isEmpty() &&
-                startAtTime != null && !startAtTime.isEmpty()) {
+        if (startAtDate != null
+                && !startAtDate.isEmpty()
+                && startAtTime != null
+                && !startAtTime.isEmpty()) {
             try {
-                SimpleDateFormat dateTimeFormat = new SimpleDateFormat("EEEE, MMM d h:mm a", Locale.getDefault());
+                SimpleDateFormat dateTimeFormat =
+                        new SimpleDateFormat("EEEE, MMM d h:mm a", Locale.getDefault());
                 String dateTimeString = startAtDate + " " + startAtTime;
                 Date parsedDate = dateTimeFormat.parse(dateTimeString);
 
@@ -488,11 +543,15 @@ public class Task implements Serializable {
             this.startAt = null;
         }
     }
+
     private void updateHideUntil() {
-        if (hideUntilDate != null && !hideUntilDate.isEmpty() &&
-                hideUntilTime != null && !hideUntilTime.isEmpty()) {
+        if (hideUntilDate != null
+                && !hideUntilDate.isEmpty()
+                && hideUntilTime != null
+                && !hideUntilTime.isEmpty()) {
             try {
-                SimpleDateFormat dateTimeFormat = new SimpleDateFormat("EEEE, MMM d h:mm a", Locale.getDefault());
+                SimpleDateFormat dateTimeFormat =
+                        new SimpleDateFormat("EEEE, MMM d h:mm a", Locale.getDefault());
                 String dateTimeString = hideUntilDate + " " + hideUntilTime;
                 Date parsedDate = dateTimeFormat.parse(dateTimeString);
 
@@ -510,7 +569,7 @@ public class Task implements Serializable {
         }
     }
 
-    private void updateStartAtComponent(){
+    private void updateStartAtComponent() {
         if (startAt != null) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, MMM d", Locale.getDefault());
             SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
@@ -543,24 +602,4 @@ public class Task implements Serializable {
             return "Anytime";
         }
     }
-
-    public static void loadTasksInNote(String noteId, FirestoreListCallback<Task> callback) {
-        ArrayList<Task> tasks = new ArrayList<>();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("tasks")
-                .whereEqualTo("noteId", noteId)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    for (int i = 0; i < queryDocumentSnapshots.size(); i++) {
-                        Task task = queryDocumentSnapshots.getDocuments().get(i).toObject(Task.class);
-                        if (task != null) {
-                            task.setId(queryDocumentSnapshots.getDocuments().get(i).getId());
-                            tasks.add(task);
-                        }
-                    }
-                    callback.onCallback(tasks);
-                })
-                .addOnFailureListener(e -> Log.e("Task", "Error loading tasks in note", e));
-    }
 }
-

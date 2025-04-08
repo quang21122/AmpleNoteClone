@@ -38,6 +38,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class DrawerActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     protected DrawerLayout drawerLayout;
@@ -183,14 +184,25 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
         } else if (id == R.id.drawer_tasks) {
             startActivity(new Intent(this, TasksPageActivity.class));
         } else if (id == R.id.drawer_tags) {
-            // Handle tags click
-            // You can open a new activity or fragment here
+            // This is just a header, do nothing
         } else if (id == R.id.drawer_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
         } else if (id == R.id.drawer_logout) {
             FirebaseAuth.getInstance().signOut();
             startActivity(new Intent(this, MainActivity.class));
             finish();
+        } else {
+            // Handle tags click
+            for (Tag tag : currentTags) {
+                if (item.getTitle().toString().startsWith(tag.getName())) {
+                    Intent intent = new Intent(this, NotesActivity.class);
+                    intent.putExtra("tagId", tag.getId());
+                    intent.putExtra("tagName", tag.getName());
+                    startActivity(intent);
+                    drawerLayout.closeDrawers();
+                    return true;
+                }
+            }
         }
 
         drawerLayout.closeDrawers(); // Close drawer only when selecting a new item
@@ -215,9 +227,7 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
         int id = item.getItemId();
 
         if (id == R.id.action_new_task) {
-            CreateTaskBottomSheet bottomSheet = new CreateTaskBottomSheet();
-            bottomSheet.show(getSupportFragmentManager(), bottomSheet.getTag());
-            return true;
+            createNewTask();
         }
 
         // If the selected item is already the current page, do nothing
@@ -233,6 +243,12 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
             startActivity(new Intent(this, TasksPageActivity.class));
         }
 
+        return true;
+    }
+
+    protected boolean createNewTask() {
+        CreateTaskBottomSheet bottomSheet = new CreateTaskBottomSheet();
+        bottomSheet.show(getSupportFragmentManager(), bottomSheet.getTag());
         return true;
     }
 
@@ -339,44 +355,54 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference tagsRef = db.collection("tags");
 
+        currentTags.clear(); // Xóa danh sách cũ trước khi load mới
+
         tagsRef.whereEqualTo("userId", userId)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
+                        if (task.getResult().isEmpty()) {
+                            firestoreListCallback.onCallback(currentTags);
+                            return;
+                        }
+
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             String name = document.getString("name");
                             String tagId = document.getId();
-
-                            // Create tag without count for now
                             Tag tag = new Tag(name, userId);
+                            tag.setId(tagId);
                             currentTags.add(tag);
+                        }
 
-                            // First, call the callback with tags (counts will update later)
-                            firestoreListCallback.onCallback(currentTags);
+                        // Gọi callback lần đầu để hiển thị tag mà chưa có count
+                        firestoreListCallback.onCallback(currentTags);
 
-                            // If there are no tags, we're done
-                            if (currentTags.isEmpty()) {
-                                return;
-                            }
-
-                            // Create counter for pending count requests
-                            final java.util.concurrent.atomic.AtomicInteger pendingRequests =
-                                    new java.util.concurrent.atomic.AtomicInteger(currentTags.size());
-
-                            // Get count of notes with this tag
-                            tagsRef.whereEqualTo("userId", userId)
-                                    .whereArrayContains("tags", tagId)
+                        // Đếm số note cho tất cả tag
+                        AtomicInteger pendingRequests = new AtomicInteger(currentTags.size());
+                        for (Tag tag : currentTags) {
+                            db.collection("notes")
+                                    .whereEqualTo("userId", userId)
+                                    .whereArrayContains("tags", tag.getId())
                                     .get()
                                     .addOnSuccessListener(querySnapshot -> {
                                         tag.setCount(querySnapshot.size());
-                                        // Notify adapter or refresh UI
-                                        if (pendingRequests.decrementAndGet() == 0)
-                                            runOnUiThread(this::refreshTagsUI);
+                                        if (pendingRequests.decrementAndGet() == 0) {
+                                            runOnUiThread(() -> {
+                                                firestoreListCallback.onCallback(currentTags); // Cập nhật lại UI với count
+                                                refreshTagsUI();
+                                            });
+                                        }
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.e("DrawerActivity", "Failed to count notes for tag: " + tag.getName(), e);
+                                        if (pendingRequests.decrementAndGet() == 0) {
+                                            runOnUiThread(() -> {
+                                                firestoreListCallback.onCallback(currentTags);
+                                                refreshTagsUI();
+                                            });
+                                        }
                                     });
                         }
-
-                        // Initial callback with tags (counts will update later)
-                        firestoreListCallback.onCallback(currentTags);
                     } else {
                         Log.e("ERROR", "Firestore query failed: ", task.getException());
                         firestoreListCallback.onCallback(new ArrayList<>());

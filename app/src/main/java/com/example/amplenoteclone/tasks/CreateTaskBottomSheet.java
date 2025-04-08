@@ -3,6 +3,7 @@ package com.example.amplenoteclone.tasks;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import androidx.core.content.ContextCompat;
 import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.models.Note;
 import com.example.amplenoteclone.models.Task;
+import com.example.amplenoteclone.note.ViewNoteActivity;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,7 +30,6 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
 
@@ -43,15 +44,16 @@ public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
     private String selectedStartAtTime;
     private String selectedStartAtPeriod;
     private boolean isAddTaskVisible = false;
-    private Note selectedNote; // Lưu note đã chọn
+    private Note selectedNote;
     private boolean isStartNewNote = false;
+    private ViewNoteActivity.OnTaskCreationListener taskCreationListener;
 
     private void initializeViews(View view) {
         textViewSelectNote = view.findViewById(R.id.text_select_note);
 
         // Set default selection to "Start a new note"
-        selectedNote = null; // No note selected
-        isStartNewNote = true; // Default to new note
+        if (selectedNote == null)
+            isStartNewNote = true; // Default to new note
         textViewSelectNote.setText("Start a new note");
         textViewSelectNote.setTextColor(ContextCompat.getColor(getContext(), R.color.black));
     }
@@ -69,6 +71,10 @@ public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
         editTextQuickToDo = view.findViewById(R.id.edit_text_quick_to_do);
         buttonAddQuick = view.findViewById(R.id.button_add_quick);
 
+        if (selectedNote != null && !isStartNewNote) {
+            textViewSelectNote.setText(selectedNote.getTitle());
+            textViewSelectNote.setTextColor(ContextCompat.getColor(getContext(), R.color.black));
+        }
 
         // Lắng nghe sự kiện nhập liệu trong Quick to-do
         editTextQuickToDo.addTextChangedListener(new TextWatcher() {
@@ -104,8 +110,7 @@ public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
             SelectNoteForTaskBottomSheet selectNoteForTaskBottomSheet = new SelectNoteForTaskBottomSheet(new SelectNoteForTaskBottomSheet.OnNoteSelectionListener() {
                 @Override
                 public void onNoteSelected(Note note) {
-                    selectedNote = note;
-                    isStartNewNote = false; // No longer using new note
+                    setSelectedNote(note);
                     textViewSelectNote.setText(note.getTitle());
                     textViewSelectNote.setTextColor(ContextCompat.getColor(getContext(), R.color.black));
                 }
@@ -155,6 +160,11 @@ public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
         layoutAddTaskContainer.setVisibility(View.VISIBLE);
         Animation slideUp = AnimationUtils.loadAnimation(getContext(), R.anim.slide_up);
         layoutAddTaskContainer.startAnimation(slideUp);
+        if (selectedNote != null) {
+            Log.d("SelectedNote", "Title: " + selectedNote.getTitle());
+            textViewSelectNote.setText(selectedNote.getTitle());
+            textViewSelectNote.setTextColor(ContextCompat.getColor(getContext(), R.color.black));
+        }
     }
 
     private void hideAddTaskLayout() {
@@ -191,6 +201,7 @@ public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
 
         // Tạo task mới
         Task newTask = new Task(userId, noteId, taskTitle);
+        newTask.setId(db.collection("tasks").document().getId());
         setTaskStartTime(newTask); // Cập nhật thời gian nếu có
 
         // Lưu note và thêm task ID
@@ -215,17 +226,21 @@ public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
 
     private void createTaskWithExistingNote(String userId, String taskTitle) {
         if (selectedNote != null) {
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
             String noteId = selectedNote.getId();
             Task newTask = new Task(userId, noteId, taskTitle);
-            setTaskStartTime(newTask); // Cập nhật thời gian nếu có
+            newTask.setId(db.collection("tasks").document().getId());
+            setTaskStartTime(newTask);
 
             // Cập nhật note với task ID
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
             db.collection("notes").document(noteId)
                     .update("tasks", FieldValue.arrayUnion(newTask.getId()))
                     .addOnSuccessListener(aVoid -> {
                         newTask.createInFirestore(getContext().getApplicationContext(),
                                 () -> {
+                                    if (taskCreationListener != null) {
+                                        notifyTaskCreated();
+                                    }
                                     dismiss();
                                 },
                                 e -> Toast.makeText(getContext(), "Error adding task: " + e.getMessage(), Toast.LENGTH_SHORT).show());
@@ -236,11 +251,26 @@ public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
         }
     }
 
+    public void setTaskCreationListener(ViewNoteActivity.OnTaskCreationListener listener) {
+        this.taskCreationListener = listener;
+    }
+
+    // Call this method when task creation is complete
+    private void notifyTaskCreated() {
+        if (taskCreationListener != null) {
+            taskCreationListener.onTaskCreated();
+        }
+    }
     private void setTaskStartTime(Task task) {
         if (selectedStartAtDate != null && selectedStartAtTime != null) {
             task.setStartAtDate(selectedStartAtDate);
             task.setStartAtTime(selectedStartAtTime);
             task.setStartAtPeriod(selectedStartAtPeriod != null ? selectedStartAtPeriod : "");
         }
+    }
+
+    public void setSelectedNote(Note note) {
+        selectedNote = note;
+        isStartNewNote = false; // No longer using new note
     }
 }
