@@ -1,6 +1,7 @@
 package com.example.amplenoteclone.note;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -106,6 +107,18 @@ public class SearchBottomSheetFragment extends BottomSheetDialogFragment {
             @Override
             public void onTabReselected(TabLayout.Tab tab) { }
         });
+
+        // Initialize adapters with click listeners
+        notesAdapter = new NotesAdapter(new ArrayList<>());
+        notesAdapter.setOnNoteCardClickListener(noteCard -> {
+            Intent intent = new Intent(getActivity(), ViewNoteActivity.class);
+            intent.putExtra("noteId", noteCard.getNote().getId());
+            startActivity(intent);
+            dismiss(); // Close search bottom sheet
+        });
+        
+        taskAdapter = new TaskAdapter(new ArrayList<>());
+        recyclerView.setAdapter(notesAdapter);
 
         defaultTextView = view.findViewById(R.id.defaultTextView);
 

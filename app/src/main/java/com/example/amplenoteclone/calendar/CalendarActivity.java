@@ -3,6 +3,7 @@ package com.example.amplenoteclone.calendar;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -24,16 +25,22 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.amplenoteclone.DrawerActivity;
 import com.example.amplenoteclone.R;
 
+import com.example.amplenoteclone.models.Note;
 import com.example.amplenoteclone.models.Task;
+import com.example.amplenoteclone.note.SearchBottomSheetFragment;
 import com.example.amplenoteclone.tasks.TasksPageActivity;
 
+import com.example.amplenoteclone.ui.customviews.NoteCardView;
+import com.example.amplenoteclone.ui.customviews.TaskCardView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.example.amplenoteclone.utils.FirestoreListCallback;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -65,6 +72,21 @@ public class CalendarActivity extends DrawerActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.toolbar_calendar, menu);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        searchItem.setOnMenuItemClickListener(item -> {
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user != null) {
+                String userId = user.getUid();
+
+                getNotesFromFirebase(userId, notes -> {
+                    getTasksFromFirebase(userId, tasks -> {
+                        SearchBottomSheetFragment searchFragment = new SearchBottomSheetFragment(notes, tasks);
+                        searchFragment.show(getSupportFragmentManager(), "searchFragment");
+                    });
+                });
+            }
+            return true;
+        });
         return true;
     }
 
@@ -90,6 +112,87 @@ public class CalendarActivity extends DrawerActivity {
                 ((DateSelectable) currentFragment).setSelectedDate(new Date());
             }
         }, 100);
+    }
+
+    private void getNotesFromFirebase(String userId, FirestoreListCallback<NoteCardView> callback) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("notes")
+                .whereEqualTo("userId", userId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    ArrayList<NoteCardView> notes = new ArrayList<>();
+                    if (task.isSuccessful()) {
+                        for (DocumentSnapshot document : task.getResult()) {
+                            try {
+                                Note note = new Note();
+                                note.setId(document.getId());
+                                note.setTitle(document.getString("title"));
+                                note.setContent(document.getString("content"));
+                                note.setUserId(document.getString("userId"));
+                                note.setProtected(document.getBoolean("isProtected"));
+
+                                Timestamp createdAt = document.getTimestamp("createdAt");
+                                Timestamp updatedAt = document.getTimestamp("updatedAt");
+                                if (createdAt != null) note.setCreatedAt(createdAt.toDate());
+                                if (updatedAt != null) note.setUpdatedAt(updatedAt.toDate());
+
+                                note.setTags((ArrayList<String>) document.get("tags"));
+                                note.setTasks((ArrayList<String>) document.get("tasks"));
+
+                                if (note.getTitle() != null) {
+                                    NoteCardView noteCard = new NoteCardView(CalendarActivity.this);
+                                    noteCard.setNote(note);
+                                    notes.add(noteCard);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    callback.onCallback(notes);
+                });
+    }
+
+    private void getTasksFromFirebase(String userId, FirestoreListCallback<TaskCardView> callback) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("tasks")
+                .whereEqualTo("userId", userId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    ArrayList<TaskCardView> tasks = new ArrayList<>();
+                    if (task.isSuccessful()) {
+                        for (DocumentSnapshot document : task.getResult()) {
+                            try {
+                                Task taskItem = new Task(
+                                        document.getString("userId"),
+                                        document.getString("noteId"),
+                                        document.getString("title"),
+                                        document.getDate("createAt"),
+                                        document.getBoolean("isCompleted"),
+                                        document.getString("repeat"),
+                                        document.getDate("startAt"),
+                                        document.getString("startAtDate"),
+                                        document.getString("startAtPeriod"),
+                                        document.getString("startAtTime"),
+                                        document.getLong("startNoti") != null ? document.getLong("startNoti").intValue() : 0,
+                                        document.getDate("hideUntil"),
+                                        document.getString("hideUntilDate"),
+                                        document.getString("hideUntilTime"),
+                                        document.getString("priority"),
+                                        document.getLong("duration") != null ? document.getLong("duration").intValue() : 0,
+                                        document.getDouble("score") != null ? document.getDouble("score").floatValue() : 0.0f
+                                );
+                                taskItem.setId(document.getId());
+                                TaskCardView taskCard = new TaskCardView(CalendarActivity.this);
+                                taskCard.setTask(taskItem);
+                                tasks.add(taskCard);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    callback.onCallback(tasks);
+                });
     }
 
     private void setupCalendarBottomSheet() {
