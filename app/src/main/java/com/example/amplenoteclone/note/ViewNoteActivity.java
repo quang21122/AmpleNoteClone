@@ -46,6 +46,7 @@ import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class ViewNoteActivity extends DrawerActivity {
     private static final long AUTOSAVE_DELAY = 2000; // 2 seconds
@@ -313,6 +314,8 @@ public class ViewNoteActivity extends DrawerActivity {
             return;
         }
 
+        Toast.makeText(this, "Deleting note", Toast.LENGTH_LONG).show();
+
         deleteAllTags(() -> {
             refreshTagsUI();
             deleteAllTasksFromFirebase(() -> {
@@ -361,36 +364,34 @@ public class ViewNoteActivity extends DrawerActivity {
 
 
     private void deleteAllTags(Runnable onComplete, Consumer<String> onError) {
-        int total = (int) tagsList.stream().filter(tag -> tag != null && tag.getId() != null).count();
+        List<Tag> validTags = tagsList.stream()
+                .filter(tag -> tag != null && tag.getId() != null)
+                .collect(Collectors.toList());
 
-        if (total == 0) {
+        if (validTags.isEmpty()) {
             onComplete.run();
             return;
         }
 
-        final int[] completed = {0};
-        final boolean[] failed = {false};
+        deleteTagSequentially(validTags, 0, onComplete, onError);
+    }
 
-        for (Tag tag : tagsList) {
-            if (tag != null && tag.getId() != null) {
-                tag.removeTagFromNoteInFirestore(
-                        currentNote.getId(),
-                        () -> {
-                            if (failed[0]) return;
-                            completed[0]++;
-                            if (completed[0] == total) {
-                                onComplete.run();
-                            }
-                        },
-                        error -> {
-                            if (!failed[0]) {
-                                failed[0] = true;
-                                onError.accept(error);
-                            }
-                        }
-                );
-            }
+    private void deleteTagSequentially(List<Tag> tags, int index, Runnable onComplete, Consumer<String> onError) {
+        if (index >= tags.size()) {
+            onComplete.run();
+            return;
         }
+
+        Tag tag = tags.get(index);
+        tag.removeTagFromNoteInFirestore(
+                currentNote.getId(),
+                () -> deleteTagSequentially(tags, index + 1, onComplete, onError),
+                error -> {
+                    Log.e("DeleteTag", "Failed to delete tag " + tag.getId() + ": " + error);
+                    onError.accept(error);
+                    deleteTagSequentially(tags, index + 1, onComplete, onError);
+                }
+        );
     }
 
     private void cancelAutoSave() {
