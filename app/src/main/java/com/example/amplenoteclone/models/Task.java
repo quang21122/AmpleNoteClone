@@ -44,6 +44,7 @@ public class Task implements Serializable {
     private String priority;
     private int duration;
     private float score;
+    private String details;
 
     // Constructor mặc định (yêu cầu bởi Firestore)
     public Task() {}
@@ -341,8 +342,10 @@ public class Task implements Serializable {
         this.score = score;
     }
 
-    public void createInFirestore(
-            Context context, Runnable onSuccess, Consumer<Exception> onFailure) {
+    public String getDetails() { return details; }
+    public void setDetails(String details) { this.details = details; }
+
+    public void createInFirestore(Context context, Runnable onSuccess, Consumer<Exception> onFailure) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String taskId = this.id;
         if(taskId == null || taskId.isEmpty()) {
