@@ -30,6 +30,7 @@ import com.example.amplenoteclone.note.ViewNoteActivity;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class AddTagDialogFragment extends DialogFragment {
@@ -201,7 +202,9 @@ public class AddTagDialogFragment extends DialogFragment {
                             currentNote.setTags((ArrayList<String>) updatedTagIds);
 
                             FirebaseFirestore.getInstance().collection("notes").document(currentNote.getId())
-                                    .update("tags", updatedTagIds)
+                                    .update(
+                                        "tags", updatedTagIds,
+                                        "updatedAt", new Date())
                                     .addOnSuccessListener(aVoid -> {
                                         if (tagAddedListener != null) {
                                             tagAddedListener.onTagAdded(newTag);

@@ -36,6 +36,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.Source;
@@ -52,6 +53,7 @@ public class NotesActivity extends DrawerActivity {
     private List<TaskCardView> allTaskCardList = new ArrayList<>(); // Lưu danh sách đầy đủ
     private String selectedTagId;
     private String selectedTagName;
+    private ListenerRegistration notesListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,6 +134,15 @@ public class NotesActivity extends DrawerActivity {
         }));
     }
 
+    // Hủy listener khi activity bị hủy
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (notesListener != null) {
+            notesListener.remove();
+            notesListener = null;
+        }
+    }
     private void checkPremiumAndOpenScan() {
         if (userId == null) return;
 
@@ -194,54 +205,55 @@ public class NotesActivity extends DrawerActivity {
         CollectionReference collectionRef = db.collection("notes");
 
         // Truy vấn note dựa trên userId và tagId (nếu có)
-        var query = collectionRef.whereEqualTo("userId", userId);
+        Query query = collectionRef.whereEqualTo("userId", userId)
+                .orderBy("createdAt", Query.Direction.DESCENDING);
         if (selectedTagId != null) {
             query = query.whereArrayContains("tags", selectedTagId);
         }
 
-        // Fetch only notes for the given userId
-        query.get(Source.SERVER) // Force fetch from server
-                .addOnCompleteListener(task -> {
-                    ArrayList<NoteCardView> notes = new ArrayList<>();
+        // Hủy listener cũ nếu tồn tại
+        if (notesListener != null) {
+            notesListener.remove();
+        }
 
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            Note note = new Note();
+        // Thêm real-time listener
+        notesListener = query.addSnapshotListener((querySnapshot, error) -> {
+            if (error != null) {
+                Log.e("NotesActivity", "Error listening to notes: ", error);
+                return;
+            }
 
-                            // Directly get values from document
-                            note.setId(document.getId());
-                            note.setTitle(document.getString("title"));
-                            note.setContent(document.getString("content"));
-                            note.setUserId(document.getString("userId"));
-                            note.setProtected(document.getBoolean("isProtected"));
+            ArrayList<NoteCardView> notes = new ArrayList<>();
+            if (querySnapshot != null) {
+                for (QueryDocumentSnapshot document : querySnapshot) {
+                    Note note = new Note();
+                    note.setId(document.getId());
+                    note.setTitle(document.getString("title"));
+                    note.setContent(document.getString("content"));
+                    note.setUserId(document.getString("userId"));
+                    note.setProtected(document.getBoolean("isProtected"));
 
-                            // Handle possible null timestamps
-                            Timestamp createdAt = document.getTimestamp("createdAt");
-                            Timestamp updatedAt = document.getTimestamp("updatedAt");
-                            if (createdAt != null)
-                                note.setCreatedAt(createdAt.toDate());
+                    Timestamp createdAt = document.getTimestamp("createdAt");
+                    Timestamp updatedAt = document.getTimestamp("updatedAt");
+                    if (createdAt != null) note.setCreatedAt(createdAt.toDate());
+                    if (updatedAt != null) note.setUpdatedAt(updatedAt.toDate());
 
-                            if (updatedAt != null)
-                                note.setUpdatedAt(updatedAt.toDate());
+                    note.setTags((ArrayList<String>) document.get("tags"));
+                    note.setTasks((ArrayList<String>) document.get("tasks"));
 
-                            // Get lists safely
-                            note.setTags((ArrayList<String>) document.get("tags"));
-                            note.setTasks((ArrayList<String>) document.get("tasks"));
-
-                            // Only add note if title exists
-                            if (note.getTitle() != null) {
-                                NoteCardView noteCard = new NoteCardView(NotesActivity.this);
-                                noteCard.setNote(note);
-                                notes.add(noteCard);
-                            }
-                        }
-                    } else {
-                        Log.e("ERROR", "Firestore query failed: ", task.getException());
+                    if (note.getTitle() != null) {
+                        NoteCardView noteCard = new NoteCardView(NotesActivity.this);
+                        noteCard.setNote(note);
+                        notes.add(noteCard);
                     }
+                }
+            }
 
-                    firestoreListCallback.onCallback(notes);
-                });
+            firestoreListCallback.onCallback(notes);
+        });
     }
+
+
 
     private void getTasksFromFirebase(String userId, FirestoreListCallback<TaskCardView> firestoreListCallback) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
