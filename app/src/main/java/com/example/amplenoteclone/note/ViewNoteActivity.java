@@ -81,7 +81,6 @@ public class ViewNoteActivity extends DrawerActivity {
         initializeViews();
         setupTaskSection();
         initializeNote();
-        setupListeners();
         setupAutoSave();
         setupTag();
     }
@@ -123,10 +122,6 @@ public class ViewNoteActivity extends DrawerActivity {
         titleEditText = findViewById(R.id.note_title);
         lastUpdatedTextView = findViewById(R.id.last_updated);
         contentEditText = findViewById(R.id.note_content);
-        hiddenTabTextView = findViewById(R.id.tab_hidden);
-        completedTabTextView = findViewById(R.id.tab_completed);
-        backlinksTabTextView = findViewById(R.id.tab_backlinks);
-        noCompletedTasksTextView = findViewById(R.id.no_completed_tasks);
         tagsRecyclerView = findViewById(R.id.tags_recycler_view);
     }
 
@@ -200,25 +195,6 @@ public class ViewNoteActivity extends DrawerActivity {
         lastUpdatedTextView.setText(formatLastUpdated(currentNote.getUpdatedAt()));
     }
 
-    private void setupListeners() {
-        hiddenTabTextView.setOnClickListener(
-                v -> {
-                    saveNote();
-                    updateLastUpdated();
-                });
-
-        completedTabTextView.setOnClickListener(
-                v -> {
-                    saveNote();
-                    updateLastUpdated();
-                });
-
-        backlinksTabTextView.setOnClickListener(
-                v ->
-                        Toast.makeText(this, "Backlinks feature coming soon", Toast.LENGTH_SHORT)
-                                .show());
-    }
-
     private void setupAutoSave() {
         autoSaveTimer = new Timer();
         autoSaveTimer.schedule(
@@ -270,7 +246,6 @@ public class ViewNoteActivity extends DrawerActivity {
                     .addOnSuccessListener(
                             documentReference -> {
                                 currentNote.setId(documentReference.getId());
-                                Toast.makeText(this, "Note saved", Toast.LENGTH_SHORT).show();
                             })
                     .addOnFailureListener(
                             e -> {
