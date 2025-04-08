@@ -1,6 +1,5 @@
 package com.example.amplenoteclone.models;
 
-import android.content.Context;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -222,7 +221,8 @@ public class Tag implements Serializable {
                                         onFailure.accept("Failed to remove tag from note");
                                     });
                         } else {
-                            onFailure.accept("Tag not found in note or note has no tags");
+                            Log.w("Tag", "Tag not found or already removed from note");
+                            onSuccess.run(); // Treat as successful to allow loop continuation
                         }
                     } else {
                         onFailure.accept("Note not found");

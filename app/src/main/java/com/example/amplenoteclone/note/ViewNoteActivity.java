@@ -24,14 +24,13 @@ import com.example.amplenoteclone.models.Note;
 import com.example.amplenoteclone.models.Tag;
 import com.example.amplenoteclone.models.Task;
 import com.example.amplenoteclone.tag.BottomSheetTagMenu;
+import com.example.amplenoteclone.tasks.CreateTaskBottomSheet;
 import com.example.amplenoteclone.ui.customviews.TaskCardView;
+import com.example.amplenoteclone.utils.FirestoreListCallback;
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayoutManager;
 import com.google.android.flexbox.JustifyContent;
-import com.example.amplenoteclone.tasks.CreateTaskBottomSheet;
-import com.example.amplenoteclone.utils.FirestoreListCallback;
-
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -46,6 +45,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.function.Consumer;
 
 public class ViewNoteActivity extends DrawerActivity {
     private static final long AUTOSAVE_DELAY = 2000; // 2 seconds
@@ -180,9 +180,9 @@ public class ViewNoteActivity extends DrawerActivity {
                                 updateLastUpdated();
                                 titleEditText.setText(currentNote.getTitle());
                                 contentEditText.setText(currentNote.getContent());
-                                 
+
                                 loadTags();
-                              
+
                                 getTasks();
                             } else {
                                 Toast.makeText(this, "Note not found", Toast.LENGTH_SHORT).show();
@@ -313,25 +313,82 @@ public class ViewNoteActivity extends DrawerActivity {
             return;
         }
 
-        deleteAllTasksFromFirebase();
-        currentNote.deleteNoteFromFirebase();
-        finish();
+        deleteAllTags(() -> {
+            refreshTagsUI();
+            deleteAllTasksFromFirebase(() -> {
+                currentNote.deleteNoteFromFirebase(this::finish, error -> {
+                    Toast.makeText(this, "Note delete error: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                });
+            }, error -> {
+                Toast.makeText(this, "Task delete error: " + error.getMessage(), Toast.LENGTH_LONG).show();
+            });
+        }, error -> {
+            Toast.makeText(this, "Tag delete error: " + error, Toast.LENGTH_LONG).show();
+        });
     }
+    private void deleteAllTasksFromFirebase(Runnable onComplete, Consumer<Exception> onError) {
+        int total = (int) taskCardList.stream().map(TaskCardView::getTask).filter(task -> task != null && task.getId() != null).count();
 
-    private void deleteAllTasksFromFirebase() {
-       for (TaskCardView taskCard : taskCardList) {
+        if (total == 0) {
+            onComplete.run();
+            return;
+        }
+
+        final int[] completed = {0};
+        final boolean[] failed = {false};
+
+        for (TaskCardView taskCard : taskCardList) {
             Task task = taskCard.getTask();
             if (task != null && task.getId() != null) {
-               task.deleteFromFirestore(
+                task.deleteFromFirestore(
                         () -> {
-                            // Task deleted successfully
-                            Log.d("Task", "Task deleted successfully: " + task.getId());
+                            if (failed[0]) return;
+                            completed[0]++;
+                            if (completed[0] == total) {
+                                onComplete.run();
+                            }
                         },
                         error -> {
-                            // Handle error
-                            Log.e("Task", "Error deleting task: " + error.getMessage());
+                            if (!failed[0]) {
+                                failed[0] = true;
+                                onError.accept(error);
+                            }
                         }
-               );
+                );
+            }
+        }
+    }
+
+
+    private void deleteAllTags(Runnable onComplete, Consumer<String> onError) {
+        int total = (int) tagsList.stream().filter(tag -> tag != null && tag.getId() != null).count();
+
+        if (total == 0) {
+            onComplete.run();
+            return;
+        }
+
+        final int[] completed = {0};
+        final boolean[] failed = {false};
+
+        for (Tag tag : tagsList) {
+            if (tag != null && tag.getId() != null) {
+                tag.removeTagFromNoteInFirestore(
+                        currentNote.getId(),
+                        () -> {
+                            if (failed[0]) return;
+                            completed[0]++;
+                            if (completed[0] == total) {
+                                onComplete.run();
+                            }
+                        },
+                        error -> {
+                            if (!failed[0]) {
+                                failed[0] = true;
+                                onError.accept(error);
+                            }
+                        }
+                );
             }
         }
     }
