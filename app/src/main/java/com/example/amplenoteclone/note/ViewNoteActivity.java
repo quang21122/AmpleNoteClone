@@ -636,6 +636,7 @@ public class ViewNoteActivity extends DrawerActivity {
     @Override
     protected boolean useDrawerToggle() {
         return false;
+    }
 
     private void setupNoteListener() {
         if (getIntent().hasExtra("noteId")) {
