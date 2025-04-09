@@ -132,11 +132,11 @@ public class Note {
         this.userId = userId;
     }
 
-    public Boolean getProtected() {
+    public Boolean getIsProtected() {
         return isProtected;
     }
 
-    public void setProtected(Boolean isProtected) {
+    public void setIsProtected(Boolean isProtected) {
         this.isProtected = isProtected;
     }
 }
