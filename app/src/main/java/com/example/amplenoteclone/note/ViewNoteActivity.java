@@ -40,6 +40,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +69,7 @@ public class ViewNoteActivity extends DrawerActivity {
     private TagsAdapter tagsAdapter;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private ListenerRegistration taskListener;
+    private ListenerRegistration noteListener;
 
     public interface OnTaskCreationListener {
         void onTaskCreated();
@@ -84,6 +86,7 @@ public class ViewNoteActivity extends DrawerActivity {
         setupListeners();
         setupAutoSave();
         setupTag();
+        setupNoteListener();
     }
 
     @Override
@@ -575,5 +578,28 @@ public class ViewNoteActivity extends DrawerActivity {
         );
 
         tagsRecyclerView.setAdapter(tagsAdapter);
+    }
+
+    private void setupNoteListener() {
+        if (getIntent().hasExtra("noteId")) {
+            String noteId = getIntent().getStringExtra("noteId");
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            noteListener = db.collection("notes")
+                    .document(noteId)
+                    .addSnapshotListener((documentSnapshot, error) -> {
+                        if (error != null) {
+                            Log.e("ViewNoteActivity", "Error listening to note updates: ", error);
+                            return;
+                        }
+                        if (documentSnapshot != null && documentSnapshot.exists()) {
+                            if (currentNote == null) {
+                                currentNote = new Note();
+                            }
+                            Date updatedAt = documentSnapshot.getTimestamp("updatedAt").toDate();
+                            currentNote.setUpdatedAt(updatedAt);
+                            runOnUiThread(this::updateLastUpdated);
+                        }
+                    });
+        }
     }
 }

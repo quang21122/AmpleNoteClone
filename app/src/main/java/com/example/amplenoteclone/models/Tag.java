@@ -7,9 +7,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -114,80 +116,61 @@ public class Tag implements Serializable {
             return;
         }
 
-        db.collection("tags").document(id)
-                .update("name", newTagName)
-                .addOnSuccessListener(aVoid -> {
-                    this.name = newTagName;
-                    onSuccess.run();
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("Tag", "Failed to edit tag: " + e.getMessage());
-                    onFailure.accept("Failed to edit tag");
-                });
-    }
+        WriteBatch batch = db.batch();
+        batch.update(db.collection("tags").document(id), "name", newTagName);
 
+        // Cập nhật updatedAt cho tất cả Note chứa tag này
+        db.collection("notes")
+                .whereArrayContains("tags", id)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        batch.update(
+                                db.collection("notes").document(doc.getId()),
+                                "updatedAt", new Date()
+                        );
+                    }
+                    batch.commit()
+                            .addOnSuccessListener(aVoid -> {
+                                this.name = newTagName;
+                                onSuccess.run();
+                            })
+                            .addOnFailureListener(e -> onFailure.accept("Failed to edit tag"));
+                })
+                .addOnFailureListener(e -> onFailure.accept("Failed to fetch notes"));
+    }
     public void deleteTagInFirestore(Runnable onSuccess, Consumer<String> onFailure) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        // Kiểm tra id
         if (id == null) {
             onFailure.accept("Tag ID is null");
             return;
         }
 
-        // Transaction để đảm bảo tất cả các thao tác được thực hiện hoặc không có thao tác nào được thực hiện
-        db.runTransaction(transaction -> {
-            // 1. Lấy tất cả notes chứa tag này
-            db.collection("notes")
-                    .whereArrayContains("tags", id)
-                    .get()
-                    .addOnSuccessListener(queryDocumentSnapshots -> {
-                        // 2. Xóa tag khỏi tất cả notes
-                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            List<String> currentTags = (List<String>) doc.get("tags");
-                            if (currentTags != null) {
-                                List<String> updatedTags = new ArrayList<>(currentTags);
-                                updatedTags.remove(id);
+        WriteBatch batch = db.batch();
 
-                                db.collection("notes")
-                                        .document(doc.getId())
-                                        .update("tags", updatedTags)
-                                        .addOnSuccessListener(aVoid -> {
-                                            // 3. Sau khi xóa khỏi tất cả notes, xóa tag chính
-                                            db.collection("tags")
-                                                    .document(id)
-                                                    .delete()
-                                                    .addOnSuccessListener(aVoid2 -> {
-                                                        onSuccess.run();
-                                                    })
-                                                    .addOnFailureListener(e ->
-                                                            onFailure.accept("Failed to delete tag: " + e.getMessage())
-                                                    );
-                                        })
-                                        .addOnFailureListener(e ->
-                                                onFailure.accept("Failed to update notes: " + e.getMessage())
-                                        );
-                            }
+        db.collection("notes")
+                .whereArrayContains("tags", id)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        List<String> currentTags = (List<String>) doc.get("tags");
+                        if (currentTags != null) {
+                            List<String> updatedTags = new ArrayList<>(currentTags);
+                            updatedTags.remove(id);
+                            batch.update(
+                                    db.collection("notes").document(doc.getId()),
+                                    "tags", updatedTags,
+                                    "updatedAt", new Date()
+                            );
                         }
-
-                        // Nếu không có note nào chứa tag này
-                        if (queryDocumentSnapshots.isEmpty()) {
-                            db.collection("tags")
-                                    .document(id)
-                                    .delete()
-                                    .addOnSuccessListener(aVoid -> onSuccess.run())
-                                    .addOnFailureListener(e ->
-                                            onFailure.accept("Failed to delete tag: " + e.getMessage())
-                                    );
-                        }
-                    })
-                    .addOnFailureListener(e ->
-                            onFailure.accept("Failed to query notes: " + e.getMessage())
-                    );
-            return null;
-        });
+                    }
+                    batch.delete(db.collection("tags").document(id));
+                    batch.commit()
+                            .addOnSuccessListener(aVoid -> onSuccess.run())
+                            .addOnFailureListener(e -> onFailure.accept("Failed to delete tag"));
+                })
+                .addOnFailureListener(e -> onFailure.accept("Failed to query notes"));
     }
-
     public void removeTagFromNoteInFirestore(String noteId, Runnable onSuccess, Consumer<String> onFailure) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -211,7 +194,9 @@ public class Tag implements Serializable {
 
                             // Cập nhật note trong Firestore
                             db.collection("notes").document(noteId)
-                                    .update("tags", updatedTags)
+                                    .update(
+                                        "tags", updatedTags,
+                                        "updatedAt", new Date())
                                     .addOnSuccessListener(aVoid -> {
                                         Log.d("Tag", "Tag " + id + " removed from note " + noteId);
                                         // Kiểm tra xem tag có còn được sử dụng không
