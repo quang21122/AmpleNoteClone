@@ -7,6 +7,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.function.Consumer;
 
 public class Note {
     private String id;
@@ -48,24 +49,23 @@ public class Note {
             this.userId = user.getUid();
         }
     }
-    public void deleteNoteFromFirebase() {
+    public void deleteNoteFromFirebase(Runnable onSuccess, Consumer<Exception> onError) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             String userId = user.getUid();
-            // Logic to delete the note from Firebase using the userId and noteId
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             db.collection("notes")
                     .document(this.id)
                     .delete()
                     .addOnSuccessListener(aVoid -> {
-                        // Note successfully deleted
+                        onSuccess.run();
                     })
-                    .addOnFailureListener(e -> {
-                        // Handle failure
-                    });
-
+                    .addOnFailureListener(onError::accept);
+        } else {
+            onError.accept(new Exception("User not logged in"));
         }
     }
+
 
     @Exclude
     public String getId() {
