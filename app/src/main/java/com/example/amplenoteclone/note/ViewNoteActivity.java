@@ -2,6 +2,8 @@ package com.example.amplenoteclone.note;
 
 import static com.example.amplenoteclone.utils.TimeConverter.formatLastUpdated;
 
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,6 +15,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -81,10 +85,25 @@ public class ViewNoteActivity extends DrawerActivity {
         super.onCreate(savedInstanceState);
         setActivityContent(R.layout.activity_view_note);
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        // Set a custom navigation icon
+        Drawable backIcon = ContextCompat.getDrawable(this, R.drawable.ic_back);
+        if (backIcon != null) {
+            backIcon.setTint(Color.WHITE);
+            toolbar.setNavigationIcon(backIcon);
+        }
+        // Set a custom action on click
+        toolbar.setNavigationOnClickListener(v -> {
+            // Back to NotesActivity
+            if (hasNoteChanged()) {
+                saveNote();
+            }
+            finish();
+        });
+
         initializeViews();
         setupTaskSection();
         initializeNote();
-        setupListeners();
         setupAutoSave();
         setupTag();
         setupNoteListener();
@@ -127,10 +146,6 @@ public class ViewNoteActivity extends DrawerActivity {
         titleEditText = findViewById(R.id.note_title);
         lastUpdatedTextView = findViewById(R.id.last_updated);
         contentEditText = findViewById(R.id.note_content);
-        hiddenTabTextView = findViewById(R.id.tab_hidden);
-        completedTabTextView = findViewById(R.id.tab_completed);
-        backlinksTabTextView = findViewById(R.id.tab_backlinks);
-        noCompletedTasksTextView = findViewById(R.id.no_completed_tasks);
         tagsRecyclerView = findViewById(R.id.tags_recycler_view);
     }
 
@@ -204,25 +219,6 @@ public class ViewNoteActivity extends DrawerActivity {
         lastUpdatedTextView.setText(formatLastUpdated(currentNote.getUpdatedAt()));
     }
 
-    private void setupListeners() {
-        hiddenTabTextView.setOnClickListener(
-                v -> {
-                    saveNote();
-                    updateLastUpdated();
-                });
-
-        completedTabTextView.setOnClickListener(
-                v -> {
-                    saveNote();
-                    updateLastUpdated();
-                });
-
-        backlinksTabTextView.setOnClickListener(
-                v ->
-                        Toast.makeText(this, "Backlinks feature coming soon", Toast.LENGTH_SHORT)
-                                .show());
-    }
-
     private void setupAutoSave() {
         autoSaveTimer = new Timer();
         autoSaveTimer.schedule(
@@ -274,7 +270,6 @@ public class ViewNoteActivity extends DrawerActivity {
                     .addOnSuccessListener(
                             documentReference -> {
                                 currentNote.setId(documentReference.getId());
-                                Toast.makeText(this, "Note saved", Toast.LENGTH_SHORT).show();
                             })
                     .addOnFailureListener(
                             e -> {
@@ -637,6 +632,10 @@ public class ViewNoteActivity extends DrawerActivity {
 
         tagsRecyclerView.setAdapter(tagsAdapter);
     }
+  
+    @Override
+    protected boolean useDrawerToggle() {
+        return false;
 
     private void setupNoteListener() {
         if (getIntent().hasExtra("noteId")) {
