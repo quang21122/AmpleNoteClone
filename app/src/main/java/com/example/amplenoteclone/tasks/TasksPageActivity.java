@@ -1,7 +1,6 @@
 // TasksPageActivity.java
 package com.example.amplenoteclone.tasks;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -158,7 +157,7 @@ public class TasksPageActivity extends DrawerActivity {
                             note.setTitle(document.getString("title"));
                             note.setContent(document.getString("content"));
                             note.setUserId(document.getString("userId"));
-                            note.setProtected(document.getBoolean("isProtected"));
+                            note.setIsProtected(document.getBoolean("isProtected"));
 
                             // Handle possible null timestamps
                             Timestamp createdAt = document.getTimestamp("createdAt");

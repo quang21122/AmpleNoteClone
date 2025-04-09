@@ -8,16 +8,12 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,11 +24,9 @@ import com.example.amplenoteclone.R;
 import com.example.amplenoteclone.models.Note;
 import com.example.amplenoteclone.models.Task;
 import com.example.amplenoteclone.note.SearchBottomSheetFragment;
-import com.example.amplenoteclone.tasks.TasksPageActivity;
 
 import com.example.amplenoteclone.ui.customviews.NoteCardView;
 import com.example.amplenoteclone.ui.customviews.TaskCardView;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.Timestamp;
@@ -129,7 +123,7 @@ public class CalendarActivity extends DrawerActivity {
                                 note.setTitle(document.getString("title"));
                                 note.setContent(document.getString("content"));
                                 note.setUserId(document.getString("userId"));
-                                note.setProtected(document.getBoolean("isProtected"));
+                                note.setIsProtected(document.getBoolean("isProtected"));
 
                                 Timestamp createdAt = document.getTimestamp("createdAt");
                                 Timestamp updatedAt = document.getTimestamp("updatedAt");

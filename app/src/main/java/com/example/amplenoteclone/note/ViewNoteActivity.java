@@ -151,7 +151,7 @@ public class ViewNoteActivity extends DrawerActivity {
         currentNote.setCreatedAt(Timestamp.now().toDate());
         currentNote.setUpdatedAt(Timestamp.now().toDate());
         currentNote.setUserId(userId);
-        currentNote.setProtected(false);
+        currentNote.setIsProtected(false);
         currentNote.setTags(new ArrayList<>());
         currentNote.setTasks(new ArrayList<>());
         updateLastUpdated();
@@ -303,7 +303,7 @@ public class ViewNoteActivity extends DrawerActivity {
         noteData.put("content", currentNote.getContent());
         noteData.put("updatedAt", new Timestamp(currentNote.getUpdatedAt()));
         noteData.put("userId", userId);
-        noteData.put("isProtected", currentNote.getProtected());
+        noteData.put("isProtected", currentNote.getIsProtected());
         noteData.put("tags", currentNote.getTags());
         noteData.put("tasks", currentNote.getTasks());
         noteData.put("createdAt", new Timestamp(currentNote.getCreatedAt()));

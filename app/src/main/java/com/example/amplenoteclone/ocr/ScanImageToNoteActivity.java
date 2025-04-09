@@ -5,14 +5,12 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -320,7 +318,7 @@ public class ScanImageToNoteActivity extends AppCompatActivity {
         note.setUserId(userId);
         note.setCreatedAt(new Date());
         note.setUpdatedAt(new Date());
-        note.setProtected(false);
+        note.setIsProtected(false);
         note.setTags(new ArrayList<>());
         note.setTasks(new ArrayList<>());
 
