@@ -195,7 +195,7 @@ public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
         newNote.setCreatedAt(Timestamp.now().toDate());
         newNote.setContent("");
         newNote.setUpdatedAt(Timestamp.now().toDate());
-        newNote.setProtected(false);
+        newNote.setIsProtected(false);
         newNote.setTags(new ArrayList<>());
         newNote.setId(noteId);
 

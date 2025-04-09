@@ -12,9 +12,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -32,8 +30,6 @@ import com.example.amplenoteclone.ui.customviews.TaskCardView;
 import com.example.amplenoteclone.utils.FirestoreListCallback;
 import com.example.amplenoteclone.utils.PremiumChecker;
 import com.google.firebase.Timestamp;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -42,8 +38,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 public class NotesActivity extends DrawerActivity {
@@ -231,7 +225,7 @@ public class NotesActivity extends DrawerActivity {
                     note.setTitle(document.getString("title"));
                     note.setContent(document.getString("content"));
                     note.setUserId(document.getString("userId"));
-                    note.setProtected(document.getBoolean("isProtected"));
+                    note.setIsProtected(document.getBoolean("isProtected"));
 
                     Timestamp createdAt = document.getTimestamp("createdAt");
                     Timestamp updatedAt = document.getTimestamp("updatedAt");
