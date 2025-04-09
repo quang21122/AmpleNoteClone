@@ -85,7 +85,8 @@ public class NotesActivity extends DrawerActivity {
         taskAdapter = new TaskAdapter(new ArrayList<>());
         recyclerView.setAdapter(notesAdapter);
 
-        getNotesFromFirebase(this.userId, notes -> runOnUiThread(() -> {
+        getNotesFromFirebase(this.userId, "createdAt", Query.Direction.DESCENDING, notes -> runOnUiThread(() -> {
+            allNotes.clear();
             allNotes = notes;
             notesAdapter.setNotes(notes);
             notesAdapter.notifyDataSetChanged();
@@ -107,6 +108,11 @@ public class NotesActivity extends DrawerActivity {
 
             startActivity(intent);
         });
+
+        // Set up the click listener for the sort button
+        findViewById(R.id.btnSortOptions).setOnClickListener(v -> {
+            showSortOptions();
+        });
     }
 
     @Override
@@ -114,8 +120,13 @@ public class NotesActivity extends DrawerActivity {
         super.onResume();
         invalidateOptionsMenu();
 
+        // Reset the Sort Option text
+        TextView sortOptionText = findViewById(R.id.btnSortOptions);
+        sortOptionText.setText(R.string.sort_option_date_created);
+
         // Refresh notes when returning to the activity
-        getNotesFromFirebase(this.userId, notes -> runOnUiThread(() -> {
+        getNotesFromFirebase(this.userId, "createdAt", Query.Direction.DESCENDING, notes -> runOnUiThread(() -> {
+            allNotes.clear();
             allNotes = notes;
             notesAdapter.setNotes(notes);
             notesAdapter.notifyDataSetChanged();
@@ -194,23 +205,43 @@ public class NotesActivity extends DrawerActivity {
         return selectedTagName != null ? "#" + selectedTagName : "Notes";
     }
 
-    private void getNotesFromFirebase(String userId, FirestoreListCallback<NoteCardView> firestoreListCallback) {
+    private void showSortOptions() {
+        // Show the sort options bottom sheet
+        NoteSortOrderBottomSheet sortOrderBottomSheet = new NoteSortOrderBottomSheet((sortField, direction, sortOption) -> {
+            getNotesFromFirebase(userId, sortField, direction, notes -> runOnUiThread(() -> {
+                // Update SortOption text
+                TextView sortOptionText = findViewById(R.id.btnSortOptions);
+                sortOptionText.setText(sortOption);
+
+                allNotes = notes;
+                notesAdapter.setNotes(notes);
+                notesAdapter.notifyDataSetChanged();
+                updateNotesNumber();
+            }));
+        });
+        sortOrderBottomSheet.show(getSupportFragmentManager(), "SortBottomSheet");
+    }
+
+    private void getNotesFromFirebase(
+            String userId,
+            String sortByField,
+            Query.Direction direction,
+            FirestoreListCallback<NoteCardView> firestoreListCallback
+    ) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference collectionRef = db.collection("notes");
 
-        // Truy vấn note dựa trên userId và tagId (nếu có)
         Query query = collectionRef.whereEqualTo("userId", userId)
-                .orderBy("createdAt", Query.Direction.DESCENDING);
+                .orderBy(sortByField, direction);  // Sort field and direction
+
         if (selectedTagId != null) {
             query = query.whereArrayContains("tags", selectedTagId);
         }
 
-        // Hủy listener cũ nếu tồn tại
         if (notesListener != null) {
             notesListener.remove();
         }
 
-        // Thêm real-time listener
         notesListener = query.addSnapshotListener((querySnapshot, error) -> {
             if (error != null) {
                 Log.e("NotesActivity", "Error listening to notes: ", error);
@@ -246,7 +277,6 @@ public class NotesActivity extends DrawerActivity {
             firestoreListCallback.onCallback(notes);
         });
     }
-
 
 
     private void getTasksFromFirebase(String userId, FirestoreListCallback<TaskCardView> firestoreListCallback) {
