@@ -353,14 +353,21 @@ public class Task implements Serializable {
             this.id = taskId;
         }
 
-        db.collection("tasks")
-                .document(taskId)
-                .set(this)
-                .addOnSuccessListener(
-                        aVoid -> {
-                            scheduleNotification(context); // Lên lịch thông báo
-                            onSuccess.run();
-                        })
+        WriteBatch batch = db.batch();
+        batch.set(db.collection("tasks").document(taskId), this);
+
+        if (noteId != null && !noteId.isEmpty()) {
+            batch.update(
+                    db.collection("notes").document(noteId),
+                    "updatedAt", new Date()
+            );
+        }
+
+        batch.commit()
+                .addOnSuccessListener(aVoid -> {
+                    scheduleNotification(context);
+                    onSuccess.run();
+                })
                 .addOnFailureListener(onFailure::accept);
     }
 
@@ -370,16 +377,22 @@ public class Task implements Serializable {
             return;
         }
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("tasks")
-                .document(id)
-                .set(this)
-                .addOnSuccessListener(
-                        aVoid -> {
-                            onSuccess.run();
-                            scheduleNotification(
-                                    db.getApp()
-                                            .getApplicationContext()); // Lên lịch sau khi cập nhật
-                        })
+
+        WriteBatch batch = db.batch();
+        batch.set(db.collection("tasks").document(id), this);
+
+        if (noteId != null && !noteId.isEmpty()) {
+            batch.update(
+                    db.collection("notes").document(noteId),
+                    "updatedAt", new Date()
+            );
+        }
+
+        batch.commit()
+                .addOnSuccessListener(aVoid -> {
+                    onSuccess.run();
+                    scheduleNotification(db.getApp().getApplicationContext());
+                })
                 .addOnFailureListener(onFailure::accept);
     }
 
@@ -390,20 +403,21 @@ public class Task implements Serializable {
         }
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         WriteBatch batch = db.batch();
+
         batch.delete(db.collection("tasks").document(id));
         if (noteId != null && !noteId.isEmpty()) {
             batch.update(
-                    db.collection("notes").document(noteId), "tasks", FieldValue.arrayRemove(id));
+                    db.collection("notes").document(noteId),
+                    "tasks", FieldValue.arrayRemove(id),
+                    "updatedAt", new Date()
+            );
         }
+
         batch.commit()
-                .addOnSuccessListener(
-                        aVoid -> {
-                            cancelNotification(
-                                    db.getApp()
-                                            .getApplicationContext()); // Hủy thông báo trước khi
-                                                                       // xóa
-                            onSuccess.run();
-                        })
+                .addOnSuccessListener(aVoid -> {
+                    cancelNotification(db.getApp().getApplicationContext());
+                    onSuccess.run();
+                })
                 .addOnFailureListener(onFailure::accept);
     }
 

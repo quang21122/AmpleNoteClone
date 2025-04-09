@@ -108,6 +108,9 @@ public class ScanImageToNoteActivity extends AppCompatActivity {
         imageView = findViewById(R.id.imageView);
         btnGallery = findViewById(R.id.btnGallery);
         btnScan = findViewById(R.id.btnScan);
+
+        ImageButton btnBack = findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(v -> finish());
     }
 
     private void setupClickListeners() {

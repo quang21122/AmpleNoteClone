@@ -468,7 +468,7 @@ public class TaskCardView extends CardView {
         if (task != null) {
             task.updateInFirestore(
                     () -> Log.d("TaskCardView", "Update success"),
-                    e -> Toast.makeText(getContext(), "Error updating task: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                    e -> Toast.makeText(getContext(), "Error updating task: " + task.getId() + e.getMessage(), Toast.LENGTH_SHORT).show()
             );
         }
     }
