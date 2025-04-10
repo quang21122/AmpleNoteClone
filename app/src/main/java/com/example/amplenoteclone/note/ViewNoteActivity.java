@@ -29,6 +29,7 @@ import com.example.amplenoteclone.models.Tag;
 import com.example.amplenoteclone.models.Task;
 import com.example.amplenoteclone.tag.BottomSheetTagMenu;
 import com.example.amplenoteclone.tasks.CreateTaskBottomSheet;
+import com.example.amplenoteclone.ui.customviews.NoteCardView;
 import com.example.amplenoteclone.ui.customviews.TaskCardView;
 import com.example.amplenoteclone.utils.FirestoreListCallback;
 import com.google.android.flexbox.FlexDirection;
@@ -36,7 +37,10 @@ import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayoutManager;
 import com.google.android.flexbox.JustifyContent;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
@@ -59,10 +63,6 @@ public class ViewNoteActivity extends DrawerActivity {
     private EditText titleEditText;
     private TextView lastUpdatedTextView;
     private EditText contentEditText;
-    private TextView hiddenTabTextView;
-    private TextView completedTabTextView;
-    private TextView backlinksTabTextView;
-    private TextView noCompletedTasksTextView;
     private RecyclerView tagsRecyclerView;
 
     private Note currentNote;
@@ -133,6 +133,20 @@ public class ViewNoteActivity extends DrawerActivity {
 
         MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) searchItem.getActionView();
+        searchItem.setOnMenuItemClickListener(item -> {
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user != null) {
+                String userId = user.getUid();
+
+                getNotesFromFirebase(userId, notes -> {
+                    getTasksFromFirebase(userId, tasks -> {
+                        SearchBottomSheetFragment searchFragment = new SearchBottomSheetFragment(notes, tasks);
+                        searchFragment.show(getSupportFragmentManager(), "searchFragment");
+                    });
+                });
+            }
+            return true;
+        });
 
         MenuItem deleteItem = menu.findItem(R.id.action_delete_note);
         deleteItem.setOnMenuItemClickListener(item -> {
@@ -659,5 +673,86 @@ public class ViewNoteActivity extends DrawerActivity {
                         }
                     });
         }
+    }
+
+    private void getNotesFromFirebase(String userId, FirestoreListCallback<NoteCardView> callback) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("notes")
+                .whereEqualTo("userId", userId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    ArrayList<NoteCardView> notes = new ArrayList<>();
+                    if (task.isSuccessful()) {
+                        for (DocumentSnapshot document : task.getResult()) {
+                            try {
+                                Note note = new Note();
+                                note.setId(document.getId());
+                                note.setTitle(document.getString("title"));
+                                note.setContent(document.getString("content"));
+                                note.setUserId(document.getString("userId"));
+                                note.setIsProtected(document.getBoolean("isProtected"));
+
+                                Timestamp createdAt = document.getTimestamp("createdAt");
+                                Timestamp updatedAt = document.getTimestamp("updatedAt");
+                                if (createdAt != null) note.setCreatedAt(createdAt.toDate());
+                                if (updatedAt != null) note.setUpdatedAt(updatedAt.toDate());
+
+                                note.setTags((ArrayList<String>) document.get("tags"));
+                                note.setTasks((ArrayList<String>) document.get("tasks"));
+
+                                if (note.getTitle() != null) {
+                                    NoteCardView noteCard = new NoteCardView(this);
+                                    noteCard.setNote(note);
+                                    notes.add(noteCard);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    callback.onCallback(notes);
+                });
+    }
+
+    private void getTasksFromFirebase(String userId, FirestoreListCallback<TaskCardView> callback) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("tasks")
+                .whereEqualTo("userId", userId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    ArrayList<TaskCardView> tasks = new ArrayList<>();
+                    if (task.isSuccessful()) {
+                        for (DocumentSnapshot document : task.getResult()) {
+                            try {
+                                Task taskItem = new Task(
+                                        document.getString("userId"),
+                                        document.getString("noteId"),
+                                        document.getString("title"),
+                                        document.getDate("createAt"),
+                                        document.getBoolean("isCompleted"),
+                                        document.getString("repeat"),
+                                        document.getDate("startAt"),
+                                        document.getString("startAtDate"),
+                                        document.getString("startAtPeriod"),
+                                        document.getString("startAtTime"),
+                                        document.getLong("startNoti") != null ? document.getLong("startNoti").intValue() : 0,
+                                        document.getDate("hideUntil"),
+                                        document.getString("hideUntilDate"),
+                                        document.getString("hideUntilTime"),
+                                        document.getString("priority"),
+                                        document.getLong("duration") != null ? document.getLong("duration").intValue() : 0,
+                                        document.getDouble("score") != null ? document.getDouble("score").floatValue() : 0.0f
+                                );
+                                taskItem.setId(document.getId());
+                                TaskCardView taskCard = new TaskCardView(this);
+                                taskCard.setTask(taskItem);
+                                tasks.add(taskCard);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    callback.onCallback(tasks);
+                });
     }
 }
