@@ -1,5 +1,6 @@
 package com.example.amplenoteclone.note;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import static com.example.amplenoteclone.utils.TimeConverter.formatLastUpdated;
 
 import android.app.AlertDialog;
@@ -9,6 +10,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,6 +38,7 @@ import com.example.amplenoteclone.tasks.CreateTaskBottomSheet;
 import com.example.amplenoteclone.ui.customviews.NoteCardView;
 import com.example.amplenoteclone.ui.customviews.TaskCardView;
 import com.example.amplenoteclone.utils.FirestoreListCallback;
+import com.example.amplenoteclone.utils.PinManager;
 import com.example.amplenoteclone.utils.PremiumChecker;
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexWrap;
@@ -81,6 +84,8 @@ public class ViewNoteActivity extends DrawerActivity {
     private ListenerRegistration taskListener;
     private ListenerRegistration noteListener;
     private GeminiSummary geminiSummary;
+    private PinManager pinManager;
+    private boolean isContentDisplayed = false;
 
     public interface OnTaskCreationListener {
         void onTaskCreated();
@@ -107,13 +112,14 @@ public class ViewNoteActivity extends DrawerActivity {
             finish();
         });
 
+        pinManager = new PinManager(this);
+        geminiSummary = new GeminiSummary(this);
+
         initializeViews();
         setupTaskSection();
         initializeNote();
-        setupAutoSave();
         setupTag();
         setupNoteListener();
-        geminiSummary = new GeminiSummary(this);
     }
 
     @Override
@@ -167,6 +173,20 @@ public class ViewNoteActivity extends DrawerActivity {
             return true;
         });
 
+        MenuItem lockItem = menu.findItem(R.id.action_lock);
+        if (currentNote != null && currentNote.getIsProtected() != null && currentNote.getIsProtected()) {
+            lockItem.setTitle("Unlock");
+            lockItem.setIcon(R.drawable.ic_unlock);
+        } else {
+            lockItem.setTitle("Lock");
+            lockItem.setIcon(R.drawable.ic_lock);
+        }
+
+        lockItem.setOnMenuItemClickListener(item -> {
+            checkPremiumAndHandleLockAction(item);
+            return true;
+        });
+
         return true;
     }
     private void initializeViews() {
@@ -181,7 +201,7 @@ public class ViewNoteActivity extends DrawerActivity {
             loadNote();
         } else {
             createNewNote();
-            updateLastUpdated();
+            displayNoteContent();
         }
     }
 
@@ -223,13 +243,22 @@ public class ViewNoteActivity extends DrawerActivity {
                                                 documentSnapshot.getTimestamp("updatedAt").toDate(),
                                                 documentSnapshot.getBoolean("isProtected"));
 
-                                updateLastUpdated();
-                                titleEditText.setText(currentNote.getTitle());
-                                contentEditText.setText(currentNote.getContent());
+                                if (currentNote.getIsProtected() != null && currentNote.getIsProtected()) {
+                                    PremiumChecker.checkPremium(this, userId, new PremiumChecker.PremiumCheckCallback() {
+                                        @Override
+                                        public void onIsPremium() {
+                                            promptForPin(() -> displayNoteContent());
+                                        }
 
-                                loadTags();
-
-                                getTasks();
+                                        @Override
+                                        public void onNotPremium() {
+                                            Toast.makeText(ViewNoteActivity.this, "Locked notes are only accessible to Premium users", Toast.LENGTH_SHORT).show();
+                                            finish();
+                                        }
+                                    });
+                                } else {
+                                    displayNoteContent();
+                                }
                             } else {
                                 Toast.makeText(this, "Note not found", Toast.LENGTH_SHORT).show();
                                 finish();
@@ -677,12 +706,13 @@ public class ViewNoteActivity extends DrawerActivity {
                             return;
                         }
                         if (documentSnapshot != null && documentSnapshot.exists()) {
-                            if (currentNote == null) {
-                                currentNote = new Note();
+                            if (currentNote != null) {
+                                Date updatedAt = documentSnapshot.getTimestamp("updatedAt").toDate();
+                                currentNote.setUpdatedAt(updatedAt);
+                                runOnUiThread(this::updateLastUpdated);
+                            } else {
+                                System.out.println("currentNote is null, skipping update in listener");
                             }
-                            Date updatedAt = documentSnapshot.getTimestamp("updatedAt").toDate();
-                            currentNote.setUpdatedAt(updatedAt);
-                            runOnUiThread(this::updateLastUpdated);
                         }
                     });
         }
@@ -803,6 +833,118 @@ public class ViewNoteActivity extends DrawerActivity {
             @Override
             public void onNotPremium() {
 
+            }
+        });
+    }
+
+    private void displayNoteContent() {
+        if (currentNote != null) {
+            titleEditText.setText(currentNote.getTitle());
+            contentEditText.setText(currentNote.getContent());
+
+            updateLastUpdated();
+            loadTags();
+            getTasks();
+            invalidateOptionsMenu();
+
+            if (!isContentDisplayed) {
+                setupAutoSave();
+                isContentDisplayed = true;
+            }
+        } else {
+            Log.e(TAG, "currentNote is null in displayNoteContent");
+        }
+    }
+
+    private void promptForSetPin(Consumer<String> onPinSet) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Set PIN");
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        builder.setView(input);
+
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            String pin = input.getText().toString().trim();
+            if (pin.length() >= 4) {
+                onPinSet.accept(pin);
+            } else {
+                Toast.makeText(this, "PIN must be at least 4 digits", Toast.LENGTH_SHORT).show();
+                promptForSetPin(onPinSet);
+            }
+        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+        builder.show();
+    }
+
+    private void promptForPin(Runnable onSuccess) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Enter PIN");
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        builder.setView(input);
+
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            String enteredPin = input.getText().toString().trim();
+            String storedPin = pinManager.getPin(currentNote.getId());
+            if (enteredPin.equals(storedPin)) {
+                onSuccess.run();
+            } else {
+                Toast.makeText(this, "Incorrect PIN", Toast.LENGTH_SHORT).show();
+                promptForPin(onSuccess);
+            }
+        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> {
+            dialog.cancel();
+            finish();
+        });
+        builder.setCancelable(false);
+        builder.show();
+    }
+
+    private void handleNoteUnlock(MenuItem lockItem) {
+        promptForPin(() -> {
+            currentNote.setIsProtected(false);
+            pinManager.removePin(currentNote.getId());
+            saveNoteToFirebase();
+
+            lockItem.setTitle("Lock");
+            lockItem.setIcon(R.drawable.ic_lock);
+            Toast.makeText(ViewNoteActivity.this, "Note unlocked", Toast.LENGTH_SHORT).show();
+
+            displayNoteContent();
+        });
+    }
+
+    private void handleNoteLock(MenuItem lockItem) {
+        promptForSetPin(pin -> {
+            currentNote.setIsProtected(true);
+            pinManager.setPin(currentNote.getId(), pin);
+            saveNoteToFirebase();
+
+            lockItem.setTitle("Unlock");
+            lockItem.setIcon(R.drawable.ic_unlock);
+            Toast.makeText(ViewNoteActivity.this, "Note locked", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void checkPremiumAndHandleLockAction(MenuItem lockItem) {
+        PremiumChecker.checkPremium(this, userId, new PremiumChecker.PremiumCheckCallback() {
+            @Override
+            public void onIsPremium() {
+                if (currentNote.getIsProtected()) {
+                    handleNoteUnlock(lockItem);
+                } else {
+                    handleNoteLock(lockItem);
+                }
+            }
+
+            @Override
+            public void onNotPremium() {
+                Toast.makeText(ViewNoteActivity.this,
+                        "Lock feature is only available for Premium users",
+                        Toast.LENGTH_SHORT).show();
             }
         });
     }

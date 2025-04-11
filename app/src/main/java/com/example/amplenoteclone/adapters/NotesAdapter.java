@@ -52,7 +52,11 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
     public void onBindViewHolder(@NonNull NotesViewHolder holder, int position) {
         NoteCardView noteItem = noteList.get(position);
 
-        holder.iconView.setImageResource(R.drawable.ic_note);
+        if (noteItem.getNote().getIsProtected() != null && noteItem.getNote().getIsProtected()) {
+            holder.iconView.setImageResource(R.drawable.ic_lock);
+        } else {
+            holder.iconView.setImageResource(R.drawable.ic_note);
+        }
         holder.titleView.setText(noteItem.getTitle());
         holder.contentView.setText(noteItem.getContent());
         holder.dateView.setText(noteItem.getDate());
