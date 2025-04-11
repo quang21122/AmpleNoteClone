@@ -2,6 +2,8 @@ package com.example.amplenoteclone.note;
 
 import static com.example.amplenoteclone.utils.TimeConverter.formatLastUpdated;
 
+import android.app.AlertDialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -27,11 +29,14 @@ import com.example.amplenoteclone.adapters.TaskAdapter;
 import com.example.amplenoteclone.models.Note;
 import com.example.amplenoteclone.models.Tag;
 import com.example.amplenoteclone.models.Task;
+import com.example.amplenoteclone.ocr.ScanImageToNoteActivity;
+import com.example.amplenoteclone.summary.GeminiSummary;
 import com.example.amplenoteclone.tag.BottomSheetTagMenu;
 import com.example.amplenoteclone.tasks.CreateTaskBottomSheet;
 import com.example.amplenoteclone.ui.customviews.NoteCardView;
 import com.example.amplenoteclone.ui.customviews.TaskCardView;
 import com.example.amplenoteclone.utils.FirestoreListCallback;
+import com.example.amplenoteclone.utils.PremiumChecker;
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayoutManager;
@@ -75,6 +80,7 @@ public class ViewNoteActivity extends DrawerActivity {
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private ListenerRegistration taskListener;
     private ListenerRegistration noteListener;
+    private GeminiSummary geminiSummary;
 
     public interface OnTaskCreationListener {
         void onTaskCreated();
@@ -107,6 +113,7 @@ public class ViewNoteActivity extends DrawerActivity {
         setupAutoSave();
         setupTag();
         setupNoteListener();
+        geminiSummary = new GeminiSummary(this);
     }
 
     @Override
@@ -151,6 +158,12 @@ public class ViewNoteActivity extends DrawerActivity {
         MenuItem deleteItem = menu.findItem(R.id.action_delete_note);
         deleteItem.setOnMenuItemClickListener(item -> {
             deleteNote();
+            return true;
+        });
+
+        MenuItem summaryItem = menu.findItem(R.id.action_summary);
+        summaryItem.setOnMenuItemClickListener(item -> {
+            checkPremiumAndShowSummary();
             return true;
         });
 
@@ -754,5 +767,43 @@ public class ViewNoteActivity extends DrawerActivity {
                     }
                     callback.onCallback(tasks);
                 });
+    }
+
+    private void showSummaryDialog() {
+        String content = contentEditText.getText().toString().trim();
+        if (content.isEmpty()) {
+            Toast.makeText(this, "No content to summarize", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Gọi Gemini API để tóm tắt
+        geminiSummary.generateSummary(
+                content,
+                summary -> {
+                    new AlertDialog.Builder(this)
+                            .setTitle("Summary")
+                            .setMessage(summary)
+                            .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+                            .show();
+                },
+                error -> {
+                    Toast.makeText(this, "Error generating summary: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                }
+        );
+    }
+    private void checkPremiumAndShowSummary() {
+        if (userId == null) return;
+
+        PremiumChecker.checkPremium(this, userId, new PremiumChecker.PremiumCheckCallback() {
+            @Override
+            public void onIsPremium() {
+                showSummaryDialog();
+            }
+
+            @Override
+            public void onNotPremium() {
+
+            }
+        });
     }
 }
