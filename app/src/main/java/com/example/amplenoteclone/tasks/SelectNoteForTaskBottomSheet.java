@@ -81,6 +81,7 @@ public class SelectNoteForTaskBottomSheet extends BottomSheetDialogFragment {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("notes")
                 .whereEqualTo("userId", userId)
+                .whereEqualTo("isProtected", false)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     noteList.clear();
