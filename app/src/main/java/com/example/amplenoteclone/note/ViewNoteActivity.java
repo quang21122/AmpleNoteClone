@@ -1,12 +1,16 @@
 package com.example.amplenoteclone.note;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import static com.example.amplenoteclone.utils.TimeConverter.formatLastUpdated;
 
+import android.app.AlertDialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,11 +31,15 @@ import com.example.amplenoteclone.adapters.TaskAdapter;
 import com.example.amplenoteclone.models.Note;
 import com.example.amplenoteclone.models.Tag;
 import com.example.amplenoteclone.models.Task;
+import com.example.amplenoteclone.ocr.ScanImageToNoteActivity;
+import com.example.amplenoteclone.summary.GeminiSummary;
 import com.example.amplenoteclone.tag.BottomSheetTagMenu;
 import com.example.amplenoteclone.tasks.CreateTaskBottomSheet;
 import com.example.amplenoteclone.ui.customviews.NoteCardView;
 import com.example.amplenoteclone.ui.customviews.TaskCardView;
 import com.example.amplenoteclone.utils.FirestoreListCallback;
+import com.example.amplenoteclone.utils.PinManager;
+import com.example.amplenoteclone.utils.PremiumChecker;
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayoutManager;
@@ -75,6 +83,9 @@ public class ViewNoteActivity extends DrawerActivity {
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private ListenerRegistration taskListener;
     private ListenerRegistration noteListener;
+    private GeminiSummary geminiSummary;
+    private PinManager pinManager;
+    private boolean isContentDisplayed = false;
 
     public interface OnTaskCreationListener {
         void onTaskCreated();
@@ -101,10 +112,12 @@ public class ViewNoteActivity extends DrawerActivity {
             finish();
         });
 
+        pinManager = new PinManager(this);
+        geminiSummary = new GeminiSummary(this);
+
         initializeViews();
         setupTaskSection();
         initializeNote();
-        setupAutoSave();
         setupTag();
         setupNoteListener();
     }
@@ -154,6 +167,32 @@ public class ViewNoteActivity extends DrawerActivity {
             return true;
         });
 
+        MenuItem summaryItem = menu.findItem(R.id.action_summary);
+        summaryItem.setOnMenuItemClickListener(item -> {
+            checkPremiumAndShowSummary();
+            return true;
+        });
+
+        MenuItem lockItem = menu.findItem(R.id.action_lock);
+        if (currentNote != null && currentNote.getIsProtected() != null && currentNote.getIsProtected()) {
+            lockItem.setTitle("Unlock");
+            lockItem.setIcon(R.drawable.ic_unlock);
+        } else {
+            lockItem.setTitle("Lock");
+            lockItem.setIcon(R.drawable.ic_lock);
+        }
+
+        lockItem.setOnMenuItemClickListener(item -> {
+            checkPremiumAndHandleLockAction(item);
+            return true;
+        });
+
+        MenuItem duplicateItem = menu.findItem(R.id.action_duplicate);
+        duplicateItem.setOnMenuItemClickListener(item -> {
+            duplicateNote();
+            return true;
+        });
+
         return true;
     }
     private void initializeViews() {
@@ -168,7 +207,7 @@ public class ViewNoteActivity extends DrawerActivity {
             loadNote();
         } else {
             createNewNote();
-            updateLastUpdated();
+            displayNoteContent();
         }
     }
 
@@ -210,13 +249,22 @@ public class ViewNoteActivity extends DrawerActivity {
                                                 documentSnapshot.getTimestamp("updatedAt").toDate(),
                                                 documentSnapshot.getBoolean("isProtected"));
 
-                                updateLastUpdated();
-                                titleEditText.setText(currentNote.getTitle());
-                                contentEditText.setText(currentNote.getContent());
+                                if (currentNote.getIsProtected() != null && currentNote.getIsProtected()) {
+                                    PremiumChecker.checkPremium(this, userId, new PremiumChecker.PremiumCheckCallback() {
+                                        @Override
+                                        public void onIsPremium() {
+                                            promptForPin(() -> displayNoteContent());
+                                        }
 
-                                loadTags();
-
-                                getTasks();
+                                        @Override
+                                        public void onNotPremium() {
+                                            Toast.makeText(ViewNoteActivity.this, "Locked notes are only accessible to Premium users", Toast.LENGTH_SHORT).show();
+                                            finish();
+                                        }
+                                    });
+                                } else {
+                                    displayNoteContent();
+                                }
                             } else {
                                 Toast.makeText(this, "Note not found", Toast.LENGTH_SHORT).show();
                                 finish();
@@ -275,7 +323,7 @@ public class ViewNoteActivity extends DrawerActivity {
         CollectionReference collectionRef = db.collection("notes");
 
         // Create a map with the note data
-        Map<String, Object> noteData = createUploadData();
+        Map<String, Object> noteData = createUploadData(currentNote);
 
         if (currentNote.getId() == null) {
             // Create a new note
@@ -307,17 +355,16 @@ public class ViewNoteActivity extends DrawerActivity {
                         });
     }
 
-    private Map<String, Object> createUploadData() {
+    private Map<String, Object> createUploadData(Note note) {
         Map<String, Object> noteData = new HashMap<>();
-        noteData.put("title", currentNote.getTitle());
-        noteData.put("content", currentNote.getContent());
-        noteData.put("updatedAt", new Timestamp(currentNote.getUpdatedAt()));
+        noteData.put("title", note.getTitle());
+        noteData.put("content", note.getContent());
+        noteData.put("updatedAt", new Timestamp(note.getUpdatedAt()));
         noteData.put("userId", userId);
-        noteData.put("isProtected", currentNote.getIsProtected());
-        noteData.put("tags", currentNote.getTags());
-        noteData.put("tasks", currentNote.getTasks());
-        noteData.put("createdAt", new Timestamp(currentNote.getCreatedAt()));
-
+        noteData.put("isProtected", note.getIsProtected());
+        noteData.put("tags", note.getTags());
+        noteData.put("tasks", note.getTasks());
+        noteData.put("createdAt", new Timestamp(note.getCreatedAt()));
         return noteData;
     }
     private void deleteNote() {
@@ -664,12 +711,13 @@ public class ViewNoteActivity extends DrawerActivity {
                             return;
                         }
                         if (documentSnapshot != null && documentSnapshot.exists()) {
-                            if (currentNote == null) {
-                                currentNote = new Note();
+                            if (currentNote != null) {
+                                Date updatedAt = documentSnapshot.getTimestamp("updatedAt").toDate();
+                                currentNote.setUpdatedAt(updatedAt);
+                                runOnUiThread(this::updateLastUpdated);
+                            } else {
+                                System.out.println("currentNote is null, skipping update in listener");
                             }
-                            Date updatedAt = documentSnapshot.getTimestamp("updatedAt").toDate();
-                            currentNote.setUpdatedAt(updatedAt);
-                            runOnUiThread(this::updateLastUpdated);
                         }
                     });
         }
@@ -754,5 +802,292 @@ public class ViewNoteActivity extends DrawerActivity {
                     }
                     callback.onCallback(tasks);
                 });
+    }
+
+    private void showSummaryDialog() {
+        String content = contentEditText.getText().toString().trim();
+        if (content.isEmpty()) {
+            Toast.makeText(this, "No content to summarize", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Gọi Gemini API để tóm tắt
+        geminiSummary.generateSummary(
+                content,
+                summary -> {
+                    new AlertDialog.Builder(this)
+                            .setTitle("Summary")
+                            .setMessage(summary)
+                            .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+                            .show();
+                },
+                error -> {
+                    Toast.makeText(this, "Error generating summary: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                }
+        );
+    }
+    private void checkPremiumAndShowSummary() {
+        if (userId == null) return;
+
+        PremiumChecker.checkPremium(this, userId, new PremiumChecker.PremiumCheckCallback() {
+            @Override
+            public void onIsPremium() {
+                showSummaryDialog();
+            }
+
+            @Override
+            public void onNotPremium() {
+
+            }
+        });
+    }
+
+    private void displayNoteContent() {
+        if (currentNote != null) {
+            titleEditText.setText(currentNote.getTitle());
+            contentEditText.setText(currentNote.getContent());
+
+            updateLastUpdated();
+            loadTags();
+            getTasks();
+            invalidateOptionsMenu();
+
+            if (!isContentDisplayed) {
+                setupAutoSave();
+                isContentDisplayed = true;
+            }
+        } else {
+            Log.e(TAG, "currentNote is null in displayNoteContent");
+        }
+    }
+
+    private void promptForSetPin(Consumer<String> onPinSet) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Set PIN");
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        builder.setView(input);
+
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            String pin = input.getText().toString().trim();
+            if (pin.length() >= 4) {
+                onPinSet.accept(pin);
+            } else {
+                Toast.makeText(this, "PIN must be at least 4 digits", Toast.LENGTH_SHORT).show();
+                promptForSetPin(onPinSet);
+            }
+        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+        builder.show();
+    }
+
+    private void promptForPin(Runnable onSuccess) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Enter PIN");
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        builder.setView(input);
+
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            String enteredPin = input.getText().toString().trim();
+            String storedPin = pinManager.getPin(currentNote.getId());
+            if (enteredPin.equals(storedPin)) {
+                onSuccess.run();
+            } else {
+                Toast.makeText(this, "Incorrect PIN", Toast.LENGTH_SHORT).show();
+                promptForPin(onSuccess);
+            }
+        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> {
+            dialog.cancel();
+            finish();
+        });
+        builder.setCancelable(false);
+        builder.show();
+    }
+
+    private void handleNoteUnlock(MenuItem lockItem) {
+        promptForPin(() -> {
+            currentNote.setIsProtected(false);
+            pinManager.removePin(currentNote.getId());
+            saveNoteToFirebase();
+
+            lockItem.setTitle("Lock");
+            lockItem.setIcon(R.drawable.ic_lock);
+            Toast.makeText(ViewNoteActivity.this, "Note unlocked", Toast.LENGTH_SHORT).show();
+
+            displayNoteContent();
+        });
+    }
+
+    private void handleNoteLock(MenuItem lockItem) {
+        promptForSetPin(pin -> {
+            currentNote.setIsProtected(true);
+            pinManager.setPin(currentNote.getId(), pin);
+            saveNoteToFirebase();
+
+            lockItem.setTitle("Unlock");
+            lockItem.setIcon(R.drawable.ic_unlock);
+            Toast.makeText(ViewNoteActivity.this, "Note locked", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void checkPremiumAndHandleLockAction(MenuItem lockItem) {
+        PremiumChecker.checkPremium(this, userId, new PremiumChecker.PremiumCheckCallback() {
+            @Override
+            public void onIsPremium() {
+                if (currentNote.getIsProtected()) {
+                    handleNoteUnlock(lockItem);
+                } else {
+                    handleNoteLock(lockItem);
+                }
+            }
+
+            @Override
+            public void onNotPremium() {
+                Toast.makeText(ViewNoteActivity.this,
+                        "Lock feature is only available for Premium users",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void duplicateNote() {
+        if (currentNote == null || currentNote.getId() == null) {
+            Toast.makeText(this, "Cannot duplicate note", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Tạo ghi chú mới
+        Note newNote = new Note();
+        newNote.setTitle(currentNote.getTitle() + " (Copy)");
+        newNote.setContent(currentNote.getContent());
+        newNote.setTags(new ArrayList<>(currentNote.getTags()));
+        newNote.setTasks(new ArrayList<>());
+        newNote.setCreatedAt(new Date());
+        newNote.setUpdatedAt(new Date());
+        newNote.setUserId(userId);
+        newNote.setIsProtected(false);
+
+        // Lưu ghi chú mới vào Firestore
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference notesCollection = db.collection("notes");
+
+        notesCollection
+                .add(createUploadData(newNote))
+                .addOnSuccessListener(documentReference -> {
+                    newNote.setId(documentReference.getId());
+
+                    // Sao chép các task
+                    duplicateTasks(newNote, () -> {
+                        // Cập nhật trường tasks của ghi chú mới
+                        Map<String, Object> noteUpdate = new HashMap<>();
+                        noteUpdate.put("tasks", newNote.getTasks());
+                        notesCollection.document(newNote.getId())
+                                .update(noteUpdate)
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(this, "Note duplicated successfully", Toast.LENGTH_SHORT).show();
+                                    // Chuyển hướng đến ghi chú mới
+                                    Intent intent = new Intent(ViewNoteActivity.this, ViewNoteActivity.class);
+                                    intent.putExtra("noteId", newNote.getId());
+                                    startActivity(intent);
+                                    finish();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(this, "Failed to update note tasks: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                });
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to duplicate note: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void duplicateTasks(Note newNote, Runnable onComplete) {
+        if (currentNote.getTasks() == null || currentNote.getTasks().isEmpty()) {
+            onComplete.run();
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference tasksCollection = db.collection("tasks");
+        List<String> newTaskIds = new ArrayList<>();
+        final int totalTasks = currentNote.getTasks().size();
+        final int[] completedTasks = {0};
+
+        for (String taskId : currentNote.getTasks()) {
+            tasksCollection.document(taskId)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            Task oldTask = documentSnapshot.toObject(Task.class);
+                            if (oldTask != null) {
+                                // Tạo task mới
+                                Task newTask = new Task(
+                                        oldTask.getUserId(),
+                                        newNote.getId(), // Liên kết với ghi chú mới
+                                        oldTask.getTitle(),
+                                        new Date(), // Thời gian tạo mới
+                                        oldTask.isCompleted(),
+                                        oldTask.getRepeat(),
+                                        oldTask.getStartAt(),
+                                        oldTask.getStartAtDate(),
+                                        oldTask.getStartAtPeriod(),
+                                        oldTask.getStartAtTime(),
+                                        oldTask.getStartNoti(),
+                                        oldTask.getHideUntil(),
+                                        oldTask.getHideUntilDate(),
+                                        oldTask.getHideUntilTime(),
+                                        oldTask.getPriority(),
+                                        oldTask.getDuration(),
+                                        oldTask.getScore()
+                                );
+                                newTask.setDetails(oldTask.getDetails());
+
+                                // Lưu task mới
+                                tasksCollection
+                                        .add(newTask)
+                                        .addOnSuccessListener(taskRef -> {
+                                            newTaskIds.add(taskRef.getId());
+                                            completedTasks[0]++;
+                                            if (completedTasks[0] == totalTasks) {
+                                                newNote.setTasks(new ArrayList<>(newTaskIds));
+                                                onComplete.run();
+                                            }
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Log.e(TAG, "Failed to duplicate task: " + e.getMessage());
+                                            completedTasks[0]++;
+                                            if (completedTasks[0] == totalTasks) {
+                                                newNote.setTasks(new ArrayList<>(newTaskIds));
+                                                onComplete.run();
+                                            }
+                                        });
+                            } else {
+                                completedTasks[0]++;
+                                if (completedTasks[0] == totalTasks) {
+                                    newNote.setTasks(new ArrayList<>(newTaskIds));
+                                    onComplete.run();
+                                }
+                            }
+                        } else {
+                            completedTasks[0]++;
+                            if (completedTasks[0] == totalTasks) {
+                                newNote.setTasks(new ArrayList<>(newTaskIds));
+                                onComplete.run();
+                            }
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "Failed to load task: " + e.getMessage());
+                        completedTasks[0]++;
+                        if (completedTasks[0] == totalTasks) {
+                            newNote.setTasks(new ArrayList<>(newTaskIds));
+                            onComplete.run();
+                        }
+                    });
+        }
     }
 }
