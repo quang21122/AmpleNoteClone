@@ -52,7 +52,6 @@ public class NoteCardView extends CardView {
     private void init() {
         inflate(getContext(), R.layout.view_note_card, this);
         iconView = findViewById(R.id.note_icon);
-        iconView.setImageResource(R.drawable.ic_note);
         titleView = findViewById(R.id.note_title);
         contentView = findViewById(R.id.note_content);
         dateView = findViewById(R.id.note_date);
@@ -84,8 +83,12 @@ public class NoteCardView extends CardView {
             // Use the updated date if available, otherwise use the created date
             dateView.setText(updatedAt.toDate().toString());
 
-            iconView.setImageResource(R.drawable.ic_note);
 
+            if (note.getIsProtected() != null && note.getIsProtected()) {
+                iconView.setImageResource(R.drawable.ic_lock);
+            } else {
+                iconView.setImageResource(R.drawable.ic_note);
+            }
         }
     }
 
