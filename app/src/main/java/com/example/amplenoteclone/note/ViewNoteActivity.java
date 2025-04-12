@@ -187,6 +187,12 @@ public class ViewNoteActivity extends DrawerActivity {
             return true;
         });
 
+        MenuItem duplicateItem = menu.findItem(R.id.action_duplicate);
+        duplicateItem.setOnMenuItemClickListener(item -> {
+            duplicateNote();
+            return true;
+        });
+
         return true;
     }
     private void initializeViews() {
@@ -317,7 +323,7 @@ public class ViewNoteActivity extends DrawerActivity {
         CollectionReference collectionRef = db.collection("notes");
 
         // Create a map with the note data
-        Map<String, Object> noteData = createUploadData();
+        Map<String, Object> noteData = createUploadData(currentNote);
 
         if (currentNote.getId() == null) {
             // Create a new note
@@ -349,17 +355,16 @@ public class ViewNoteActivity extends DrawerActivity {
                         });
     }
 
-    private Map<String, Object> createUploadData() {
+    private Map<String, Object> createUploadData(Note note) {
         Map<String, Object> noteData = new HashMap<>();
-        noteData.put("title", currentNote.getTitle());
-        noteData.put("content", currentNote.getContent());
-        noteData.put("updatedAt", new Timestamp(currentNote.getUpdatedAt()));
+        noteData.put("title", note.getTitle());
+        noteData.put("content", note.getContent());
+        noteData.put("updatedAt", new Timestamp(note.getUpdatedAt()));
         noteData.put("userId", userId);
-        noteData.put("isProtected", currentNote.getIsProtected());
-        noteData.put("tags", currentNote.getTags());
-        noteData.put("tasks", currentNote.getTasks());
-        noteData.put("createdAt", new Timestamp(currentNote.getCreatedAt()));
-
+        noteData.put("isProtected", note.getIsProtected());
+        noteData.put("tags", note.getTags());
+        noteData.put("tasks", note.getTasks());
+        noteData.put("createdAt", new Timestamp(note.getCreatedAt()));
         return noteData;
     }
     private void deleteNote() {
@@ -947,5 +952,142 @@ public class ViewNoteActivity extends DrawerActivity {
                         Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void duplicateNote() {
+        if (currentNote == null || currentNote.getId() == null) {
+            Toast.makeText(this, "Cannot duplicate note", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Tạo ghi chú mới
+        Note newNote = new Note();
+        newNote.setTitle(currentNote.getTitle() + " (Copy)");
+        newNote.setContent(currentNote.getContent());
+        newNote.setTags(new ArrayList<>(currentNote.getTags()));
+        newNote.setTasks(new ArrayList<>());
+        newNote.setCreatedAt(new Date());
+        newNote.setUpdatedAt(new Date());
+        newNote.setUserId(userId);
+        newNote.setIsProtected(false);
+
+        // Lưu ghi chú mới vào Firestore
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference notesCollection = db.collection("notes");
+
+        notesCollection
+                .add(createUploadData(newNote))
+                .addOnSuccessListener(documentReference -> {
+                    newNote.setId(documentReference.getId());
+
+                    // Sao chép các task
+                    duplicateTasks(newNote, () -> {
+                        // Cập nhật trường tasks của ghi chú mới
+                        Map<String, Object> noteUpdate = new HashMap<>();
+                        noteUpdate.put("tasks", newNote.getTasks());
+                        notesCollection.document(newNote.getId())
+                                .update(noteUpdate)
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(this, "Note duplicated successfully", Toast.LENGTH_SHORT).show();
+                                    // Chuyển hướng đến ghi chú mới
+                                    Intent intent = new Intent(ViewNoteActivity.this, ViewNoteActivity.class);
+                                    intent.putExtra("noteId", newNote.getId());
+                                    startActivity(intent);
+                                    finish();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(this, "Failed to update note tasks: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                });
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to duplicate note: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void duplicateTasks(Note newNote, Runnable onComplete) {
+        if (currentNote.getTasks() == null || currentNote.getTasks().isEmpty()) {
+            onComplete.run();
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference tasksCollection = db.collection("tasks");
+        List<String> newTaskIds = new ArrayList<>();
+        final int totalTasks = currentNote.getTasks().size();
+        final int[] completedTasks = {0};
+
+        for (String taskId : currentNote.getTasks()) {
+            tasksCollection.document(taskId)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            Task oldTask = documentSnapshot.toObject(Task.class);
+                            if (oldTask != null) {
+                                // Tạo task mới
+                                Task newTask = new Task(
+                                        oldTask.getUserId(),
+                                        newNote.getId(), // Liên kết với ghi chú mới
+                                        oldTask.getTitle(),
+                                        new Date(), // Thời gian tạo mới
+                                        oldTask.isCompleted(),
+                                        oldTask.getRepeat(),
+                                        oldTask.getStartAt(),
+                                        oldTask.getStartAtDate(),
+                                        oldTask.getStartAtPeriod(),
+                                        oldTask.getStartAtTime(),
+                                        oldTask.getStartNoti(),
+                                        oldTask.getHideUntil(),
+                                        oldTask.getHideUntilDate(),
+                                        oldTask.getHideUntilTime(),
+                                        oldTask.getPriority(),
+                                        oldTask.getDuration(),
+                                        oldTask.getScore()
+                                );
+                                newTask.setDetails(oldTask.getDetails());
+
+                                // Lưu task mới
+                                tasksCollection
+                                        .add(newTask)
+                                        .addOnSuccessListener(taskRef -> {
+                                            newTaskIds.add(taskRef.getId());
+                                            completedTasks[0]++;
+                                            if (completedTasks[0] == totalTasks) {
+                                                newNote.setTasks(new ArrayList<>(newTaskIds));
+                                                onComplete.run();
+                                            }
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Log.e(TAG, "Failed to duplicate task: " + e.getMessage());
+                                            completedTasks[0]++;
+                                            if (completedTasks[0] == totalTasks) {
+                                                newNote.setTasks(new ArrayList<>(newTaskIds));
+                                                onComplete.run();
+                                            }
+                                        });
+                            } else {
+                                completedTasks[0]++;
+                                if (completedTasks[0] == totalTasks) {
+                                    newNote.setTasks(new ArrayList<>(newTaskIds));
+                                    onComplete.run();
+                                }
+                            }
+                        } else {
+                            completedTasks[0]++;
+                            if (completedTasks[0] == totalTasks) {
+                                newNote.setTasks(new ArrayList<>(newTaskIds));
+                                onComplete.run();
+                            }
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "Failed to load task: " + e.getMessage());
+                        completedTasks[0]++;
+                        if (completedTasks[0] == totalTasks) {
+                            newNote.setTasks(new ArrayList<>(newTaskIds));
+                            onComplete.run();
+                        }
+                    });
+        }
     }
 }
