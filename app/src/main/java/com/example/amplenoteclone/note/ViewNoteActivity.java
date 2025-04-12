@@ -116,9 +116,10 @@ public class ViewNoteActivity extends DrawerActivity {
         geminiSummary = new GeminiSummary(this);
 
         initializeViews();
-        setupTaskSection();
-        initializeNote();
         setupTag();
+        setupTaskSection();
+
+        initializeNote();
         setupNoteListener();
     }
 
