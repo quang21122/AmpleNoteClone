@@ -33,12 +33,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class Login extends AppCompatActivity {
     private FirebaseAuth mAuth;
@@ -53,7 +49,6 @@ public class Login extends AppCompatActivity {
     private GoogleSignInOptions gOptions;
     private GoogleSignInClient gClient;
     private static final int RC_SIGN_IN = 9001;
-    private ActivityResultLauncher<Intent> googleSignInLauncher;
 
     @Override
     protected void onStart() {
@@ -90,24 +85,6 @@ public class Login extends AppCompatActivity {
         gClient = GoogleSignIn.getClient(this, gOptions);
 
         mAuth.setLanguageCode("en");
-
-        googleSignInLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult result) {
-                        if (result.getResultCode() == RESULT_OK) {
-                            Intent data = result.getData();
-                            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-                            try {
-                                GoogleSignInAccount account = task.getResult(ApiException.class);
-                                firebaseAuthWithGoogle(account.getIdToken());
-                            } catch (ApiException e) {
-                                Toast.makeText(Login.this, "Failed to login! Please check your credentials", Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    }
-        });
 
         // Get the theme attribute value
         int isNightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
@@ -204,7 +181,7 @@ public class Login extends AppCompatActivity {
     private void signInGoogle() {
         progressBar.setVisibility(View.VISIBLE);
         Intent signInIntent = gClient.getSignInIntent();
-        googleSignInLauncher.launch(signInIntent);
+        startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
     @Override
@@ -225,39 +202,15 @@ public class Login extends AppCompatActivity {
     private void firebaseAuthWithGoogle(String idToken) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
         mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        FirebaseFirestore.getInstance()
-                                .collection("users")
-                                .document(user.getUid())
-                                .get()
-                                .addOnSuccessListener(documentSnapshot -> {
-                                    if (!documentSnapshot.exists()) {
-                                        // New Google user - create profile
-                                        Map<String, Object> userData = new HashMap<>();
-                                        userData.put("email", user.getEmail());
-                                        userData.put("createdAt", com.google.firebase.Timestamp.now());
-                                        userData.put("name", user.getDisplayName() != null ? user.getDisplayName() : "");
-                                        userData.put("hasCustomAvatar", false);
-                                        userData.put("avatarBase64", "");
-                                        userData.put("isPremium", false);
-
-                                        FirebaseFirestore.getInstance()
-                                                .collection("users")
-                                                .document(user.getUid())
-                                                .set(userData)
-                                                .addOnSuccessListener(aVoid -> updateUI(user))
-                                                .addOnFailureListener(e -> {
-                                                    Toast.makeText(Login.this, "Database Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                                    mAuth.signOut();
-                                                });
-                                    } else {
-                                        updateUI(user);
-                                    }
-                                });
-                    } else {
-                        Toast.makeText(Login.this, "Failed to login! Please check your credentials", Toast.LENGTH_LONG).show();
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            updateUI(user);
+                        } else {
+                            Toast.makeText(Login.this, "Failed to login! Please check your credentials", Toast.LENGTH_LONG).show();
+                        }
                     }
                 });
     }
