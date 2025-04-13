@@ -53,6 +53,7 @@ public class Login extends AppCompatActivity {
     private GoogleSignInOptions gOptions;
     private GoogleSignInClient gClient;
     private static final int RC_SIGN_IN = 9001;
+    private ActivityResultLauncher<Intent> googleSignInLauncher;
 
     @Override
     protected void onStart() {
@@ -89,6 +90,24 @@ public class Login extends AppCompatActivity {
         gClient = GoogleSignIn.getClient(this, gOptions);
 
         mAuth.setLanguageCode("en");
+
+        googleSignInLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == RESULT_OK) {
+                            Intent data = result.getData();
+                            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+                            try {
+                                GoogleSignInAccount account = task.getResult(ApiException.class);
+                                firebaseAuthWithGoogle(account.getIdToken());
+                            } catch (ApiException e) {
+                                Toast.makeText(Login.this, "Failed to login! Please check your credentials", Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    }
+        });
 
         // Get the theme attribute value
         int isNightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
@@ -185,7 +204,7 @@ public class Login extends AppCompatActivity {
     private void signInGoogle() {
         progressBar.setVisibility(View.VISIBLE);
         Intent signInIntent = gClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN);
+        googleSignInLauncher.launch(signInIntent);
     }
 
     @Override
