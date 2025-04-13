@@ -75,22 +75,27 @@ public class EditTagFragment extends BottomSheetDialogFragment {
         cancelButton.setOnClickListener(v -> dismiss());
         renameButton.setOnClickListener(v -> {
             String newTagName = tagNameInput.getText().toString().trim();
-            if (!newTagName.isEmpty() && !newTagName.equals(tag.getName())) {
-                tag.editTagInFirestore(
-                        newTagName,
-                        () -> {
-                            if (tagEditListener != null) {
-                                tagEditListener.onTagEdited(newTagName);
-                            }
-                            dismiss();
-                        },
-                        error -> {
-                            Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show();
-                            dismiss();
-                        });
-            } else {
-                dismiss();
+            if (newTagName.isEmpty()) {
+                Toast.makeText(requireContext(), "Tag name cannot be empty", Toast.LENGTH_SHORT).show();
+                return;
             }
+            if (newTagName.equals(tag.getName())) {
+                dismiss();
+                return;
+            }
+
+            tag.editTagInFirestore(
+                    newTagName,
+                    () -> {
+                        if (tagEditListener != null) {
+                            tagEditListener.onTagEdited(newTagName);
+                        }
+                        Toast.makeText(requireContext(), "Tag renamed successfully", Toast.LENGTH_SHORT).show();
+                        dismiss();
+                    },
+                    error -> {
+                        Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show();
+                    });
         });
 
         return view;
