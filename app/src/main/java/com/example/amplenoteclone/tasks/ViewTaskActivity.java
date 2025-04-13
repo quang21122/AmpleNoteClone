@@ -37,7 +37,7 @@ public class ViewTaskActivity extends AppCompatActivity {
                         Task task = documentSnapshot.toObject(Task.class);
                         if (task != null) {
                             taskTitle.setText(task.getTitle());
-                            taskDetails.setText(task.getDetails());
+                  //          taskDetails.setText(task.getDetails());
                         }
                     }
                 })

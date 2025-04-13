@@ -115,28 +115,46 @@ public class Tag implements Serializable {
             return;
         }
 
-        WriteBatch batch = db.batch();
-        batch.update(db.collection("tags").document(id), "name", newTagName);
-
-        // Cập nhật updatedAt cho tất cả Note chứa tag này
-        db.collection("notes")
-                .whereArrayContains("tags", id)
+        // Check if the new tag name already exists for this user
+        db.collection("tags")
+                .whereEqualTo("name", newTagName)
+                .whereEqualTo("userId", userId)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        batch.update(
-                                db.collection("notes").document(doc.getId()),
-                                "updatedAt", new Date()
-                        );
+                    // If a tag with this name exists and it's not the current tag
+                    if (!queryDocumentSnapshots.isEmpty() &&
+                            !queryDocumentSnapshots.getDocuments().get(0).getId().equals(id)) {
+                        onFailure.accept("A tag with this name already exists");
+                        return;
                     }
-                    batch.commit()
-                            .addOnSuccessListener(aVoid -> {
-                                this.name = newTagName;
-                                onSuccess.run();
+
+                    WriteBatch batch = db.batch();
+                    batch.update(db.collection("tags").document(id), "name", newTagName);
+
+                    // Update updatedAt for all Notes containing this tag
+                    db.collection("notes")
+                            .whereArrayContains("tags", id)
+                            .get()
+                            .addOnSuccessListener(noteSnapshots -> {
+                                for (QueryDocumentSnapshot doc : noteSnapshots) {
+                                    batch.update(
+                                            db.collection("notes").document(doc.getId()),
+                                            "updatedAt", new Date()
+                                    );
+                                }
+                                batch.commit()
+                                        .addOnSuccessListener(aVoid -> {
+                                            this.name = newTagName;
+                                            onSuccess.run();
+                                        })
+                                        .addOnFailureListener(e ->
+                                                onFailure.accept("Failed to edit tag: " + e.getMessage()));
                             })
-                            .addOnFailureListener(e -> onFailure.accept("Failed to edit tag"));
+                            .addOnFailureListener(e ->
+                                    onFailure.accept("Failed to fetch notes: " + e.getMessage()));
                 })
-                .addOnFailureListener(e -> onFailure.accept("Failed to fetch notes"));
+                .addOnFailureListener(e ->
+                        onFailure.accept("Failed to check tag existence: " + e.getMessage()));
     }
     public void deleteTagInFirestore(Runnable onSuccess, Consumer<String> onFailure) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();

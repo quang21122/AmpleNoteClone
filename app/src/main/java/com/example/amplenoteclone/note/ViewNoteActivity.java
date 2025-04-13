@@ -1045,7 +1045,6 @@ public class ViewNoteActivity extends DrawerActivity {
                                         oldTask.getDuration(),
                                         oldTask.getScore()
                                 );
-                                newTask.setDetails(oldTask.getDetails());
 
                                 // Lưu task mới
                                 tasksCollection

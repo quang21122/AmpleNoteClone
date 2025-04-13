@@ -32,6 +32,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class AddTagDialogFragment extends DialogFragment {
 
@@ -159,21 +160,33 @@ public class AddTagDialogFragment extends DialogFragment {
         });
     }
 
-    private boolean isTagExists(String tagName) {
-        if (getActivity() instanceof ViewNoteActivity) {
-            ViewNoteActivity activity = (ViewNoteActivity) getActivity();
-            Note currentNote = activity.getCurrentNote();
-            if (currentNote != null && currentNote.getTags() != null) {
-                for (String tagId : currentNote.getTags()) {
-                    Tag existingTag = new Tag();
-                    existingTag.setId(tagId);
-                    if (existingTag.getName() != null && existingTag.getName().equalsIgnoreCase(tagName)) {
-                        return true;
+    private void isTagExists(String tagName, Note currentNote, Runnable onTagAlreadyInNote, Consumer<Tag> onTagExists, Runnable onTagNotExists) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("tags")
+                .whereEqualTo("name", tagName)
+                .whereEqualTo("userId", currentNote.getUserId())
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        // Tag exists
+                        Tag existingTag = queryDocumentSnapshots.getDocuments().get(0).toObject(Tag.class);
+                        existingTag.setId(queryDocumentSnapshots.getDocuments().get(0).getId());
+
+                        // Check if note already has this tag
+                        if (currentNote.getTags().contains(existingTag.getId())) {
+                            onTagAlreadyInNote.run();
+                        } else {
+                            onTagExists.accept(existingTag);
+                        }
+                    } else {
+                        // Tag doesn't exist
+                        onTagNotExists.run();
                     }
-                }
-            }
-        }
-        return false;
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Failed to check tag existence", Toast.LENGTH_SHORT).show();
+                    dismiss();
+                });
     }
 
     private void completeAddTag() {
@@ -183,44 +196,73 @@ public class AddTagDialogFragment extends DialogFragment {
             return;
         }
 
-        if (isTagExists(tagName)) {
-            Toast.makeText(getContext(), "Note already has this tag", Toast.LENGTH_SHORT).show();
-            dismiss();
-            return;
-        }
+        if (getActivity() instanceof ViewNoteActivity) {
+            ViewNoteActivity activity = (ViewNoteActivity) getActivity();
+            Note currentNote = activity.getCurrentNote();
+            if (currentNote == null) {
+                Toast.makeText(getContext(), "Error: No note selected", Toast.LENGTH_SHORT).show();
+                dismiss();
+                return;
+            }
 
-        Tag.createTagInFirestore(
-                tagName,
-                newTag -> {
-                    // Thêm tag vào note
-                    if (getActivity() instanceof ViewNoteActivity) {
-                        ViewNoteActivity activity = (ViewNoteActivity) getActivity();
-                        Note currentNote = activity.getCurrentNote();
-                        if (currentNote != null) {
-                            List<String> updatedTagIds = new ArrayList<>(currentNote.getTags());
-                            updatedTagIds.add(newTag.getId());
-                            currentNote.setTags((ArrayList<String>) updatedTagIds);
+            isTagExists(
+                    tagName,
+                    currentNote,
+                    () -> {
+                        dismiss();
+                    },
+                    existingTag -> {
+                        // Add existing tag to note
+                        List<String> updatedTagIds = new ArrayList<>(currentNote.getTags());
+                        updatedTagIds.add(existingTag.getId());
+                        currentNote.setTags((ArrayList<String>) updatedTagIds);
 
-                            FirebaseFirestore.getInstance().collection("notes").document(currentNote.getId())
-                                    .update(
+                        FirebaseFirestore.getInstance().collection("notes").document(currentNote.getId())
+                                .update(
                                         "tags", updatedTagIds,
                                         "updatedAt", new Date())
-                                    .addOnSuccessListener(aVoid -> {
-                                        if (tagAddedListener != null) {
-                                            tagAddedListener.onTagAdded(newTag);
-                                        }
-                                        dismiss();
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Toast.makeText(getContext(), "Failed to add tag to note", Toast.LENGTH_SHORT).show();
-                                        dismiss();
-                                    });
-                        }
-                    }
-                },
-                error -> {
-                    Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
-                    dismiss();
-                });
+                                .addOnSuccessListener(aVoid -> {
+                                    if (tagAddedListener != null) {
+                                        tagAddedListener.onTagAdded(existingTag);
+                                    }
+                                    Toast.makeText(getContext(), "Tag added to note", Toast.LENGTH_SHORT).show();
+                                    dismiss();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(getContext(), "Failed to add tag to note", Toast.LENGTH_SHORT).show();
+                                    dismiss();
+                                });
+                    },
+                    () -> {
+                        // Create new tag
+                        Tag.createTagInFirestore(
+                                tagName,
+                                newTag -> {
+                                    List<String> updatedTagIds = new ArrayList<>(currentNote.getTags());
+                                    updatedTagIds.add(newTag.getId());
+                                    currentNote.setTags((ArrayList<String>) updatedTagIds);
+
+                                    FirebaseFirestore.getInstance().collection("notes").document(currentNote.getId())
+                                            .update(
+                                                    "tags", updatedTagIds,
+                                                    "updatedAt", new Date())
+                                            .addOnSuccessListener(aVoid -> {
+                                                if (tagAddedListener != null) {
+                                                    tagAddedListener.onTagAdded(newTag);
+                                                }
+                                                Toast.makeText(getContext(), "Tag created and added to note", Toast.LENGTH_SHORT).show();
+                                                dismiss();
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                Toast.makeText(getContext(), "Failed to add tag to note", Toast.LENGTH_SHORT).show();
+                                                dismiss();
+                                            });
+                                },
+                                error -> {
+                                    Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
+                                    dismiss();
+                                });
+                    });
+        }
     }
 }
