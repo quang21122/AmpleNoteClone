@@ -196,9 +196,7 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
         } else if (id == R.id.drawer_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
         } else if (id == R.id.drawer_logout) {
-            FirebaseAuth.getInstance().signOut();
-            startActivity(new Intent(this, MainActivity.class));
-            finish();
+            User.signOut(this);
         } else {
             // Handle tags click
             for (Tag tag : currentTags) {
