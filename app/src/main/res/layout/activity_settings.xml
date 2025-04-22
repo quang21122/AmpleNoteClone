@@ -132,10 +132,12 @@
                         android:textSize="16sp"
                         android:textColor="#212121"/>
 
-                    <Switch
+                    <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/switch_notifications"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:layout_gravity="center" />
                 </LinearLayout>
 
                 <TextView
