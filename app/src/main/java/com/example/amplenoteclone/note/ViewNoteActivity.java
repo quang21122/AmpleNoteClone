@@ -44,6 +44,7 @@ import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayoutManager;
 import com.google.android.flexbox.JustifyContent;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -121,6 +122,25 @@ public class ViewNoteActivity extends DrawerActivity {
 
         initializeNote();
         setupNoteListener();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (currentNote != null) {
+            titleEditText.setText(currentNote.getTitle());
+            contentEditText.setText(currentNote.getContent());
+            updateLastUpdated();
+        }
+        setupAutoSave();
+        setupTag();
+        setupNoteListener();
+
+        // Reset the Bottom Navigation Bar
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        if (bottomNavigationView != null) {
+            bottomNavigationView.setSelectedItemId(R.id.action_notes);
+        }
     }
 
     @Override

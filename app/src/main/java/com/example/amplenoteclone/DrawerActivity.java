@@ -21,6 +21,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.amplenoteclone.calendar.CalendarActivity;
+import com.example.amplenoteclone.jots.JotsActivity;
 import com.example.amplenoteclone.models.Tag;
 import com.example.amplenoteclone.models.User;
 import com.example.amplenoteclone.note.NotesActivity;
@@ -247,8 +248,9 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
             startActivity(new Intent(this, NotesActivity.class));
         } else if (id == R.id.action_tasks) {
             startActivity(new Intent(this, TasksPageActivity.class));
+        } else if (id == R.id.action_jots) {
+            startActivity(new Intent(this, JotsActivity.class));
         }
-
         return true;
     }
 
