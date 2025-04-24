@@ -1,8 +1,8 @@
 package com.example.amplenoteclone.jots;
 
-import android.app.ProgressDialog;
-import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.Toast;
 
@@ -11,9 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.amplenoteclone.DrawerActivity;
 import com.example.amplenoteclone.R;
-import com.example.amplenoteclone.adapters.JotsAdapter;
+import com.example.amplenoteclone.adapters.EditableJotsAdapter;
 import com.example.amplenoteclone.models.Note;
-import com.example.amplenoteclone.note.ViewNoteActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -27,14 +26,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
-public class JotsActivity extends DrawerActivity {
+public class JotsActivity extends DrawerActivity implements EditableJotsAdapter.OnJotContentChangedListener {
     private RecyclerView jotsRecyclerView;
     private List<Note> jotsList = new ArrayList<>();
-    private JotsAdapter jotsAdapter;
+    private EditableJotsAdapter jotsAdapter;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
+    private static final long AUTOSAVE_DELAY = 2000; // 2 seconds
+    private Map<String, Timer> saveTimers = new HashMap<>();
+    private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
     private boolean isJotsLoaded = false;
 
     @Override
@@ -45,7 +48,7 @@ public class JotsActivity extends DrawerActivity {
 
         // Initialize RecyclerView
         jotsRecyclerView = findViewById(R.id.jots_recycler_view);
-        jotsAdapter = new JotsAdapter(jotsList, this::openJot);
+        jotsAdapter = new EditableJotsAdapter(jotsList, this);
         jotsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // Add item decoration for spacing between jots
@@ -60,6 +63,25 @@ public class JotsActivity extends DrawerActivity {
         if (!isJotsLoaded) {
             loadJots();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Save any pending changes when leaving the activity
+        for (Note jot : jotsList) {
+            if (jot.getContent() != null && !jot.getContent().isEmpty()) {
+                saveJotImmediately(jot);
+            }
+        }
+
+        // Cancel all timers
+        for (Timer timer : saveTimers.values()) {
+            if (timer != null) {
+                timer.cancel();
+            }
+        }
+        saveTimers.clear();
     }
 
     @Override
@@ -132,11 +154,12 @@ public class JotsActivity extends DrawerActivity {
                                     displayTitle,
                                     "", // Empty content
                                     new ArrayList<>(Collections.singletonList("daily-jots")),
-                                    new ArrayList<>(), // No attachments
+                                    new ArrayList<>(), // No tasks
                                     targetDate, // Created at this date
                                     targetDate, // Last modified at this date
-                                    false // Not a favorite
+                                    false // Not protected
                             );
+                            placeholderJot.setUserId(userId);
                             jotsList.add(placeholderJot);
                         }
                     }
@@ -193,51 +216,121 @@ public class JotsActivity extends DrawerActivity {
                     targetDate,
                     false
             );
+            placeholderJot.setUserId(userId);
             jotsList.add(placeholderJot);
         }
 
         jotsAdapter.notifyDataSetChanged();
     }
 
-    // Method to open a jot when clicked
-    private void openJot(Note jot) {
-        if (jot.getId() == null) {
-            // This is a placeholder jot that hasn't been saved yet
-            // Create a new note in Firestore before opening it
-            jot.setUserId(userId);
-
-            // Show loading indicator or dialog
-            ProgressDialog progressDialog = new ProgressDialog(this);
-            progressDialog.setMessage("Creating jot...");
-            progressDialog.show();
-
-            db.collection("notes")
-                    .add(jot)
-                    .addOnSuccessListener(documentReference -> {
-                        String newId = documentReference.getId();
-                        jot.setId(newId);
-
-                        // Dismiss progress dialog
-                        progressDialog.dismiss();
-
-                        // Now open the note editor with the new ID
-                        Intent intent = new Intent(this, ViewNoteActivity.class);
-                        intent.putExtra("noteId", newId);
-                        startActivity(intent);
-                    })
-                    .addOnFailureListener(e -> {
-                        // Dismiss progress dialog
-                        progressDialog.dismiss();
-
-                        Toast.makeText(this, "Error creating jot: " + e.getMessage(),
-                                Toast.LENGTH_SHORT).show();
-                    });
-        } else {
-            // Open an existing jot
-            Intent intent = new Intent(this, ViewNoteActivity.class);
-            intent.putExtra("noteId", jot.getId());
-            startActivity(intent);
+    // Implement the interface method for content changes
+    @Override
+    public void onContentChanged(Note jot, String newContent) {
+        // Only trigger autosave if content has actually changed
+        if (!newContent.equals(jot.getContent())) {
+            jot.setContent(newContent);
+            jot.setUpdatedAt(new Date());
+            
+            // Cancel any existing timer for this jot
+            if (saveTimers.containsKey(jot.getTitle())) {
+                saveTimers.get(jot.getTitle()).cancel();
+            }
+            
+            // Schedule a new save
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    mainThreadHandler.post(() -> saveJot(jot));
+                }
+            }, AUTOSAVE_DELAY);
+            
+            saveTimers.put(jot.getTitle(), timer);
         }
+    }
+
+    private void saveJot(Note jot) {
+        if (jot.getContent() == null || jot.getContent().trim().isEmpty()) {
+            // Don't save empty jots to Firestore
+            return;
+        }
+
+        if (jot.getId() == null) {
+            // This is a new jot that needs to be created
+            saveNewJot(jot);
+        } else {
+            // This is an existing jot that needs to be updated
+            updateExistingJot(jot);
+        }
+    }
+
+    private void saveJotImmediately(Note jot) {
+        if (jot.getContent() == null || jot.getContent().trim().isEmpty()) {
+            // Don't save empty jots to Firestore
+            return;
+        }
+
+        // Cancel any pending save timer
+        if (saveTimers.containsKey(jot.getTitle())) {
+            saveTimers.get(jot.getTitle()).cancel();
+            saveTimers.remove(jot.getTitle());
+        }
+
+        // Save now
+        saveJot(jot);
+    }
+
+    private void saveNewJot(Note jot) {
+        jot.setUserId(userId); // Ensure userId is set
+
+        // Create a new document in Firestore
+        db.collection("notes")
+                .add(createJotData(jot))
+                .addOnSuccessListener(documentReference -> {
+                    String newId = documentReference.getId();
+                    jot.setId(newId);
+                    Toast.makeText(JotsActivity.this, "Jot saved", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(JotsActivity.this, 
+                            "Error saving jot: " + e.getMessage(), 
+                            Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void updateExistingJot(Note jot) {
+        // Update the existing document in Firestore
+        db.collection("notes")
+                .document(jot.getId())
+                .update(createJotData(jot))
+                .addOnSuccessListener(aVoid -> {
+                    // Jot updated successfully
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(JotsActivity.this, 
+                            "Error updating jot: " + e.getMessage(), 
+                            Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private Map<String, Object> createJotData(Note jot) {
+        Map<String, Object> jotData = new HashMap<>();
+        jotData.put("title", jot.getTitle());
+        jotData.put("content", jot.getContent());
+        jotData.put("createdAt", jot.getCreatedAt());
+        jotData.put("updatedAt", jot.getUpdatedAt());
+        jotData.put("userId", jot.getUserId());
+        jotData.put("isProtected", jot.getIsProtected());
+
+        // Ensure the "daily-jots" tag is always included
+        List<String> tags = new ArrayList<>(jot.getTags());
+        if (!tags.contains("daily-jots")) {
+            tags.add("daily-jots");
+        }
+        jotData.put("tags", tags);
+
+        jotData.put("tasks", jot.getTasks());
+        return jotData;
     }
 
     // Helper method to format dates properly (handling suffix like 1st, 2nd, 3rd, etc.)
