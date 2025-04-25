@@ -226,5 +226,21 @@
     <string name="edit_details_text">Edit Details</string>
     <string name="view_details_text_1">View Details</string>
     <string name="view_notes">View Notes</string>
+    <string name="how_long_will_this_task_take">How long will this task take</string>
+    <string name="tasks_that_haven_t_reach_this_date_will_be_hidden_allowing_you_to_focus_on_the_tasks_at_hand">Tasks that haven\'t reach this date will be hidden. allowing you to focus on the tasks at hand</string>
+    <string name="important_and_urrgent_tassks_get_visual_indication_of_their_priority_to_encourage_completion">Important and urrgent tassks get visual indication of their priority to encourage completion</string>
+    <string name="use_repeating_tasks_to_capture_periodic_tasks_that_you_perform_on_a_fixed_schedule_or_with_a_fixed_interval">Use repeating tasks to capture periodic tasks that you perform on a fixed schedule or with a fixed interval</string>
+    <string name="time_may_shift_within_the_selected_range">Time may shift within the selected range</string>
+    <string name="set_the_time_at_which_this_task_begins">Set the time at which this task begins</string>
+    <string name="how_long_before_the_start_time_do_you_want_to_be_notified">How long before the start time do you want to be notified</string>
+    <string name="title">Title</string>
+    <string name="content">Content</string>
+    <string name="date">Date</string>
+    <string name="this_afternoon">This afternoon</string>
+    <string name="tomorrow_text_2">Tomorrow</string>
+    <string name="this_weekend_text">This weekend</string>
+    <string name="one_week_text_3">One week</string>
+    <string name="three_weeks_text_3">Three weeks</string>
+    <string name="choose_date_text">Choose date</string>
 
 </resources>

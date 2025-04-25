@@ -11,7 +11,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="How long will this task take"
+        android:text="@string/how_long_will_this_task_take"
         android:textColor="@android:color/white"
         android:textSize="14sp"
         android:gravity="center" />

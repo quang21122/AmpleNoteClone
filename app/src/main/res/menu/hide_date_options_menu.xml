@@ -2,20 +2,20 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/option_hide_this_afternoon"
-        android:title="This afternoon" />
+        android:title="@string/this_afternoon" />
     <item
         android:id="@+id/option_hide_tomorrow"
-        android:title="Tomorrow" />
+        android:title="@string/tomorrow_text_2" />
     <item
         android:id="@+id/option_hide_this_weekend"
-        android:title="This weekend" />
+        android:title="@string/this_weekend_text" />
     <item
         android:id="@+id/option_hide_one_week"
-        android:title="One week" />
+        android:title="@string/one_week_text_3" />
     <item
         android:id="@+id/option_hide_three_weeks"
-        android:title="Three weeks" />
+        android:title="@string/three_weeks_text_3" />
     <item
         android:id="@+id/option_hide_choose_date"
-        android:title="Choose date" />
+        android:title="@string/choose_date_text" />
 </menu>

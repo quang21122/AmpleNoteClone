@@ -11,7 +11,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Tasks that haven't reach this date will be hidden. allowing you to focus on the tasks at hand"
+        android:text="@string/tasks_that_haven_t_reach_this_date_will_be_hidden_allowing_you_to_focus_on_the_tasks_at_hand"
         android:textColor="@android:color/white"
         android:textSize="14sp"
         android:gravity="center" />

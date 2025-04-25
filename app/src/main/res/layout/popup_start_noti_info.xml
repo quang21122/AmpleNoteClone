@@ -11,7 +11,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="How long before the start time do you want to be notified"
+        android:text="@string/how_long_before_the_start_time_do_you_want_to_be_notified"
         android:textColor="@android:color/white"
         android:textSize="14sp"
         android:gravity="center" />

@@ -11,7 +11,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Important and urrgent tassks get visual indication of their priority to encourage completion"
+        android:text="@string/important_and_urrgent_tassks_get_visual_indication_of_their_priority_to_encourage_completion"
         android:textColor="@android:color/white"
         android:textSize="14sp"
         android:gravity="center" />
