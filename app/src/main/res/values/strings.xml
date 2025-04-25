@@ -242,5 +242,11 @@
     <string name="one_week_text_3">One week</string>
     <string name="three_weeks_text_3">Three weeks</string>
     <string name="choose_date_text">Choose date</string>
+    <string name="doesn_t_repeat">Doesn\'t repeat</string>
+    <string name="on_a_fixed_schedule">On a fixed schedule</string>
+    <string name="when_task_is_complete">When task is complete</string>
+    <string name="duplicate">Duplicate</string>
+    <string name="lock">Lock</string>
+    <string name="summary">Summary</string>
 
 </resources>

@@ -11,7 +11,7 @@
     <item
         android:id="@+id/action_duplicate"
         android:icon="@drawable/ic_duplicate"
-        android:title="Duplicate"
+        android:title="@string/duplicate"
         app:iconTint="@color/white"
         app:showAsAction="always"/>
 
@@ -25,13 +25,13 @@
     <item
         android:id="@+id/action_lock"
         android:icon="@drawable/ic_lock"
-        android:title="Lock"
+        android:title="@string/lock"
         app:iconTint="@color/white"
         app:showAsAction="never"/>
     <item
         android:id="@+id/action_summary"
         android:icon="@drawable/ic_summary"
-        android:title="Summary"
+        android:title="@string/summary"
         app:iconTint="@color/white"
         app:showAsAction="never"/>
 

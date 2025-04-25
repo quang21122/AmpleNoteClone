@@ -3,12 +3,12 @@
     <group android:checkableBehavior="none">
         <item
             android:id="@+id/option_doesnt_repeat"
-            android:title="Doesn't repeat"/>
+            android:title="@string/doesn_t_repeat"/>
         <item
             android:id="@+id/option_fixed_schedule"
-            android:title="On a fixed schedule" />
+            android:title="@string/on_a_fixed_schedule" />
         <item
             android:id="@+id/option_when_task_complete"
-            android:title="When task is complete" />
+            android:title="@string/when_task_is_complete" />
     </group>
 </menu>
