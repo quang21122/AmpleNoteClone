@@ -20,7 +20,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="ADD A TASK"
+            android:text="@string/add_a_task"
             android:textSize="16sp"
             android:textStyle="bold"
             android:paddingBottom="20dp"/>
@@ -48,7 +48,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="8dp"
-                android:text="untitled note"
+                android:text="@string/untitled_note"
                 android:background="@android:color/transparent"
                 android:textSize="16sp"
                 android:textColor="@android:color/darker_gray"
@@ -88,7 +88,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="8dp"
-                android:text="Select a start time (optional)"
+                android:text="@string/select_a_start_time_optional"
                 android:textSize="16sp"
                 android:textColor="@android:color/darker_gray" />
 
@@ -118,7 +118,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="Quick to-do..."
+            android:hint="@string/quick_to_do"
             android:padding="12dp"
             android:background="@android:color/transparent"
             android:textSize="16sp"/>
@@ -128,7 +128,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="Add"
+            android:text="@string/add"
             android:backgroundTint="@android:color/darker_gray"
             android:textColor="@android:color/white"/>
 
