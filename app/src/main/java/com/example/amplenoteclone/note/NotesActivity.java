@@ -202,7 +202,7 @@ public class NotesActivity extends DrawerActivity {
 
     @Override
     protected String getToolbarTitle() {
-        return selectedTagName != null ? "#" + selectedTagName : "Notes";
+        return selectedTagName != null ? "#" + selectedTagName : getString(R.string.notes_page);
     }
 
     private void showSortOptions() {
@@ -211,6 +211,13 @@ public class NotesActivity extends DrawerActivity {
             getNotesFromFirebase(userId, sortField, direction, notes -> runOnUiThread(() -> {
                 // Update SortOption text
                 TextView sortOptionText = findViewById(R.id.btnSortOptions);
+                if( sortOption == "Date created")
+                    sortOptionText.setText(R.string.sort_option_date_created);
+                else if (sortOption == "Title A-Z")
+                    sortOptionText.setText(R.string.sort_option_title_a_z);
+                else if (sortOption == "Last updated")
+                    sortOptionText.setText(R.string.sort_option_last_updated);
+                else
                 sortOptionText.setText(sortOption);
 
                 allNotes = notes;

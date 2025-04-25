@@ -303,7 +303,7 @@ public class ViewNoteActivity extends DrawerActivity {
     }
 
     private void updateLastUpdated() {
-        lastUpdatedTextView.setText(formatLastUpdated(currentNote.getUpdatedAt()));
+        lastUpdatedTextView.setText(formatLastUpdated(this, currentNote.getUpdatedAt()));
     }
 
     private void setupAutoSave() {
@@ -486,7 +486,7 @@ public class ViewNoteActivity extends DrawerActivity {
     }
 
     public String getToolbarTitle() {
-        return "View Note";
+        return getString(R.string.view_note_page);
     }
 
     public int getCurrentPageId() {

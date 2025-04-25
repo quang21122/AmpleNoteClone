@@ -36,9 +36,15 @@ public class SettingsActivity extends DrawerActivity {
         super.onCreate(savedInstanceState);
         setActivityContent(R.layout.activity_settings);
 
-        setBottomNavigationVisibility(false);
-
         preferences = getSharedPreferences("SettingsPrefs", MODE_PRIVATE);
+        // Language switch
+        SwitchCompat switchLanguage = findViewById(R.id.switch_language);
+        // Load saved language preference (default to English)
+        isVietnamese = preferences.getBoolean("isVietnamese", false);
+        switchLanguage.setChecked(isVietnamese);
+        updateAppLocale(isVietnamese ? "vi" : "en");
+
+        setBottomNavigationVisibility(false);
 
         ProgressBar progressBar = findViewById(R.id.progress_bar);
 
@@ -53,12 +59,6 @@ public class SettingsActivity extends DrawerActivity {
         EditText etConfirmationCode = findViewById(R.id.et_confirmation_code);
         Button btnConfirmAccountDeletion = findViewById(R.id.btn_confirm_account_deletion);
 
-        // Language switch
-        SwitchCompat switchLanguage = findViewById(R.id.switch_language);
-        // Load saved language preference (default to English)
-        isVietnamese = preferences.getBoolean("isVietnamese", false);
-        switchLanguage.setChecked(isVietnamese);
-        updateAppLocale(isVietnamese ? "vi" : "en");
 
         // Language switch listener
         switchLanguage.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -270,7 +270,8 @@ public class SettingsActivity extends DrawerActivity {
 
     @Override
     protected String getToolbarTitle() {
-        return "Settings";
+
+        return getString(R.string.settings_page);
     }
 
     @Override

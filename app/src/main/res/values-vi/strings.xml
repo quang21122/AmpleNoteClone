@@ -21,16 +21,16 @@
     <string name="calendar">Lịch</string>
     <string name="notes">Ghi chú</string>
     <string name="settings">Cài đặt</string>
-    <string name="tasks">Nhiệm vụ</string>
+    <string name="tasks">Công việc</string>
     <string name="jots">Ghi nhanh</string>
     <string name="search">Tìm kiếm</string>
     <string name="ocr">OCR</string>
     <string name="add_note">Thêm ghi chú</string>
-    <string name="add_task">Thêm nhiệm vụ</string>
+    <string name="add_task">Thêm công việc</string>
 
     <string name="hello_blank_fragment">Xin chào, đoạn trống</string>
     <string-array name="sort_options">
-        <item>Sắp xếp theo điểm nhiệm vụ</item>
+        <item>Sắp xếp theo điểm công việc</item>
         <item>Sắp xếp theo mới nhất</item>
         <item>Sắp xếp theo bất kỳ</item>
     </string-array>
@@ -64,7 +64,7 @@
     <string name="logout">Đăng xuất</string>
 
     <string name="drawer_title_nav">ĐIỀU HƯỚNG</string>
-    <string name="drawer_title_tags">THẺ</string>
+    <string name="drawer_title_tags">NHÃN</string>
     <string name="today">Hôm nay</string>
     <string name="tomorrow">Ngày mai</string>
     <string name="this_weekend">Cuối tuần này</string>
@@ -108,14 +108,14 @@
     <string name="choose_a_plan">Chọn một gói</string>
     <string name="invite_friends_and_earn_credits">Mời bạn bè và nhận tín dụng</string>
     <string name="notifications">Thông báo</string>
-    <string name="task_reminders">Nhắc nhở nhiệm vụ</string>
-    <string name="get_notifications_when_tasks_are_due">Nhận thông báo khi nhiệm vụ đến hạn</string>
+    <string name="task_reminders">Nhắc nhở công việc</string>
+    <string name="get_notifications_when_tasks_are_due">Nhận thông báo khi công việc đến hạn</string>
     <string name="appearance">Giao diện</string>
     <string name="first_day_of_week">Ngày đầu tiên của tuần</string>
     <string name="sunday">Chủ nhật</string>
     <string name="default_note_width">CHIỀU RỘNG GHI CHÚ MẶC ĐỊNH</string>
     <string name="standard_width">Chiều rộng tiêu chuẩn</string>
-    <string name="task_completion_effect">HIỆU ỨNG HOÀN THÀNH NHIỆM VỤ</string>
+    <string name="task_completion_effect">HIỆU ỨNG HOÀN THÀNH CÔNG VIỆC</string>
     <string name="dazzle">Lấp lánh</string>
     <string name="app_info">THÔNG TIN ỨNG DỤNG</string>
     <string name="version_3_124_739">Phiên bản 3.124 (739)</string>
@@ -140,8 +140,8 @@
     <string name="sign_up_with_google">Đăng ký bằng Google</string>
     <string name="already_have_an_account">Đã có tài khoản?</string>
     <string name="log_in">Đăng nhập</string>
-    <string name="task_details">Chi tiết nhiệm vụ</string>
-    <string name="available_tasks">Nhiệm vụ có sẵn</string>
+    <string name="task_details">Chi tiết công việc</string>
+    <string name="available_tasks">Công việc có sẵn</string>
     <string name="untitled_note">ghi chú không tiêu đề</string>
     <string name="updated_1_second_ago">Cập nhật 1 giây trước</string>
     <string name="calendar_view">Xem lịch</string>
@@ -150,15 +150,15 @@
     <string name="week">Tuần</string>
     <string name="month">Tháng</string>
     <string name="go_to_today">ĐẾN HÔM NAY</string>
-    <string name="tag_name">Tên thẻ</string>
-    <string name="remove_tag_from_note">Xóa thẻ khỏi ghi chú</string>
-    <string name="edit_tag">Chỉnh sửa thẻ</string>
-    <string name="delete_tag">Xóa thẻ</string>
-    <string name="add_a_task">THÊM NHIỆM VỤ</string>
+    <string name="tag_name">Tên nhãn</string>
+    <string name="remove_tag_from_note">Xóa nhãn khỏi ghi chú</string>
+    <string name="edit_tag">Chỉnh sửa nhãn</string>
+    <string name="delete_tag">Xóa nhãn</string>
+    <string name="add_a_task">THÊM CÔNG VIỆC</string>
     <string name="select_a_start_time_optional">Chọn thời gian bắt đầu (tùy chọn)</string>
     <string name="quick_to_do">Việc cần làm nhanh...</string>
     <string name="add">Thêm</string>
-    <string name="schedule_task">LÊN LỊCH NHIỆM VỤ</string>
+    <string name="schedule_task">LÊN LỊCH CÔNG VIỆC</string>
     <string name="today_text">Hôm nay</string>
     <string name="tomorrow_text">Ngày mai</string>
     <string name="one_week_text">Một tuần</string>
@@ -166,10 +166,10 @@
     <string name="choose_day_and_time">Chọn ngày và giờ...</string>
     <string name="select_a_note">CHỌN GHI CHÚ</string>
     <string name="start_a_new_note">Bắt đầu ghi chú mới</string>
-    <string name="deleting_tag_name_will_remove_it_from_all_notes_it_is_applied_to_and_remove_all_descendant_tags_you_cannot_undo_this_action">Xóa #tag-name sẽ xóa nó khỏi tất cả các ghi chú được áp dụng và xóa tất cả các thẻ con. Hành động này không thể hoàn tác.</string>
-    <string name="delete_this_tag">Xóa thẻ này?</string>
+    <string name="deleting_tag_name_will_remove_it_from_all_notes_it_is_applied_to_and_remove_all_descendant_tags_you_cannot_undo_this_action">Xóa #tag-name sẽ xóa nó khỏi tất cả các ghi chú được áp dụng và xóa hoàn toàn nhãn đó. Hành động này không thể hoàn tác.</string>
+    <string name="delete_this_tag">Xóa nhãn này?</string>
     <string name="cancel_text">HỦY</string>
-    <string name="delete_tag_text">XÓA THẺ</string>
+    <string name="delete_tag_text">XÓA NHÃN</string>
     <string name="custom_duration">Thời lượng tùy chỉnh</string>
     <string name="enter_duration_in_minute_e_g_120">Nhập thời lượng bằng phút (ví dụ: 120)</string>
     <string name="_2_hours">2 giờ</string>
@@ -182,18 +182,18 @@
     <string name="send_confirmation_code_text">Gửi mã xác nhận</string>
     <string name="confirmation_code_text">Mã xác nhận</string>
     <string name="confirm_upgrade">Xác nhận nâng cấp</string>
-    <string name="edit_tag_text">Chỉnh sửa thẻ</string>
+    <string name="edit_tag_text">Chỉnh sửa nhãn</string>
     <string name="rename">ĐỔI TÊN</string>
     <string name="cancel_text_2">Hủy</string>
     <string name="search_text">Tìm kiếm</string>
     <string name="note_lookup">TÌM KIẾM GHI CHÚ</string>
-    <string name="task_lookup">TÌM KIẾM NHIỆM VỤ</string>
+    <string name="task_lookup">TÌM KIẾM CÔNG VIỆC</string>
     <string name="full_search">TÌM KIẾM TOÀN BỘ</string>
     <string name="enter_text_to_search_note_content">Nhập văn bản để tìm kiếm nội dung ghi chú</string>
-    <string name="add_a_tag">thêm thẻ</string>
+    <string name="add_a_tag">thêm nhãn</string>
     <string name="write_your_thoughts_for_the_day">Viết suy nghĩ của bạn cho ngày hôm nay...</string>
     <string name="note_s_name">Tên ghi chú</string>
-    <string name="task_title">Tiêu đề nhiệm vụ</string>
+    <string name="task_title">Tiêu đề công việc</string>
     <string name="created_23_minutes_ago">Được tạo 23 phút trước</string>
     <string name="repeat">LẶP LẠI</string>
     <string name="start_at">BẮT ĐẦU LÚC</string>
@@ -201,7 +201,7 @@
     <string name="_15_min">15 phút</string>
     <string name="_60_min">60 phút</string>
     <string name="hide_until">ẨN ĐẾN</string>
-    <string name="scheudle_a_task">LÊN LỊCH MỘT NHIỆM VỤ</string>
+    <string name="scheudle_a_task">LÊN LỊCH MỘT CÔNG VIỆC</string>
     <string name="select_date">Chọn ngày</string>
     <string name="schedule_for">LÊN LỊCH CHO</string>
     <string name="early_morning">Sáng sớm</string>
@@ -223,22 +223,22 @@
     <string name="edit_details_text">Chỉnh sửa chi tiết</string>
     <string name="view_details_text_1">Xem chi tiết</string>
     <string name="view_notes">Xem ghi chú</string>
-    <string name="how_long_will_this_task_take">Nhiệm vụ này sẽ mất bao lâu</string>
+    <string name="how_long_will_this_task_take">Công việc này sẽ mất bao lâu</string>
     <string name="after_your_2_week_free_trial_payment_will_be_charged_to_your_google_play_account_the_subscription_automatically_renews_unless_it_is_canceled_at_least_24_hours_before_the_end_of_the_current_period_your_account_will_be_charged_for_renewal_within_24_hours_prior_to_the_end_of_the_current_period_you_can_manage_and_cancel_your_subscriptions_by_going_to_your_google_play_account_settings_after_purchase">Sau khi kết thúc 2 tuần dùng thử miễn phí, khoản thanh toán sẽ được trừ vào tài khoản Google Play của bạn. Gói đăng ký sẽ tự động gia hạn trừ khi bạn hủy ít nhất 24 giờ trước khi kết thúc chu kỳ hiện tại. Tài khoản của bạn sẽ bị trừ phí gia hạn trong vòng 24 giờ trước khi kết thúc chu kỳ hiện tại. Bạn có thể quản lý và hủy gói đăng ký bằng cách vào cài đặt tài khoản Google Play của mình sau khi mua.</string>
     <string name="tasks_that_haven_t_reach_this_date_will_be_hidden_allowing_you_to_focus_on_the_tasks_at_hand">
-    Các nhiệm vụ chưa đến ngày này sẽ bị ẩn, giúp bạn tập trung vào các nhiệm vụ hiện tại
+    Các công việc chưa đến ngày này sẽ bị ẩn, giúp bạn tập trung vào các công việc hiện tại
 </string>
     <string name="important_and_urrgent_tassks_get_visual_indication_of_their_priority_to_encourage_completion">
-    Các nhiệm vụ quan trọng và khẩn cấp sẽ có dấu hiệu trực quan về mức độ ưu tiên để khuyến khích hoàn thành
+    Các công việc quan trọng và khẩn cấp sẽ có dấu hiệu trực quan về mức độ ưu tiên để khuyến khích hoàn thành
 </string>
     <string name="use_repeating_tasks_to_capture_periodic_tasks_that_you_perform_on_a_fixed_schedule_or_with_a_fixed_interval">
-    Sử dụng nhiệm vụ lặp lại để ghi lại các công việc định kỳ mà bạn thực hiện theo lịch cố định hoặc theo khoảng thời gian cụ thể
+    Sử dụng công việc lặp lại để ghi lại các công việc định kỳ mà bạn thực hiện theo lịch cố định hoặc theo khoảng thời gian cụ thể
 </string>
     <string name="time_may_shift_within_the_selected_range">
     Thời gian có thể thay đổi trong phạm vi đã chọn
 </string>
     <string name="set_the_time_at_which_this_task_begins">
-    Đặt thời gian bắt đầu cho nhiệm vụ này
+    Đặt thời gian bắt đầu cho công việc này
 </string>
     <string name="how_long_before_the_start_time_do_you_want_to_be_notified">
     Bạn muốn được nhắc nhở trước bao lâu so với thời gian bắt đầu?
@@ -254,9 +254,34 @@
     <string name="choose_date_text">Chọn ngày</string>
     <string name="doesn_t_repeat">Không lặp lại</string>
     <string name="on_a_fixed_schedule">Theo lịch cố định</string>
-    <string name="when_task_is_complete">Khi nhiệm vụ hoàn thành</string>
+    <string name="when_task_is_complete">Khi công việc hoàn thành</string>
     <string name="duplicate">Sao chép</string>
     <string name="lock">Khoá</string>
     <string name="summary">Tóm tắt</string>
-
+    <string name="curent_language">Tiếng việt</string>
+    <string name="language_info_tip">Chuyển đổi giữa Tiếng Anh và Tiếng Việt</string>
+    <string name="language">Ngôn ngữ</string>
+    <string name="jots_page">Ghi Nhanh</string>
+    <string name="notes_page">Ghi Chú</string>
+    <string name="tasks_page">Công Việc</string>
+    <string name="calendar_page">Lịch</string>
+    <string name="settings_page">Cài Đặt</string>
+    <string name="navigation">THANH ĐIỀU HƯỚNG</string>
+    <string name="jots_text">Hôm nay bạn đang nghĩ gì?</string>
+    <string name="last_updated">Cập nhật lần cuối</string>
+    <string name="seconds_ago">giây trước</string>
+    <string name="minutes_ago">phút trước</string>
+    <string name="hours_ago">giờ trước</string>
+    <string name="days_ago">ngày trước</string>
+    <string name="_1_day">1 ngày</string>
+    <string name="view_note_page">Xem Ghi Chú</string>
+    <string name="_30_min">30 phút</string>
+    <string name="custom">Tùy chỉnh</string>
+    <string name="custom_with_dot">Tùy chỉnh...</string>
+    <string name="DELETE">XÓA</string>
+    <string name="DONE">HOÀN THÀNH</string>
+    <string name="all_tasks">Tất cả công việc</string>
+    <string name="created">Được tạo</string>
+    <string name="UNDONE">CHƯA HOÀN THÀNH</string>
+    <string name="tags">nhãn</string>
 </resources>

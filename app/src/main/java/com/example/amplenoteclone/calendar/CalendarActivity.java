@@ -88,7 +88,7 @@ public class CalendarActivity extends DrawerActivity {
         return R.id.action_calendar;
     }
     public String getToolbarTitle() {
-        return "Calendar";
+        return getString(R.string.calendar_page);
     }
 
     private void initializeViews() {

@@ -86,7 +86,7 @@ public class JotsActivity extends DrawerActivity implements EditableJotsAdapter.
 
     @Override
     protected String getToolbarTitle() {
-        return "Jots";
+        return getString(R.string.jots_page);
     }
 
     @Override

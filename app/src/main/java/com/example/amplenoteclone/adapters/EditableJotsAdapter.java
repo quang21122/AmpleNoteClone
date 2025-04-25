@@ -101,7 +101,7 @@ public class EditableJotsAdapter extends RecyclerView.Adapter<EditableJotsAdapte
             // Apply different background for today vs other days
             if (getAdapterPosition() == 0) {
                 // Today's jot
-                contentEditText.setHint("What's on your mind today?");
+                contentEditText.setHint(R.string.jots_text);
             } else {
                 // Previous days
                 contentEditText.setHint("Write your thoughts for this day...");

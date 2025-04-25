@@ -1,6 +1,8 @@
 package com.example.amplenoteclone;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.SpannableString;
@@ -39,6 +41,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class DrawerActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -47,6 +50,7 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
     BottomNavigationView bottomNavigationView;
     ImageView profileImage;
     TextView profileName;
+    boolean isVietnamese = false;
 
     protected boolean isSubMenuExpanded = false;
 
@@ -57,8 +61,13 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SharedPreferences preferences = getSharedPreferences("SettingsPrefs", MODE_PRIVATE);
+        isVietnamese = preferences.getBoolean("isVietnamese", false);
+        updateAppLocale(isVietnamese ? "vi" : "en");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_drawer_base);
+
 
         // Setup Drawer Layout
         drawerLayout = findViewById(R.id.drawer_layout);
@@ -283,7 +292,7 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
                 return;
             }
 
-            String title = "NAVIGATION";
+            String title = getString(R.string.navigation);
 
             // Set User Name in Menu Item
             header.setTitle(title);
@@ -479,5 +488,13 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
     }
     protected void onCustomNavigationClick() {
         finish();
+    }
+
+    private void updateAppLocale(String languageCode) {
+        Locale locale = new Locale(languageCode);
+        Locale.setDefault(locale);
+        Configuration config = new Configuration();
+        config.setLocale(locale);
+        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
     }
 }

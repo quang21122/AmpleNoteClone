@@ -54,7 +54,7 @@ public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
         // Set default selection to "Start a new note"
         if (selectedNote == null)
             isStartNewNote = true; // Default to new note
-        textViewSelectNote.setText("Start a new note");
+        textViewSelectNote.setText(getContext().getString(R.string.start_a_new_note));
         textViewSelectNote.setTextColor(ContextCompat.getColor(getContext(), R.color.black));
     }
 
@@ -119,7 +119,7 @@ public class CreateTaskBottomSheet extends BottomSheetDialogFragment {
                 public void onStartNewNoteSelected() {
                     selectedNote = null;
                     isStartNewNote = true;
-                    textViewSelectNote.setText("Start a new note");
+                    textViewSelectNote.setText(getContext().getString(R.string.start_a_new_note));
                     textViewSelectNote.setTextColor(ContextCompat.getColor(getContext(), R.color.black));
                 }
             });

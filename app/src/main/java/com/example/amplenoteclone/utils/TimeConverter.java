@@ -1,12 +1,16 @@
 package com.example.amplenoteclone.utils;
 
+import android.content.Context;
+
+import com.example.amplenoteclone.R;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class TimeConverter {
-    public static String convertToTimeAgo(Date date) {
+    public static String convertToTimeAgo(Context context, Date date) {
         long timeDifferenceMillis = System.currentTimeMillis() - date.getTime();
 
         long seconds = TimeUnit.MILLISECONDS.toSeconds(timeDifferenceMillis);
@@ -15,13 +19,13 @@ public class TimeConverter {
         long days = TimeUnit.MILLISECONDS.toDays(timeDifferenceMillis);
 
         if (seconds < 60) {
-            return seconds + " seconds ago";
+            return seconds + " " + context.getString(R.string.seconds_ago);
         } else if (minutes < 60) {
-            return minutes + " minutes ago";
+            return minutes + " " + context.getString(R.string.minutes_ago);
         } else if (hours < 24) {
-            return hours + " hours ago";
+            return hours + " " + context.getString(R.string.hours_ago);
         } else if (days < 7) {
-            return days + " days ago";
+            return days + " " + context.getString(R.string.days_ago);
         } else {
             // Format date if older than a week
             SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
@@ -29,7 +33,7 @@ public class TimeConverter {
         }
     }
 
-    public static String formatLastUpdated(Date date) {
-        return "Last updated: " + convertToTimeAgo(date);
+    public static String formatLastUpdated(Context context, Date date) {
+        return context.getString(R.string.last_updated) + " " + convertToTimeAgo(context, date);
     }
 }

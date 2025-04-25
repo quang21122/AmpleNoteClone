@@ -86,7 +86,7 @@ public class TasksPageActivity extends DrawerActivity {
 
         // Xử lý khi checkbox thay đổi trạng thái
         filterCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            tasksFilter.setText(isChecked ? "All tasks" : "Available tasks");
+            tasksFilter.setText(isChecked ? getString(R.string.all_tasks) : getString(R.string.available_tasks));
             updateTaskList(isChecked);
         });
     }
@@ -234,7 +234,7 @@ public class TasksPageActivity extends DrawerActivity {
 
     @Override
     public String getToolbarTitle() {
-        return "Tasks";
+        return getString(R.string.tasks_page);
     }
 
     @Override

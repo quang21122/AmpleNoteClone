@@ -317,8 +317,7 @@ public class TaskCardView extends CardView {
 
         taskScore.setText("Task Score " + task.getScore());
 
-        String timeAgo = task.getCreateAt() != null ? TimeConverter.convertToTimeAgo(task.getCreateAt()) : "No Time";
-        createdTimeAgo1.setText("Created " + timeAgo);
+        String timeAgo = task.getCreateAt() != null ? TimeConverter.convertToTimeAgo(getContext(), task.getCreateAt()) : "No Time";        createdTimeAgo1.setText(getContext().getString(R.string.created) + " " + timeAgo);
         createdTimeAgo2.setText(" - Created " + timeAgo);
 
         updateStartAtComponentsColor();
@@ -424,7 +423,7 @@ public class TaskCardView extends CardView {
             String customButtonText = durationCustomButton.getText().toString();
 
             // Nếu text là "Custom..." hoặc duration là giá trị custom, hiển thị dialog
-            if (customButtonText.equals("Custom...") ||
+            if (customButtonText.equals(getContext().getString(R.string.custom_with_dot)) ||
                     (currentDuration != 0 && currentDuration != 15 && currentDuration != 30 && currentDuration != 60)) {
                 showCustomDurationDialog();
             }
@@ -511,7 +510,7 @@ public class TaskCardView extends CardView {
     }
 
     private void updateDoneUndoneText(boolean isCompleted) {
-        textDoneUndone.setText(isCompleted ? "UNDONE" : "DONE");
+        textDoneUndone.setText(isCompleted ? getContext().getString(R.string.UNDONE) : getContext().getString(R.string.DONE) );
         textDoneUndone.setTextColor(ContextCompat.getColor(getContext(), isCompleted ? R.color.textGray : R.color.textBlue));
     }
 

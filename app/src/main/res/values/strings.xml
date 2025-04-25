@@ -248,5 +248,30 @@
     <string name="duplicate">Duplicate</string>
     <string name="lock">Lock</string>
     <string name="summary">Summary</string>
-
+    <string name="curent_language">English</string>
+    <string name="language_info_tip">Toggle between English and Vietnamese</string>
+    <string name="language">Language</string>
+    <string name="jots_page">Jots</string>
+    <string name="notes_page">Notes</string>
+    <string name="tasks_page">Tasks</string>
+    <string name="calendar_page">Calendar</string>
+    <string name="settings_page">Settings</string>
+    <string name="navigation">NAVIGATION</string>
+    <string name="jots_text">What\'s on your mind today?</string>
+    <string name="last_updated">Last updated</string>
+    <string name="seconds_ago">seconds ago</string>
+    <string name="minutes_ago">minutes ago</string>
+    <string name="hours_ago">hours ago</string>
+    <string name="days_ago">days ago</string>
+    <string name="_1_day">1 day</string>
+    <string name="view_note_page">View Note</string>
+    <string name="_30_min">30 min</string>
+    <string name="custom">Custom</string>
+    <string name="custom_with_dot">Custom...</string>
+    <string name="DELETE">DELETE</string>
+    <string name="DONE">DONE</string>
+    <string name="all_tasks">All tasks</string>
+    <string name="created">Created</string>
+    <string name="UNDONE">UNDONE</string>
+    <string name="tags">tags</string>
 </resources>
