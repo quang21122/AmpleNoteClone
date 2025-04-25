@@ -145,7 +145,13 @@ public class NoteCardView extends CardView {
     }
 
     public String getContent() {
-        return note != null ? note.getContent() : contentView.getText().toString();
+        if (note != null ){
+            if (!note.getIsProtected())
+                return note.getContent();
+            else
+                return "";
+        } else
+            return contentView.getText().toString();
     }
 
     public String getDate() {
