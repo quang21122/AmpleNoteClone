@@ -1,6 +1,8 @@
 package com.example.amplenoteclone.settings;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -11,6 +13,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.amplenoteclone.DrawerActivity;
@@ -20,18 +23,22 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
+import java.util.Locale;
 
 public class SettingsActivity extends DrawerActivity {
     private final String[] daysOfWeek = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
     private final String[] noteWidths = {"Standard width", "Full width"};
     private final String[] taskCompletionEffects = {"Minimal", "Normal", "Dazzle"};
-
+    private SharedPreferences preferences;
+    boolean isVietnamese = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setActivityContent(R.layout.activity_settings);
 
         setBottomNavigationVisibility(false);
+
+        preferences = getSharedPreferences("SettingsPrefs", MODE_PRIVATE);
 
         ProgressBar progressBar = findViewById(R.id.progress_bar);
 
@@ -45,6 +52,23 @@ public class SettingsActivity extends DrawerActivity {
         Button btnCancel = findViewById(R.id.btn_cancel);
         EditText etConfirmationCode = findViewById(R.id.et_confirmation_code);
         Button btnConfirmAccountDeletion = findViewById(R.id.btn_confirm_account_deletion);
+
+        // Language switch
+        SwitchCompat switchLanguage = findViewById(R.id.switch_language);
+        // Load saved language preference (default to English)
+        isVietnamese = preferences.getBoolean("isVietnamese", false);
+        switchLanguage.setChecked(isVietnamese);
+        updateAppLocale(isVietnamese ? "vi" : "en");
+
+        // Language switch listener
+        switchLanguage.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean("isVietnamese", isChecked);
+            editor.apply();
+            updateAppLocale(isChecked ? "vi" : "en");
+            // Restart activity to apply language change
+            recreate();
+        });
 
         // Invite friends button
         btnInviteFriends.setOnClickListener(v -> {
@@ -234,6 +258,14 @@ public class SettingsActivity extends DrawerActivity {
         dayOfWeekLayout.setOnClickListener(v -> settingPicker.showPickerDialog());
         noteWidthLayout.setOnClickListener(v -> settingPicker2.showPickerDialog());
         taskCompletionEffectLayout.setOnClickListener(v -> settingPicker3.showPickerDialog());
+    }
+
+    private void updateAppLocale(String languageCode) {
+        Locale locale = new Locale(languageCode);
+        Locale.setDefault(locale);
+        Configuration config = new Configuration();
+        config.setLocale(locale);
+        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
     }
 
     @Override
