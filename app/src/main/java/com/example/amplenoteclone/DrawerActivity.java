@@ -198,6 +198,9 @@ public abstract class DrawerActivity extends AppCompatActivity implements Naviga
             startActivity(new Intent(this, SettingsActivity.class));
         } else if (id == R.id.drawer_logout) {
             User.signOut(this);
+        }
+        else if (id == R.id.drawer_jots){
+            startActivity(new Intent(this, JotsActivity.class));
         } else {
             // Handle tags click
             for (Tag tag : currentTags) {
