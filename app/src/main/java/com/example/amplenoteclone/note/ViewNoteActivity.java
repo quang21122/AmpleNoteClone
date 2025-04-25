@@ -86,7 +86,6 @@ public class ViewNoteActivity extends DrawerActivity {
     private ListenerRegistration noteListener;
     private GeminiSummary geminiSummary;
     private PinManager pinManager;
-    private boolean isContentDisplayed = false;
 
     public interface OnTaskCreationListener {
         void onTaskCreated();
@@ -131,8 +130,11 @@ public class ViewNoteActivity extends DrawerActivity {
             titleEditText.setText(currentNote.getTitle());
             contentEditText.setText(currentNote.getContent());
             updateLastUpdated();
+            if (!(currentNote.getIsProtected() != null && currentNote.getIsProtected())){
+                setupAutoSave();
+            }
         }
-        setupAutoSave();
+
         setupTag();
         setupNoteListener();
 
@@ -269,6 +271,8 @@ public class ViewNoteActivity extends DrawerActivity {
                                                 documentSnapshot.getTimestamp("createdAt").toDate(),
                                                 documentSnapshot.getTimestamp("updatedAt").toDate(),
                                                 documentSnapshot.getBoolean("isProtected"));
+
+                                titleEditText.setText(currentNote.getTitle());
 
                                 if (currentNote.getIsProtected() != null && currentNote.getIsProtected()) {
                                     PremiumChecker.checkPremium(this, userId, new PremiumChecker.PremiumCheckCallback() {
@@ -872,11 +876,8 @@ public class ViewNoteActivity extends DrawerActivity {
             loadTags();
             getTasks();
             invalidateOptionsMenu();
+            setupAutoSave();
 
-            if (!isContentDisplayed) {
-                setupAutoSave();
-                isContentDisplayed = true;
-            }
         } else {
             Log.e(TAG, "currentNote is null in displayNoteContent");
         }
