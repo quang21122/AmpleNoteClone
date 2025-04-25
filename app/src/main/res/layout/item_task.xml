@@ -46,7 +46,7 @@
             android:imeOptions="actionDone"
             android:inputType="text"
             android:maxLines="1"
-            android:hint="Task title"
+            android:hint="@string/task_title"
             android:focusable="true"
             android:focusableInTouchMode="true" />
 
@@ -58,7 +58,7 @@
             android:layout_below="@id/task_title"
             android:layout_toEndOf="@id/check_task"
             android:layout_marginStart="8dp"
-            android:text="Note's Name"
+            android:text="@string/note_s_name"
             android:textSize="14sp"
             android:textColor="@color/textBlue"
             android:paddingVertical="4dp" />
@@ -71,7 +71,7 @@
             android:layout_below="@id/note_title1"
             android:layout_toEndOf="@id/check_task"
             android:layout_marginStart="8dp"
-            android:text="Created 23 minutes ago"
+            android:text="@string/created_23_minutes_ago"
             android:textSize="12sp"
             android:textColor="@color/textGray"
             android:paddingTop="4dp"
@@ -151,7 +151,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="REPEAT"
+                                    android:text="@string/repeat"
                                     android:textSize="16sp"
                                     android:textColor="@color/textGray"
                                     android:layout_marginBottom="4dp" />
@@ -224,7 +224,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginBottom="4dp"
-                                    android:text="START AT"
+                                    android:text="@string/start_at"
                                     android:textColor="@color/textGray"
                                     android:textSize="16sp" />
 
@@ -353,7 +353,7 @@
                                 android:id="@+id/start_noti_5min"
                                 android:layout_width="0dp"
                                 android:layout_height="48dp"
-                                android:text="5 min"
+                                android:text="@string/_5_min"
                                 android:textSize="14sp"
                                 android:textColor="@color/textGray"
                                 app:backgroundTint="?attr/colorPrimaryContainer"
@@ -366,7 +366,7 @@
                                 android:id="@+id/start_noti_15min"
                                 android:layout_width="0dp"
                                 android:layout_height="48dp"
-                                android:text="15 min"
+                                android:text="@string/_15_min"
                                 android:textSize="14sp"
                                 android:textColor="@color/textGray"
                                 app:backgroundTint="?attr/colorPrimaryContainer"
@@ -379,7 +379,7 @@
                                 android:id="@+id/start_noti_60min"
                                 android:layout_width="0dp"
                                 android:layout_height="48dp"
-                                android:text="60 min"
+                                android:text="@string/_60_min"
                                 android:textSize="14sp"
                                 android:textColor="@color/textGray"
                                 app:backgroundTint="?attr/colorPrimaryContainer"
@@ -454,7 +454,7 @@
                                         <TextView
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
-                                            android:text="HIDE UNTIL"
+                                            android:text="@string/hide_until"
                                             android:textSize="16sp"
                                             android:textColor="@color/textGray"
                                             android:layout_marginBottom="4dp" />

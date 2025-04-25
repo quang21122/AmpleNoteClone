@@ -27,7 +27,7 @@
                 android:layout_width="0dp"
                 android:layout_height="40dp"
                 android:layout_weight="1"
-                android:hint="Search"
+                android:hint="@string/search_text"
                 android:background="@drawable/search_bar_bg"
                 android:drawableStart="@drawable/ic_search_nav_gray"
                 android:drawablePadding="8dp"
@@ -70,19 +70,19 @@
                 android:id="@+id/tabNoteLookup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="NOTE LOOKUP" />
+                android:text="@string/note_lookup" />
 
             <com.google.android.material.tabs.TabItem
                 android:id="@+id/tabTaskLookup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TASK LOOKUP" />
+                android:text="@string/task_lookup" />
 
             <com.google.android.material.tabs.TabItem
                 android:id="@+id/tabFullSearch"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="FULL SEARCH" />
+                android:text="@string/full_search" />
         </com.google.android.material.tabs.TabLayout>
     </LinearLayout>
 
@@ -91,7 +91,7 @@
         android:id="@+id/defaultTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Enter text to search note content"
+        android:text="@string/enter_text_to_search_note_content"
         android:gravity="start"
         android:visibility="gone"
         android:padding="16dp"

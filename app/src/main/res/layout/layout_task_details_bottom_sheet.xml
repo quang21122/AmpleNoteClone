@@ -40,7 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="RESCHEDULE FOR"
+            android:text="@string/reschedule_for"
             android:textColor="@color/gray" />
 
         <HorizontalScrollView
@@ -58,7 +58,7 @@
                     android:id="@+id/btn_today"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Today"
+                    android:text="@string/today_text_1"
                     android:layout_marginEnd="8dp"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:visibility="gone" />
@@ -67,7 +67,7 @@
                     android:id="@+id/btn_tomorrow"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Tomorrow"
+                    android:text="@string/tomorrow_text_1"
                     android:layout_marginEnd="8dp"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
@@ -75,7 +75,7 @@
                     android:id="@+id/btn_two_days"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="In 2 Days"
+                    android:text="@string/in_2_days"
                     android:layout_marginEnd="8dp"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
@@ -83,7 +83,7 @@
                     android:id="@+id/btn_one_week"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="One Week"
+                    android:text="@string/one_week_text_1"
                     android:layout_marginEnd="8dp"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
@@ -91,7 +91,8 @@
                     android:id="@+id/btn_three_weeks"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Three Weeks"
+
+                    android:text="@string/three_weeks_text_1"
                     android:layout_marginEnd="8dp"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
@@ -99,7 +100,7 @@
                     android:id="@+id/btn_select_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Select Date"
+                    android:text="@string/select_date_text_1"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
             </LinearLayout>
@@ -129,7 +130,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Remove from Schedule"
+                android:text="@string/remove_from_schedule"
                 android:textColor="@color/black"/>
         </LinearLayout>
 
@@ -152,7 +153,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Edit Details"
+                android:text="@string/edit_details_text"
                 android:textColor="@color/black"/>
         </LinearLayout>
     </LinearLayout>
@@ -184,7 +185,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="View Details"
+                android:text="@string/view_details_text_1"
                 android:textColor="@color/black"/>
         </LinearLayout>
 
@@ -207,7 +208,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="View Notes"
+                android:text="@string/view_notes"
                 android:textColor="@color/black"/>
         </LinearLayout>
     </LinearLayout>
