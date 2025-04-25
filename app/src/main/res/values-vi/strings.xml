@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Ample Note Clone</string>
+    <string-array name="days_of_week">
+        <item>Chủ nhật</item>
+        <item>Thứ hai</item>
+        <item>Thứ ba</item>
+        <item>Thứ tư</item>
+        <item>Thứ năm</item>
+        <item>Thứ sáu</item>
+        <item>Thứ bảy</item>
+    </string-array>
+    <string name="write_it_down_get_it_done">Ghi chú lại. Hoàn thành nó.</string>
+    <string name="enter_your_email_address">Nhập địa chỉ email của bạn</string>
+    <string name="sign_in">Đăng nhập</string>
+    <string name="enter_your_password">Nhập mật khẩu của bạn</string>
+    <string name="web_key">AIzaSyAkIY_8aPwRp2w9YMwRGOp5-GLMzGnwItE</string>
+    <string name="work">CÔNG VIỆC</string>
+    <string name="personal">CÁ NHÂN</string>
+
+    <string name="calendar">Lịch</string>
+    <string name="notes">Ghi chú</string>
+    <string name="settings">Cài đặt</string>
+    <string name="tasks">Nhiệm vụ</string>
+    <string name="jots">Ghi nhanh</string>
+    <string name="search">Tìm kiếm</string>
+    <string name="ocr">OCR</string>
+    <string name="add_note">Thêm ghi chú</string>
+    <string name="add_task">Thêm nhiệm vụ</string>
+
+    <string name="hello_blank_fragment">Xin chào, đoạn trống</string>
+    <string-array name="sort_options">
+        <item>Sắp xếp theo điểm nhiệm vụ</item>
+        <item>Sắp xếp theo mới nhất</item>
+        <item>Sắp xếp theo bất kỳ</item>
+    </string-array>
+
+    <string-array name="task_duration">
+        <item>15 phút</item>
+        <item>30 phút</item>
+        <item>45 phút</item>
+        <item>60 phút</item>
+    </string-array>
+
+    <string name="pro_plan">Pro</string>
+    <string name="unlimited_plan">Không giới hạn</string>
+    <string name="founder_plan">Người sáng lập</string>
+    <string name="pro_plan_monthly">Gói Pro - Hàng tháng</string>
+    <string name="pro_plan_free_trial">Gói Pro - Dùng thử miễn phí</string>
+    <string name="trial_start">Bắt đầu từ hôm nay</string>
+    <string name="trial_period">Dùng thử miễn phí 14 ngày</string>
+    <string name="price_monthly">59.000 đ/tháng + thuế</string>
+    <string name="price_free_trial">59.000 đ/tháng + thuế</string>
+    <string name="add_tax">Thêm thuế</string>
+    <string name="terms">• Hủy bất kỳ lúc nào trong Đăng ký trên Google Play\n</string>
+    <string name="payment_method">Ví MoMo: ***1101</string>
+    <string name="subscribe">Đăng ký</string>
+    <string name="open_drawer">Mở ngăn điều hướng</string>
+    <string name="close_drawer">Đóng ngăn điều hướng</string>
+
+    <string name="notes_count_1">1 GHI CHÚ</string>
+    <string name="notes_count">%d GHI CHÚ</string>
+
+    <string name="logout">Đăng xuất</string>
+
+    <string name="drawer_title_nav">ĐIỀU HƯỚNG</string>
+    <string name="drawer_title_tags">THẺ</string>
+    <string name="today">Hôm nay</string>
+    <string name="tomorrow">Ngày mai</string>
+    <string name="this_weekend">Cuối tuần này</string>
+    <string name="one_week">Một tuần</string>
+    <string name="three_weeks">Ba tuần</string>
+    <string name="choose_date">Chọn ngày</string>
+    <string name="delete_note">Xóa ghi chú</string>
+    <string name="sort_option_title_a_z">Tiêu đề: A–Z</string>
+    <string name="sort_option_last_updated">Cập nhật gần đây</string>
+    <string name="sort_option_date_created">Ngày tạo</string>
+    <string name="add_your_profile_info">Thêm thông tin hồ sơ của bạn</string>
+    <string name="upload_a_profile_photo">Tải lên ảnh hồ sơ</string>
+    <string name="full_name">Họ và tên</string>
+    <string name="this_is_how_you_ll_appear_to_friends_in_shared_notes">Đây là cách bạn sẽ xuất hiện với bạn bè trong các ghi chú được chia sẻ</string>
+    <string name="save_profile_information">Lưu thông tin hồ sơ</string>
+    <string name="amplenote_plan">Gói Amplenote</string>
+    <string name="pro_plan_text">Gói Pro</string>
+    <string name="level_up_your_productivity">Nâng cao năng suất của bạn</string>
+    <string name="all_the_benefits_of_personal_plus">Tất cả lợi ích của Cá nhân cộng:</string>
+    <string name="no_nags_or_banners_n_uploads_greater_than_5mb_n_share_tags_with_groups">• Không có quảng cáo hoặc biểu ngữ\n• Tải lên lớn hơn 5mb\n• Chia sẻ thẻ với nhóm</string>
+    <string name="try_amplenote_pro_free_for_2_weeks">Dùng thử Amplenote Pro miễn phí trong 2 tuần!</string>
+    <string name="plans_start_at_59000_month_after_trial">Các gói bắt đầu từ 59.000 đ/tháng sau khi dùng thử</string>
+    <string name="we_ll_charge_59000_at_the_end_of_your_free_trial">Chúng tôi sẽ tính phí 59.000 đ vào cuối thời gian dùng thử miễn phí của bạn.</string>
+    <string name="continue_text">Tiếp tục</string>
+    <string name="invite_friends">Mời bạn bè</string>
+    <string name="invite_friends_to_amplenote">Mời bạn bè đến Amplenote.</string>
+    <string name="share_to_do_lists_and_edit_notes_together_in_real_time">Chia sẻ danh sách việc cần làm và chỉnh sửa ghi chú cùng nhau trong thời gian thực.</string>
+    <string name="email_address">Địa chỉ email</string>
+    <string name="add_another_email">Thêm email khác</string>
+    <string name="send_invitation">Gửi lời mời</string>
+    <string name="daily_jots">ghi-nhanh-hàng-ngày</string>
+    <string name="sign_in_to_your_amplenote_account">Đăng nhập vào tài khoản Amplenote của bạn.</string>
+    <string name="don_t_have_an_account">Không có tài khoản?</string>
+    <string name="sign_up">Đăng ký</string>
+    <string name="sign_in_with_google">Đăng nhập bằng Google</string>
+    <string name="date_created">Ngày tạo</string>
+    <string name="scan_image">Quét hình ảnh</string>
+    <string name="scan_text">Quét</string>
+    <string name="subscription">ĐĂNG KÝ</string>
+    <string name="personal_text">Cá nhân</string>
+    <string name="choose_a_plan">Chọn một gói</string>
+    <string name="invite_friends_and_earn_credits">Mời bạn bè và nhận tín dụng</string>
+    <string name="notifications">Thông báo</string>
+    <string name="task_reminders">Nhắc nhở nhiệm vụ</string>
+    <string name="get_notifications_when_tasks_are_due">Nhận thông báo khi nhiệm vụ đến hạn</string>
+    <string name="appearance">Giao diện</string>
+    <string name="first_day_of_week">Ngày đầu tiên của tuần</string>
+    <string name="sunday">Chủ nhật</string>
+    <string name="default_note_width">CHIỀU RỘNG GHI CHÚ MẶC ĐỊNH</string>
+    <string name="standard_width">Chiều rộng tiêu chuẩn</string>
+    <string name="task_completion_effect">HIỆU ỨNG HOÀN THÀNH NHIỆM VỤ</string>
+    <string name="dazzle">Lấp lánh</string>
+    <string name="app_info">THÔNG TIN ỨNG DỤNG</string>
+    <string name="version_3_124_739">Phiên bản 3.124 (739)</string>
+    <string name="developer_reports">BÁO CÁO NHÀ PHÁT TRIỂN</string>
+    <string name="send_dubugging_report">Gửi báo cáo gỡ lỗi</string>
+    <string name="share_merge_reports">Chia sẻ báo cáo hợp nhất</string>
+    <string name="send_a_report_to_developers_when_a_merge_occurs_in_a_non_vault_note">Gửi báo cáo cho nhà phát triển khi xảy ra hợp nhất trong ghi chú không phải Vault</string>
+    <string name="share_usage_statistics">Chia sẻ thống kê sử dụng</string>
+    <string name="send_anonymous_usage_statistics_to_developers">Gửi thống kê sử dụng ẩn danh cho nhà phát triển</string>
+    <string name="quick_bar_todo_added">Đã thêm TODO thanh nhanh</string>
+    <string name="_1_item">1 mục</string>
+    <string name="danger_zone">VÙNG NGUY HIỂM</string>
+    <string name="delete_account">Xóa tài khoản</string>
+    <string name="cancel">Hủy</string>
+    <string name="permanently_delete_your_amplenote_account_and_all_data_associated_with_it_this_cannot_be_undone">Xóa vĩnh viễn tài khoản Amplenote của bạn và tất cả dữ liệu liên quan. Hành động này không thể hoàn tác.</string>
+    <string name="to_start_the_process_press_the_button_below_to_send_a_confirmation_code_to_the_email_address_associated_with_your_account">Để bắt đầu quá trình, nhấn nút bên dưới để gửi mã xác nhận đến địa chỉ email liên kết với tài khoản của bạn.</string>
+    <string name="send_confirmation_code">Gửi mã xác nhận</string>
+    <string name="confirmation_code">Mã xác nhận</string>
+    <string name="confirm_account_deletion">Xác nhận xóa tài khoản</string>
+    <string name="sign_up_for_amplenote">Đăng ký Amplenote.</string>
+    <string name="create_account">Tạo tài khoản</string>
+    <string name="sign_up_with_google">Đăng ký bằng Google</string>
+    <string name="already_have_an_account">Đã có tài khoản?</string>
+    <string name="log_in">Đăng nhập</string>
+    <string name="task_details">Chi tiết nhiệm vụ</string>
+    <string name="available_tasks">Nhiệm vụ có sẵn</string>
+    <string name="untitled_note">ghi chú không tiêu đề</string>
+    <string name="updated_1_second_ago">Cập nhật 1 giây trước</string>
+    <string name="calendar_view">Xem lịch</string>
+    <string name="one_day">Một ngày</string>
+    <string name="three_days">Ba ngày</string>
+    <string name="week">Tuần</string>
+    <string name="month">Tháng</string>
+    <string name="go_to_today">ĐẾN HÔM NAY</string>
+    <string name="tag_name">Tên thẻ</string>
+    <string name="remove_tag_from_note">Xóa thẻ khỏi ghi chú</string>
+    <string name="edit_tag">Chỉnh sửa thẻ</string>
+    <string name="delete_tag">Xóa thẻ</string>
+    <string name="add_a_task">THÊM NHIỆM VỤ</string>
+    <string name="select_a_start_time_optional">Chọn thời gian bắt đầu (tùy chọn)</string>
+    <string name="quick_to_do">Việc cần làm nhanh...</string>
+    <string name="add">Thêm</string>
+    <string name="schedule_task">LÊN LỊCH NHIỆM VỤ</string>
+    <string name="today_text">Hôm nay</string>
+    <string name="tomorrow_text">Ngày mai</string>
+    <string name="one_week_text">Một tuần</string>
+    <string name="three_weeks_text">Ba tuần</string>
+    <string name="choose_day_and_time">Chọn ngày và giờ...</string>
+    <string name="select_a_note">CHỌN GHI CHÚ</string>
+    <string name="start_a_new_note">Bắt đầu ghi chú mới</string>
+    <string name="deleting_tag_name_will_remove_it_from_all_notes_it_is_applied_to_and_remove_all_descendant_tags_you_cannot_undo_this_action">Xóa #tag-name sẽ xóa nó khỏi tất cả các ghi chú được áp dụng và xóa tất cả các thẻ con. Hành động này không thể hoàn tác.</string>
+    <string name="delete_this_tag">Xóa thẻ này?</string>
+    <string name="cancel_text">HỦY</string>
+    <string name="delete_tag_text">XÓA THẺ</string>
+    <string name="custom_duration">Thời lượng tùy chỉnh</string>
+    <string name="enter_duration_in_minute_e_g_120">Nhập thời lượng bằng phút (ví dụ: 120)</string>
+    <string name="_2_hours">2 giờ</string>
+    <string name="_4_hours">4 giờ</string>
+    <string name="all_day">Cả ngày</string>
+    <string name="apply">ÁP DỤNG</string>
+    <string name="first_day_of_week_text">NGÀY ĐẦU TIÊN CỦA TUẦN</string>
+    <string name="plan_confirmation">Xác nhận gói</string>
+    <string name="to_start_the_process_press_the_button_below_to_send_a_confirmation_code_to_the_email_address_associated_with_your_account_text">Để bắt đầu quá trình, nhấn nút bên dưới để gửi mã xác nhận đến địa chỉ email liên kết với tài khoản của bạn.</string>
+    <string name="send_confirmation_code_text">Gửi mã xác nhận</string>
+    <string name="confirmation_code_text">Mã xác nhận</string>
+    <string name="confirm_upgrade">Xác nhận nâng cấp</string>
+    <string name="edit_tag_text">Chỉnh sửa thẻ</string>
+    <string name="rename">ĐỔI TÊN</string>
+    <string name="cancel_text_2">Hủy</string>
+    <string name="search_text">Tìm kiếm</string>
+    <string name="note_lookup">TÌM KIẾM GHI CHÚ</string>
+    <string name="task_lookup">TÌM KIẾM NHIỆM VỤ</string>
+    <string name="full_search">TÌM KIẾM TOÀN BỘ</string>
+    <string name="enter_text_to_search_note_content">Nhập văn bản để tìm kiếm nội dung ghi chú</string>
+    <string name="add_a_tag">thêm thẻ</string>
+    <string name="write_your_thoughts_for_the_day">Viết suy nghĩ của bạn cho ngày hôm nay...</string>
+    <string name="note_s_name">Tên ghi chú</string>
+    <string name="task_title">Tiêu đề nhiệm vụ</string>
+    <string name="created_23_minutes_ago">Được tạo 23 phút trước</string>
+    <string name="repeat">LẶP LẠI</string>
+    <string name="start_at">BẮT ĐẦU LÚC</string>
+    <string name="_5_min">5 phút</string>
+    <string name="_15_min">15 phút</string>
+    <string name="_60_min">60 phút</string>
+    <string name="hide_until">ẨN ĐẾN</string>
+    <string name="scheudle_a_task">LÊN LỊCH MỘT NHIỆM VỤ</string>
+    <string name="select_date">Chọn ngày</string>
+    <string name="schedule_for">LÊN LỊCH CHO</string>
+    <string name="early_morning">Sáng sớm</string>
+    <string name="morning">Buổi sáng</string>
+    <string name="afternoon">Buổi chiều</string>
+    <string name="evening">Buổi tối</string>
+    <string name="late_night">Đêm khuya</string>
+    <string name="any_time">Bất kỳ lúc nào</string>
+    <string name="or_select_a_specific_time">HOẶC CHỌN MỘT THỜI GIAN CỤ THỂ</string>
+    <string name="edit_details">Chỉnh sửa chi tiết</string>
+    <string name="reschedule_for">LÊN LỊCH LẠI CHO</string>
+    <string name="today_text_1">Hôm nay</string>
+    <string name="tomorrow_text_1">Ngày mai</string>
+    <string name="in_2_days">Trong 2 ngày</string>
+    <string name="one_week_text_1">Một tuần</string>
+    <string name="three_weeks_text_1">Ba tuần</string>
+    <string name="select_date_text_1">Chọn ngày</string>
+    <string name="remove_from_schedule">Xóa khỏi lịch trình</string>
+    <string name="edit_details_text">Chỉnh sửa chi tiết</string>
+    <string name="view_details_text_1">Xem chi tiết</string>
+    <string name="view_notes">Xem ghi chú</string>
+    <string name="how_long_will_this_task_take">Nhiệm vụ này sẽ mất bao lâu</string>
+    <string name="after_your_2_week_free_trial_payment_will_be_charged_to_your_google_play_account_the_subscription_automatically_renews_unless_it_is_canceled_at_least_24_hours_before_the_end_of_the_current_period_your_account_will_be_charged_for_renewal_within_24_hours_prior_to_the_end_of_the_current_period_you_can_manage_and_cancel_your_subscriptions_by_going_to_your_google_play_account_settings_after_purchase">Sau khi kết thúc 2 tuần dùng thử miễn phí, khoản thanh toán sẽ được trừ vào tài khoản Google Play của bạn. Gói đăng ký sẽ tự động gia hạn trừ khi bạn hủy ít nhất 24 giờ trước khi kết thúc chu kỳ hiện tại. Tài khoản của bạn sẽ bị trừ phí gia hạn trong vòng 24 giờ trước khi kết thúc chu kỳ hiện tại. Bạn có thể quản lý và hủy gói đăng ký bằng cách vào cài đặt tài khoản Google Play của mình sau khi mua.</string>
+    <string name="tasks_that_haven_t_reach_this_date_will_be_hidden_allowing_you_to_focus_on_the_tasks_at_hand">
+    Các nhiệm vụ chưa đến ngày này sẽ bị ẩn, giúp bạn tập trung vào các nhiệm vụ hiện tại
+</string>
+    <string name="important_and_urrgent_tassks_get_visual_indication_of_their_priority_to_encourage_completion">
+    Các nhiệm vụ quan trọng và khẩn cấp sẽ có dấu hiệu trực quan về mức độ ưu tiên để khuyến khích hoàn thành
+</string>
+    <string name="use_repeating_tasks_to_capture_periodic_tasks_that_you_perform_on_a_fixed_schedule_or_with_a_fixed_interval">
+    Sử dụng nhiệm vụ lặp lại để ghi lại các công việc định kỳ mà bạn thực hiện theo lịch cố định hoặc theo khoảng thời gian cụ thể
+</string>
+    <string name="time_may_shift_within_the_selected_range">
+    Thời gian có thể thay đổi trong phạm vi đã chọn
+</string>
+    <string name="set_the_time_at_which_this_task_begins">
+    Đặt thời gian bắt đầu cho nhiệm vụ này
+</string>
+    <string name="how_long_before_the_start_time_do_you_want_to_be_notified">
+    Bạn muốn được nhắc nhở trước bao lâu so với thời gian bắt đầu?
+</string>
+    <string name="title">Tiêu đề</string>
+    <string name="content">Nội dung</string>
+    <string name="date">Ngày</string>
+    <string name="this_afternoon">Chiều nay</string>
+    <string name="tomorrow_text_2">Ngày mai</string>
+    <string name="this_weekend_text">Cuối tuần này</string>
+    <string name="one_week_text_3">Một tuần</string>
+    <string name="three_weeks_text_3">Ba tuần</string>
+    <string name="choose_date_text">Chọn ngày</string>
+    <string name="doesn_t_repeat">Không lặp lại</string>
+    <string name="on_a_fixed_schedule">Theo lịch cố định</string>
+    <string name="when_task_is_complete">Khi nhiệm vụ hoàn thành</string>
+    <string name="duplicate">Sao chép</string>
+    <string name="lock">Khoá</string>
+    <string name="summary">Tóm tắt</string>
+
+</resources>
