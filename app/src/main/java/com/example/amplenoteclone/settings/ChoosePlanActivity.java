@@ -56,7 +56,6 @@ public class ChoosePlanActivity extends AppCompatActivity {  // Extend AppCompat
         getSupportFragmentManager().setFragmentResultListener("requestKey", this, new FragmentResultListener() {
             @Override
             public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle result) {
-                // Refresh the plan status
                 updatePlanStatus(db, uid, subscriptionInfo, continueButton);
             }
         });
