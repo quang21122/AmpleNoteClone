@@ -28,7 +28,7 @@
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Invite friends"
+            android:text="@string/invite_friends"
             android:textSize="20sp"
             android:textColor="#FFFFFF"
             android:layout_centerVertical="true"
@@ -39,7 +39,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Invite friends to Amplenote."
+        android:text="@string/invite_friends_to_amplenote"
         android:textSize="20sp"
         android:textColor="#333"
         android:layout_marginTop="24dp"
@@ -48,7 +48,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Share to-do lists and edit notes together in real time."
+        android:text="@string/share_to_do_lists_and_edit_notes_together_in_real_time"
         android:textSize="14sp"
         android:textColor="#333"
         android:paddingVertical="8dp"
@@ -64,7 +64,7 @@
         android:layout_height="match_parent"
         android:layout_marginTop="20dp"
         android:layout_marginHorizontal="24dp"
-        android:hint="Email Address"
+        android:hint="@string/email_address"
         app:boxStrokeColor="@color/lightBlue"
         app:hintTextColor="@color/lightBlue">
 
@@ -97,7 +97,7 @@
             android:id="@+id/add_another_email"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Add another email"
+            android:text="@string/add_another_email"
             android:textColor="@color/lightBlue"
             android:textSize="16sp"
             android:drawableStart="@drawable/ic_add"
@@ -115,7 +115,7 @@
             android:id="@+id/send_invitation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Send Invitation"
+            android:text="@string/send_invitation"
             android:textAllCaps="false"
             android:backgroundTint="#888"
             android:textColor="@color/white"

@@ -22,7 +22,7 @@
         android:id="@+id/add_tag"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="add a tag"
+        android:text="@string/add_a_tag"
         android:textColor="@color/textBlue"
         android:textSize="12sp" />
 

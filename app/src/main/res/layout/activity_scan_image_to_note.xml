@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_toEndOf="@id/btnBack"
-            android:text="Scan Image"
+            android:text="@string/scan_image"
             android:textColor="@android:color/white"
             android:textSize="18sp" />
     </RelativeLayout>
@@ -81,7 +81,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:text="Scan" />
+                android:text="@string/scan_text" />
         </RelativeLayout>
     </LinearLayout>
 

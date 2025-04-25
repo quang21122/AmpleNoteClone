@@ -20,7 +20,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="SUBSCRIPTION"
+                android:text="@string/subscription"
                 android:textSize="16sp"
                 android:textColor="#757575"
                 android:background="@color/colorSectionBackground"
@@ -44,7 +44,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Personal"
+                    android:text="@string/personal_text"
                     android:textSize="16sp"
                     android:textColor="#212121"/>
             </LinearLayout>
@@ -53,7 +53,7 @@
                 android:id="@+id/btn_choose_plan"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Choose a Plan"
+                android:text="@string/choose_a_plan"
                 android:textSize="14sp"
                 android:textColor="#FFFFFF"
                 android:backgroundTint="@color/lightBlue"
@@ -84,7 +84,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Invite friends and earn credits"
+                    android:text="@string/invite_friends_and_earn_credits"
                     android:textSize="14sp"
                     android:textColor="#2196F3"
                     android:fontFamily="sans-serif-medium"/>
@@ -97,7 +97,7 @@
                 android:layout_marginTop="16dp"
                 android:background="@color/colorSectionBackground"
                 android:padding="14dp"
-                android:text="Notifications"
+                android:text="@string/notifications"
                 android:textColor="#757575"
                 android:textSize="16sp" />
 
@@ -127,7 +127,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Task Reminders"
+                        android:text="@string/task_reminders"
                         android:layout_marginLeft="20dp"
                         android:textSize="16sp"
                         android:textColor="#212121"/>
@@ -143,7 +143,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Get notifications when tasks are due"
+                    android:text="@string/get_notifications_when_tasks_are_due"
                     android:textSize="14sp"
                     android:textColor="#757575"
                     android:layout_marginLeft="52dp"
@@ -154,7 +154,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Appearance"
+                android:text="@string/appearance"
                 android:textSize="16sp"
                 android:textColor="#757575"
                 android:background="@color/colorSectionBackground"
@@ -185,7 +185,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="First Day of Week"
+                        android:text="@string/first_day_of_week"
                         android:layout_marginLeft="20dp"
                         android:textSize="16sp"/>
                 </LinearLayout>
@@ -202,7 +202,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Sunday"
+                        android:text="@string/sunday"
                         android:layout_marginLeft="52dp"
                         android:textSize="16sp"
                         android:textColor="#212121"/>
@@ -242,7 +242,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="DEFAULT NOTE WIDTH"
+                        android:text="@string/default_note_width"
                         android:layout_marginLeft="20dp"
                         android:textSize="16sp"/>
                 </LinearLayout>
@@ -259,7 +259,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Standard width"
+                        android:text="@string/standard_width"
                         android:layout_marginLeft="52dp"
                         android:textSize="16sp"
                         android:textColor="#212121"/>
@@ -298,7 +298,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="TASK COMPLETION EFFECT"
+                        android:text="@string/task_completion_effect"
                         android:layout_marginLeft="20dp"
                         android:textSize="16sp"/>
                 </LinearLayout>
@@ -315,7 +315,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Dazzle"
+                        android:text="@string/dazzle"
                         android:layout_marginLeft="52dp"
                         android:textSize="16sp"
                         android:textColor="#212121"/>
@@ -332,7 +332,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="APP INFO"
+                android:text="@string/app_info"
                 android:textSize="16sp"
                 android:textColor="#757575"
                 android:background="@color/colorSectionBackground"
@@ -356,7 +356,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Version 3.124 (739)"
+                    android:text="@string/version_3_124_739"
                     android:layout_marginLeft="20dp"
                     android:textSize="16sp"
                     android:textColor="#212121"/>
@@ -366,7 +366,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="DEVELOPER REPORTS"
+                android:text="@string/developer_reports"
                 android:textSize="16sp"
                 android:textColor="#757575"
                 android:background="@color/colorSectionBackground"
@@ -392,7 +392,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Send dubugging report"
+                    android:text="@string/send_dubugging_report"
                     android:textSize="14sp"
                     android:textColor="#2196F3"
                     android:fontFamily="sans-serif-medium"/>
@@ -429,7 +429,7 @@
                             android:id="@+id/tv_merger_first_line"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Share merge reports"
+                            android:text="@string/share_merge_reports"
                             android:layout_marginLeft="20dp"
                             android:textSize="16sp"
                             android:textColor="#212121"/>
@@ -439,7 +439,7 @@
                         android:id="@+id/tv_merger_second_line"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Send a report to developers when a merge occurs in a non-Vault note"
+                        android:text="@string/send_a_report_to_developers_when_a_merge_occurs_in_a_non_vault_note"
                         android:textSize="14sp"
                         android:textColor="#757575"
                         android:maxWidth="300dp"
@@ -486,7 +486,7 @@
                             android:id="@+id/tv_stats_first_line"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Share usage statistics"
+                            android:text="@string/share_usage_statistics"
                             android:layout_marginLeft="20dp"
                             android:textSize="16sp"
                             android:textColor="#212121"/>
@@ -496,7 +496,7 @@
                         android:id="@+id/tv_stats_second_line"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Send anonymous usage statistics to developers"
+                        android:text="@string/send_anonymous_usage_statistics_to_developers"
                         android:textSize="14sp"
                         android:textColor="#757575"
                         android:maxWidth="300dp"
@@ -523,7 +523,7 @@
                     android:id="@+id/first_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Quick bar TODO added"
+                    android:text="@string/quick_bar_todo_added"
                     android:layout_alignParentStart="true"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="52dp"
@@ -535,7 +535,7 @@
                     android:id="@+id/second_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="1 item"
+                    android:text="@string/_1_item"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:textSize="16sp"
@@ -547,7 +547,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="DANGER ZONE"
+                android:text="@string/danger_zone"
                 android:textSize="16sp"
                 android:textColor="#9c0e02"
                 android:background="#f7d1cd"
@@ -565,7 +565,7 @@
                     android:id="@+id/btn_delete_account"
                     android:layout_width="wrap_content"
                     android:layout_height="52dp"
-                    android:text="Delete account"
+                    android:text="@string/delete_account"
                     android:textSize="16sp"
                     android:textColor="#FFFFFF"
                     android:backgroundTint="#f74d3b"
@@ -579,7 +579,7 @@
                     android:id="@+id/btn_cancel"
                     android:layout_width="wrap_content"
                     android:layout_height="52dp"
-                    android:text="Cancel"
+                    android:text="@string/cancel"
                     android:textSize="16sp"
                     android:visibility="gone"
                     android:textAllCaps="false"
@@ -594,7 +594,7 @@
                 android:id="@+id/tv_confirmation_message_1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Permanently delete your Amplenote account and all data associated with it. This cannot be undone."
+                android:text="@string/permanently_delete_your_amplenote_account_and_all_data_associated_with_it_this_cannot_be_undone"
                 android:textSize="16sp"
                 android:visibility="gone"
                 android:layout_marginTop="6dp"
@@ -605,7 +605,7 @@
                 android:id="@+id/tv_confirmation_message_2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="To start the process, press the button below to send a confirmation code to the email address associated with your account."
+                android:text="@string/to_start_the_process_press_the_button_below_to_send_a_confirmation_code_to_the_email_address_associated_with_your_account"
                 android:textSize="16sp"
                 android:visibility="gone"
                 android:layout_marginTop="12dp"
@@ -616,7 +616,7 @@
                 android:id="@+id/btn_send_confirmation_code"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Send confirmation code"
+                android:text="@string/send_confirmation_code"
                 android:textSize="16sp"
                 android:visibility="gone"
                 android:textAllCaps="false"
@@ -633,7 +633,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginTop="20dp"
                 android:layout_marginHorizontal="24dp"
-                android:hint="Confirmation code"
+                android:hint="@string/confirmation_code"
                 app:boxStrokeColor="@color/lightBlue"
                 app:hintTextColor="@color/lightBlue">
 
@@ -651,7 +651,7 @@
                 android:id="@+id/btn_confirm_account_deletion"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Confirm account deletion"
+                android:text="@string/confirm_account_deletion"
                 android:textSize="16sp"
                 android:visibility="gone"
                 android:textAllCaps="false"

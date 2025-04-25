@@ -27,7 +27,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sign up for Amplenote."
+            android:text="@string/sign_up_for_amplenote"
             android:textSize="16sp"
             android:fontFamily="serif"/>
 
@@ -63,7 +63,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/signin_button"
             android:textColor="@color/white"
-            android:text="Create account"
+            android:text="@string/create_account"
             android:textAllCaps="false"
             android:textColorLink="#03A9F4" />
     </LinearLayout>
@@ -78,7 +78,7 @@
             android:drawableStart="@drawable/ic_google"
             android:drawablePadding="10dp"
             android:gravity="fill_vertical"
-            android:text="Sign up with Google"
+            android:text="@string/sign_up_with_google"
             android:padding="14dp"
             android:textAllCaps="false"
             android:textColor="@color/black"
@@ -95,13 +95,13 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Already have an account?"
+                android:text="@string/already_have_an_account"
                 android:textSize="16sp" />
             <TextView
                 android:id="@+id/login"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Log in"
+                android:text="@string/log_in"
                 android:textSize="16sp"
                 android:textColor="#03A9F4"
                 android:paddingLeft="5dp"/>

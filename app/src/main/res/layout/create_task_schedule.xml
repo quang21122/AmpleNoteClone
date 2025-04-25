@@ -19,7 +19,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="SCHEDULE TASK"
+            android:text="@string/schedule_task"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -50,7 +50,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Today"
+            android:text="@string/today_text"
             android:textSize="16sp"
             android:textColor="@android:color/black" />
 
@@ -76,7 +76,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Tomorrow"
+            android:text="@string/tomorrow_text"
             android:textSize="16sp"
             android:textColor="@android:color/black" />
 
@@ -102,7 +102,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="One week"
+            android:text="@string/one_week_text"
             android:textSize="16sp"
             android:textColor="@android:color/black" />
 
@@ -128,7 +128,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Three weeks"
+            android:text="@string/three_weeks_text"
             android:textSize="16sp"
             android:textColor="@android:color/black" />
 
@@ -153,7 +153,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Choose day and time..."
+            android:text="@string/choose_day_and_time"
             android:textSize="16sp"
             android:textColor="@android:color/black" />
 

@@ -11,7 +11,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Set the time at which this task begins"
+        android:text="@string/set_the_time_at_which_this_task_begins"
         android:textColor="@android:color/white"
         android:textSize="14sp"
         android:gravity="center" />

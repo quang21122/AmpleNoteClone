@@ -27,7 +27,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sign in to your Amplenote account."
+            android:text="@string/sign_in_to_your_amplenote_account"
             android:textSize="16sp" />
 
         <EditText
@@ -74,13 +74,13 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Don't have an account?"
+                android:text="@string/don_t_have_an_account"
                 android:textSize="16sp" />
             <TextView
                 android:id="@+id/sign_up"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sign up"
+                android:text="@string/sign_up"
                 android:textSize="16sp"
                 android:textColor="#03A9F4"
                 android:paddingLeft="5dp"/>
@@ -94,7 +94,7 @@
         android:drawableStart="@drawable/ic_google"
         android:drawablePadding="10dp"
         android:gravity="fill_vertical"
-        android:text="Sign in with Google"
+        android:text="@string/sign_in_with_google"
         android:padding="14dp"
         android:textAllCaps="false"
         android:textColor="@color/black"

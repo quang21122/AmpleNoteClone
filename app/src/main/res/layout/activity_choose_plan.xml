@@ -34,7 +34,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="16dp"
                 android:layout_toEndOf="@id/back_icon"
-                android:text="Amplenote Plan"
+                android:text="@string/amplenote_plan"
                 android:textColor="#333"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -64,7 +64,7 @@
                         android:id="@+id/tv_merger_first_line"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Pro Plan"
+                        android:text="@string/pro_plan_text"
                         android:textColor="#212121"
                         android:textSize="16sp" />
                 </LinearLayout>
@@ -75,7 +75,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     android:maxWidth="300dp"
-                    android:text="Level up your productivity"
+                    android:text="@string/level_up_your_productivity"
                     android:textColor="#444"
                     android:textSize="14sp"
                     android:textStyle="italic" />
@@ -93,7 +93,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="All the benefits of Personal plus:"
+            android:text="@string/all_the_benefits_of_personal_plus"
             android:textColor="#333"
             android:textStyle="bold" />
 
@@ -103,7 +103,7 @@
             android:layout_marginTop="4dp"
             android:lineSpacingExtra="4dp"
             android:paddingBottom="8dp"
-            android:text="• No nags or banners\n• Uploads greater than 5mb\n• Share tags with groups"
+            android:text="@string/no_nags_or_banners_n_uploads_greater_than_5mb_n_share_tags_with_groups"
             android:textColor="#333"
             android:textSize="14sp" />
 
@@ -115,7 +115,7 @@
             android:lineSpacingExtra="6dp"
             android:paddingHorizontal="10dp"
             android:paddingTop="12dp"
-            android:text="Try Amplenote Pro free for 2 weeks!"
+            android:text="@string/try_amplenote_pro_free_for_2_weeks"
             android:textColor="@android:color/white"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -127,7 +127,7 @@
             android:lineSpacingExtra="6dp"
             android:paddingHorizontal="10dp"
             android:paddingBottom="12dp"
-            android:text="Plans start at 59000 đ/month after trial"
+            android:text="@string/plans_start_at_59000_month_after_trial"
             android:textColor="@android:color/white"
             android:textSize="14sp" />
 
@@ -139,7 +139,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:backgroundTint="@color/lightBlue"
-            android:text="Continue"
+            android:text="@string/continue_text"
             android:textSize="16sp" />
 
         <!-- Subscription Info -->
@@ -149,7 +149,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:paddingTop="8dp"
-            android:text="We'll charge 59000 đ at the end of your free trial."
+            android:text="@string/we_ll_charge_59000_at_the_end_of_your_free_trial"
             android:textSize="14sp" />
 
 
@@ -157,8 +157,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="8dp"
-            android:text="
-After your 2 week free trial, payment will be charged to your Google Play account. The subscription automatically renews unless it is canceled at least 24 hours before the end of the current period. Your account will be charged for renewal within 24 hours prior to the end of the current period. You can manage and cancel your subscriptions by going to your Google Play account settings after purchase."
+            android:text="@string/after_your_2_week_free_trial_payment_will_be_charged_to_your_google_play_account_the_subscription_automatically_renews_unless_it_is_canceled_at_least_24_hours_before_the_end_of_the_current_period_your_account_will_be_charged_for_renewal_within_24_hours_prior_to_the_end_of_the_current_period_you_can_manage_and_cancel_your_subscriptions_by_going_to_your_google_play_account_settings_after_purchase"
             android:textSize="14sp" />
 
 

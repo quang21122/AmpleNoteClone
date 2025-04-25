@@ -30,7 +30,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Tag Name"
+            android:text="@string/tag_name"
             android:textSize="18sp"
             android:textColor="@android:color/black" />
 
@@ -81,7 +81,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Remove tag from note"
+                android:text="@string/remove_tag_from_note"
                 android:textSize="16sp"
                 android:textColor="@android:color/black" />
 
@@ -109,7 +109,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Edit tag"
+                android:text="@string/edit_tag"
                 android:textSize="16sp"
                 android:textColor="@android:color/black" />
 
@@ -137,7 +137,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Delete tag"
+                android:text="@string/delete_tag"
                 android:textSize="16sp"
                 android:textColor="@android:color/black" />
 

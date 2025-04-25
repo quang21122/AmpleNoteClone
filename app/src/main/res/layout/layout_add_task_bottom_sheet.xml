@@ -9,7 +9,7 @@
     <TextView
         android:textColor="@color/light_gray"
         android:textSize="16sp"
-        android:text="SCHEUDLE A TASK"
+        android:text="@string/scheudle_a_task"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 

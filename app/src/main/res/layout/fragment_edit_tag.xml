@@ -37,7 +37,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Edit tag"
+                android:text="@string/edit_tag_text"
                 android:textSize="20sp"
                 android:textColor="@android:color/white" />
 
@@ -123,7 +123,7 @@
             android:id="@+id/rename_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="RENAME"
+            android:text="@string/rename"
             android:textSize="16sp"
             android:textColor="@android:color/white"
             android:padding="8dp"
@@ -133,7 +133,7 @@
             android:id="@+id/cancel_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cancel"
+            android:text="@string/cancel_text_2"
             android:textSize="16sp"
             android:textColor="@color/textBlue"
             android:padding="8dp"
